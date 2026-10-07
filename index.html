@@ -45,6 +45,8 @@ html{transition:background-color .25s}
 *{scrollbar-width:thin;scrollbar-color:var(--scroll) transparent}
 .sheet{scrollbar-color:color-mix(in srgb,var(--tc,#14163D) 55%,transparent) transparent}
 #v-draw{scrollbar-color:rgba(255,255,255,.35) transparent}
+/* the draw screen is tapped a lot: never select its texts */
+#v-draw{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 @supports not (scrollbar-color:red blue){
   ::-webkit-scrollbar{width:10px;height:10px}
   ::-webkit-scrollbar-track{background:transparent}
@@ -2425,7 +2427,7 @@ function drawOne(){
 async function keepCurrent(){
   const t = today(); if (t.cur == null || t.kept) return;
   if (S.mode === "guest" || (S.mode === "online" && !S.me)){
-    if (S.mode === "guest") openAuth("Il faut un compte pour garder une ville. Les tirages faits sans compte ne comptent pas : connecte-toi, puis lance tes 5 tirages du jour.");
+    if (S.mode === "guest") openAuth("Il faut un compte pour garder tes tirages.");
     else maybeOnboard(true);
     return;
   }
