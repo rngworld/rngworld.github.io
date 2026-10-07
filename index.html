@@ -35,7 +35,7 @@
   --paper:#F1F2FA; --surface:#FFFFFF; --ink:#14163D; --muted:#676B97; --line:#DDDFF1;
   --ink-bg:#14163D; --on-ink:#FFFFFF; --mix:#FFFFFF; --glass:rgba(255,255,255,.65); --coral-ink:#C42A40;
 }
-:root[data-theme="dark"] .sheet :is(.t0,.t1,.t2,.t3,.t4,.t5):not(.stamp),:root[data-theme="dark"] .rules .tr-row{--td:color-mix(in srgb,var(--tc) 45%,#fff)}
+:root[data-theme="dark"] .sheet :is(.t0,.t1,.t2,.t3,.t4,.t5,.t6):not(.stamp),:root[data-theme="dark"] .rules .tr-row{--td:color-mix(in srgb,var(--tc) 45%,#fff)}
 :root[data-theme="dark"] .banner{background:#3A3210;border-color:#6B5A17;color:#FFE79A}
 :root[data-theme="dark"] .owner{background:var(--surface)}
 :root[data-theme="dark"] #v-map{background:#070920}
@@ -256,6 +256,32 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .stamp.t5{box-shadow:0 8px 22px rgba(217,0,58,.4)}
 .stamp.lg.t5{box-shadow:0 18px 46px rgba(217,0,58,.6)}
 .stamp.lg.t4{box-shadow:0 18px 46px rgba(245,158,11,.5)}
+/* Ultime: pale gold, white light, slow god rays */
+.t6{--tc:#FFD84A;--td:#5A4200;--tl:#FFF6CC;--g1:#FFF4B8;--g2:#F2BE1A}
+.t6 .st{border:0;background:radial-gradient(120% 90% at 50% 0%,#FFFFFF,#FFF7D1 42%,#FFE88F 78%,#FFD54F)}
+.t6 .st::before{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:3px;padding:3.5px;
+  background:conic-gradient(from var(--ang),#FFF7C9,#F2BE1A,#FFFFFF,#E0A400,#FFF7C9);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 1.8s linear infinite}
+.t6 .st::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(105deg,transparent 36%,rgba(255,255,255,.95) 48%,transparent 60%) 0 0/300% 100% no-repeat;animation:sheen 2.1s ease-in-out infinite}
+.t6 .st-band{color:#4A3600;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.t6 .st-pts{color:#6B4F00}
+.stamp.t6{box-shadow:0 0 0 2px rgba(255,226,110,.7),0 8px 26px rgba(255,196,30,.55)}
+.stamp.lg.t6{animation:godglow 2.6s ease-in-out infinite}
+@keyframes godglow{0%,100%{box-shadow:0 0 26px 6px rgba(255,222,100,.55),0 18px 46px rgba(240,180,20,.55)}50%{box-shadow:0 0 64px 20px rgba(255,240,170,.9),0 18px 46px rgba(240,180,20,.7)}}
+.god-rays{position:absolute;left:50%;top:50%;width:260%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:-1;pointer-events:none;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,rgba(255,244,190,.42) 0 7deg,transparent 7deg 19deg);-webkit-mask:radial-gradient(closest-side,#000 18%,transparent 100%);mask:radial-gradient(closest-side,#000 18%,transparent 100%);animation:raysspin 24s linear infinite}
+@keyframes raysspin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.card-pop{position:relative}
+.t6 .claim-mark{color:#8A6400;border-color:#F2BE1A}
+.t6 .cs-hero{color:#3B2B00}
+.t6 .cs-hero::before{background:radial-gradient(120% 140% at 90% -30%,rgba(255,255,255,.75),transparent 55%),repeating-conic-gradient(from var(--ang) at 88% -10%,rgba(255,255,255,.5) 0 5deg,transparent 5deg 16deg);animation:spin 18s linear infinite}
+.t6 .cs-btns button{color:#3B2B00;background:rgba(255,255,255,.5)}
+.t6 .cs-score .live-num{background-image:linear-gradient(100deg,#3B2B00 40%,#B08600 50%,#3B2B00 60%)}
+.t6 .cs-score b{text-shadow:none}
+.t6 .cs-tier,.t6 .cs-main h2{text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.t6.fchips-row .fchip .fi,.t6 .sc-dot,.t6 .bd-row .lbl .fi,.t6 .tr-dot{color:#4A3600}
+@media (prefers-reduced-motion:reduce){.god-rays,.stamp.lg.t6{animation:none}}
+.stage.shake.big{animation:shakebig .8s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shakebig{10%,90%{transform:translate(-2px,2px)}20%,80%{transform:translate(6px,-4px)}30%,50%,70%{transform:translate(-9px,5px)}40%,60%{transform:translate(9px,-4px)}}
 .stamp:not(.lg) .st::before,.stamp:not(.lg) .st::after{animation-play-state:paused}
 .stamp-btn:hover .st::before,.stamp-btn:hover .st::after,.stamp-btn:focus-visible .st::before{animation-play-state:running}
 .st-country{color:color-mix(in srgb,var(--td) 75%,#555)}
@@ -329,6 +355,8 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .seg button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--ink-bg);color:var(--on-ink)}
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .set-row b{font-weight:700}
+.set-snd{display:flex;align-items:center;gap:12px}
+.set-snd input[type=range]{width:120px;accent-color:var(--coral)}
 .board-ctl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .seg-sm{padding:3px;border-radius:10px}.seg-sm button{padding:5px 9px;font-size:12px;border-radius:7px}
 .rank{font:800 14px var(--f-display);width:26px;text-align:center;color:var(--muted)}
@@ -601,10 +629,152 @@ const TIERS = [
   {name:"Épique",      c:"#9333EA", d:"#45127F", ocean:"#7322C9", g1:"#B15CFF", g2:"#6516C2"},
   {name:"Légendaire",  c:"#F59E0B", d:"#6E3500", ocean:"#D97706", g1:"#FFC21A", g2:"#E86400"},
   {name:"Mythique",    c:"#D9003A", d:"#5E0019", ocean:"#B0002F", g1:"#FF2E62", g2:"#A3002B"},
+  {name:"Ultime",      c:"#FFD84A", d:"#5A4200", ocean:"#E8B90E", g1:"#FFF4B8", g2:"#F2BE1A", line:"#E3A300"},
 ];
-const TIER_MIN = [0, 20000, 50000, 200000, 1e6, 2e7];   // Commune < 20 k ≤ Peu commune < 50 k ≤ Rare < 200 k ≤ Épique < 1 M ≤ Légendaire < 20 M ≤ Mythique
-const tierOf = v => { let t = 0; while (t < 5 && v >= TIER_MIN[t+1]) t++; return t; };
+const TIER_MIN = [0, 20000, 50000, 200000, 1e6, 2e7, 5e8];   // … < 20 M ≤ Mythique < 500 M ≤ Ultime
+const TOP = TIER_MIN.length - 1;
+const tierOf = v => { let t = 0; while (t < TOP && v >= TIER_MIN[t+1]) t++; return t; };
 const COLORS = ["#FF5B6E","#FF8A3D","#F5B700","#2BC48A","#14AFC4","#3F7CFF","#6A4CFF","#A855F7","#FF4FA3","#14163D","#8A5A44","#5E8C31"];
+
+/* ================= Sound effects =================
+   Everything is synthesised with Web Audio (no files): short, soft, musical. One master volume,
+   a light compressor and a small generated reverb. Muted until the first tap (browser rule). */
+const SFX = {
+  ctx:null, on:lsGet("rngworld.sound", true) !== false, vol:+lsGet("rngworld.vol", .7),
+  last:{},
+  init(){
+    if (this.ctx){ if (this.ctx.state === "suspended") this.ctx.resume().catch(() => {}); return true; }
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+    try {
+      const c = this.ctx = new AC();
+      this.master = c.createGain(); this.master.gain.value = this.vol*.9;
+      const comp = c.createDynamicsCompressor(); comp.threshold.value = -16; comp.knee.value = 14; comp.ratio.value = 4; comp.attack.value = .003; comp.release.value = .25;
+      this.master.connect(comp).connect(c.destination);
+      this.rev = c.createConvolver(); this.rev.buffer = this.impulse(2.2, 2.8);
+      this.revIn = c.createGain(); this.revIn.gain.value = 1; this.revIn.connect(this.rev).connect(this.master);
+      const nb = c.createBuffer(1, c.sampleRate, c.sampleRate), d = nb.getChannelData(0);
+      for (let k = 0; k < d.length; k++) d[k] = Math.random()*2 - 1;
+      this.noiseBuf = nb;
+    } catch (e){ this.ctx = null; return false; }
+    return true;
+  },
+  impulse(sec, decay){
+    const c = this.ctx, n = Math.floor(c.sampleRate*sec), b = c.createBuffer(2, n, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++){ const d = b.getChannelData(ch); for (let k = 0; k < n; k++) d[k] = (Math.random()*2 - 1)*Math.pow(1 - k/n, decay); }
+    return b;
+  },
+  ready(){ return this.on && this.vol > 0 && this.init() && this.ctx.state === "running"; },
+  setOn(v){ this.on = v; lsSet("rngworld.sound", v); if (v){ this.init(); this.toggle(true); } },
+  setVol(v){ this.vol = v; lsSet("rngworld.vol", v); if (this.master) this.master.gain.setTargetAtTime(v*.9, this.ctx.currentTime, .02); },
+  // don't stack the same sound more often than `ms`
+  gate(k, ms){ const now = performance.now(); if (now - (this.last[k] || 0) < ms) return false; this.last[k] = now; return true; },
+  tone(o){
+    const c = this.ctx, t = c.currentTime + (o.at || 0), dur = o.dur || .15, a = o.a || .004, g = o.g || .15;
+    const osc = c.createOscillator(), env = c.createGain();
+    osc.type = o.type || "sine"; osc.frequency.setValueAtTime(o.f, t);
+    if (o.f2) osc.frequency.exponentialRampToValueAtTime(Math.max(20, o.f2), t + (o.glide || dur));
+    if (o.detune) osc.detune.value = o.detune;
+    env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(g, t + a);
+    env.gain.exponentialRampToValueAtTime(.0001, t + a + dur);
+    let node = osc.connect(env);
+    if (o.lp){ const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.setValueAtTime(o.lp, t); if (o.lp2) f.frequency.exponentialRampToValueAtTime(o.lp2, t + a + dur); f.Q.value = o.q || .7; node = env.connect(f); }
+    node.connect(this.master);
+    if (o.wet){ const w = c.createGain(); w.gain.value = o.wet; node.connect(w).connect(this.revIn); }
+    osc.start(t); osc.stop(t + a + dur + .05);
+  },
+  noise(o){
+    const c = this.ctx, t = c.currentTime + (o.at || 0), dur = o.dur || .2, a = o.a || .005;
+    const src = c.createBufferSource(); src.buffer = this.noiseBuf; src.loop = true;
+    const f = c.createBiquadFilter(); f.type = o.type || "bandpass"; f.Q.value = o.q || 1;
+    f.frequency.setValueAtTime(o.f || 1000, t); if (o.f2) f.frequency.exponentialRampToValueAtTime(o.f2, t + a + dur);
+    const env = c.createGain(); env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(o.g || .1, t + a); env.gain.exponentialRampToValueAtTime(.0001, t + a + dur);
+    src.connect(f).connect(env).connect(this.master);
+    if (o.wet){ const w = c.createGain(); w.gain.value = o.wet; env.connect(w).connect(this.revIn); }
+    src.start(t, Math.random()*.5); src.stop(t + a + dur + .05);
+  },
+  bell(f, at, g, wet){ this.tone({f, dur:.9, g, at, wet:wet ?? .35}); this.tone({f:f*2.76, dur:.35, g:g*.25, at, wet:wet ?? .35}); this.tone({f:f*5.4, dur:.12, g:g*.1, at}); },
+  pluck(f, at, g, dur){ this.tone({f, type:"triangle", dur:dur || .25, g, at, lp:4200, lp2:900, wet:.15}); },
+  pad(freqs, at, dur, g, lp){ for (const f of freqs) for (const d of [-9, 0, 8]) this.tone({f, type:"sawtooth", detune:d, a:.35, dur, g:g/3, at, lp:lp || 1800, lp2:600, wet:.5}); },
+  boom(at, g){ this.tone({f:120, f2:38, glide:.5, dur:.7, g:g || .5, at, a:.002}); this.noise({type:"lowpass", f:500, f2:80, dur:.35, g:(g || .5)*.5, at}); },
+  sparkle(at, base, n, g){ const s = [0, 4, 7, 12, 16, 19, 24]; for (let k = 0; k < (n || 5); k++) this.tone({f:base*Math.pow(2, s[k % s.length]/12), dur:.18, g:g || .05, at:at + k*.055, wet:.45}); },
+
+  /* ---- UI ---- */
+  tap(){ if (!this.ready() || !this.gate("tap", 40)) return; this.tone({f:1300, f2:900, glide:.04, type:"triangle", dur:.045, g:.05}); this.noise({type:"highpass", f:5000, dur:.015, g:.025}); },
+  tab(){ if (!this.ready()) return; this.tone({f:620, dur:.07, g:.07}); this.tone({f:930, dur:.09, g:.06, at:.045}); },
+  toggle(on){ if (!this.ready()) return; this.tone({f:on ? 700 : 900, f2:on ? 1050 : 600, glide:.06, type:"triangle", dur:.08, g:.07}); },
+  open(){ if (!this.ready() || !this.gate("open", 120)) return; this.noise({type:"bandpass", f:700, f2:2600, dur:.22, g:.045, q:.8}); this.tone({f:520, f2:780, glide:.16, dur:.16, g:.04}); },
+  close(){ if (!this.ready() || !this.gate("close", 120)) return; this.noise({type:"bandpass", f:2400, f2:600, dur:.2, g:.04, q:.8}); this.tone({f:700, f2:460, glide:.14, dur:.14, g:.035}); },
+  blip(){ if (!this.ready() || !this.gate("blip", 150)) return; this.tone({f:880, dur:.06, g:.05}); this.tone({f:1320, dur:.08, g:.04, at:.05}); },
+  error(){ if (!this.ready()) return; this.tone({f:220, f2:160, glide:.18, type:"square", dur:.18, g:.05, lp:900}); },
+  warn(){ if (!this.ready()) return; this.tone({f:560, type:"triangle", dur:.1, g:.08}); this.tone({f:420, type:"triangle", dur:.16, g:.08, at:.11}); },
+  notif(){ if (!this.ready() || !this.gate("notif", 800)) return; this.tone({f:988, dur:.12, g:.07, wet:.3}); this.tone({f:1319, dur:.2, g:.07, at:.09, wet:.3}); },
+  success(){ if (!this.ready()) return; [523, 659, 784, 1047].forEach((f, k) => this.pluck(f, k*.07, .09, .3)); this.sparkle(.3, 1568, 4, .035); },
+  pop(){ if (!this.ready() || !this.gate("pop", 60)) return; this.tone({f:600, f2:1200, glide:.06, dur:.07, g:.08}); },
+  zoom(dir){ if (!this.ready() || !this.gate("zoom", 60)) return; this.tone({f:dir > 0 ? 760 : 980, f2:dir > 0 ? 1140 : 640, glide:.07, type:"triangle", dur:.07, g:.06}); },
+  swoosh(){ if (!this.ready()) return; this.noise({type:"bandpass", f:300, f2:2200, dur:.45, g:.06, q:.7, a:.12}); this.tone({f:300, f2:600, glide:.4, dur:.4, g:.03, a:.1}); },
+  theme(dark){ if (!this.ready()) return; this.tone({f:dark ? 660 : 440, f2:dark ? 330 : 880, glide:.18, dur:.2, g:.06, wet:.3}); },
+
+  /* ---- Draw ---- */
+  draw(){ if (!this.ready()) return; this.noise({type:"bandpass", f:250, f2:3200, dur:.6, g:.09, q:.6, a:.2}); this.tone({f:196, f2:784, glide:.7, dur:.7, g:.05, a:.15, wet:.3}); this.tone({f:98, dur:.3, g:.12}); },
+  tierStep(lvl, last){
+    if (!this.ready()) return;
+    const scale = [523, 587, 659, 784, 880, 1047, 1175];
+    const f = scale[Math.min(lvl, scale.length - 1)];
+    this.bell(f, 0, .08 + lvl*.015);
+    this.noise({type:"highpass", f:3000, dur:.12, g:.02 + lvl*.006});
+    if (last) this.tierFinal(lvl);
+  },
+  tierFinal(t){
+    if (!this.ready()) return;
+    const at = .08;
+    if (t === 0){ this.pluck(392, at, .09); this.pluck(523, at + .07, .08); return; }
+    if (t === 1){ [523, 659, 784].forEach((f, k) => this.pluck(f, at + k*.06, .09)); return; }
+    if (t === 2){ [523, 659, 784, 1047].forEach((f, k) => this.pluck(f, at + k*.06, .09)); this.bell(1568, at + .26, .05); return; }
+    if (t === 3){ this.pad([294, 370, 440, 587], at, .9, .09, 2200); [587, 740, 880, 1175].forEach((f, k) => this.pluck(f, at + k*.07, .09)); this.boom(at, .25); return; }
+    if (t === 4){ this.boom(at, .4); this.pad([262, 330, 392, 523], at, 1.3, .11, 2600);
+      [523, 659, 784, 1047, 1319].forEach((f, k) => this.tone({f, type:"sawtooth", dur:.22, g:.05, at:at + k*.08, lp:3000, lp2:1200, wet:.3}));
+      this.noise({type:"highpass", f:6000, f2:9000, dur:1.2, g:.04, a:.05, wet:.4}); this.sparkle(at + .45, 1568, 6, .04); return; }
+    if (t === 5){ this.boom(at, .55); this.noise({type:"lowpass", f:1200, f2:100, dur:.6, g:.18, at});
+      this.pad([147, 220, 294, 349, 440], at, 1.8, .14, 2000);
+      [587, 698, 880, 1175, 1397].forEach((f, k) => this.bell(f, at + .15 + k*.09, .05));
+      this.noise({type:"highpass", f:5000, f2:10000, dur:1.6, g:.05, a:.04, wet:.5}); return; }
+    // Ultime: rising swell, sub boom, a bright choir-like chord and a cascade of high bells
+    this.noise({type:"bandpass", f:400, f2:6000, dur:.55, g:.07, q:.5, a:.5});
+    const T = at + .5;
+    this.boom(T, .6);
+    this.pad([131, 262, 330, 392, 523, 587, 784], T, 3.2, .2, 3200);
+    for (const f of [1047, 1319, 1568]) this.tone({f, type:"triangle", a:.4, dur:2.6, g:.025, at:T, wet:.7});
+    [1047, 1319, 1568, 2093, 2637, 3136, 2637, 2093].forEach((f, k) => this.bell(f, T + .1 + k*.11, .045, .6));
+    this.noise({type:"highpass", f:7000, dur:2.4, g:.035, a:.3, at:T, wet:.6});
+  },
+  dive(){ if (!this.ready()) return; this.noise({type:"bandpass", f:3000, f2:300, dur:1.6, g:.06, q:.6, a:.3}); this.tone({f:880, f2:220, glide:1.6, dur:1.6, g:.025, a:.3}); },
+  land(t){ if (!this.ready()) return; this.boom(0, .3 + t*.03); this.tone({f:392*Math.pow(2, t/12), dur:.4, g:.05, at:.04, wet:.4}); },
+  tick(u){ if (!this.ready() || !this.gate("tick", 55)) return; this.tone({f:1400 + u*1200, dur:.025, g:.022, type:"triangle"}); },
+  chip(k, neg){
+    if (!this.ready()) return;
+    if (neg){ this.tone({f:440, f2:300, glide:.15, type:"triangle", dur:.18, g:.08}); return; }
+    const f = 659*Math.pow(2, [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24][Math.min(k, 10)]/12);
+    this.pluck(f, 0, .08, .22); this.tone({f:f*2, dur:.1, g:.025, at:.01, wet:.3});
+  },
+  bump(){ if (!this.ready() || !this.gate("bump", 80)) return; this.tone({f:180, f2:120, glide:.08, dur:.08, g:.08}); },
+  scoreDone(t){ if (!this.ready()) return; this.bell(1568, 0, .08); this.bell(2093, .08, .06); this.sparkle(.12, 2093, 4 + Math.min(t, 6), .03); if (t >= 4) this.boom(0, .2); },
+  claim(t){
+    if (!this.ready()) return;
+    this.noise({type:"lowpass", f:900, f2:150, dur:.12, g:.35}); this.tone({f:110, f2:50, glide:.18, dur:.25, g:.35, a:.002});
+    [523, 659, 784, 1047, 1319, 1568].slice(0, 4 + Math.min(2, t >> 1)).forEach((f, k) => this.pluck(f, .14 + k*.065, .08, .3));
+    this.sparkle(.5, 2093, 5, .03);
+    if (t >= 4) this.pad(t >= 6 ? [262, 330, 392, 523, 659] : [262, 330, 392, 523], .2, 1.4, .08, 2400);
+  },
+  reroll(){ if (!this.ready()) return; this.noise({type:"bandpass", f:2400, f2:400, dur:.3, g:.07, q:.7}); this.tone({f:330, f2:220, glide:.2, dur:.2, g:.05}); },
+};
+// unlock audio on the first interaction (browser autoplay rule)
+for (const ev of ["pointerdown", "keydown", "touchend"]) document.addEventListener(ev, () => { if (SFX.on) SFX.init(); }, {capture:true, passive:true});
+// a light tap for every button, chip and card; specific actions layer their own sound on top
+document.addEventListener("click", e => {
+  const b = e.target.closest("button,[role=button],.stamp-btn,a,input[type=checkbox],select");
+  if (!b || b.disabled || b.closest("[data-nosfx]")) return;
+  if (b.closest(".tabs,.dtabs") && b.dataset.go) SFX.tab(); else SFX.tap();
+}, {capture:true});
 
 /* ================= Helpers ================= */
 const $ = (s, r=document) => r.querySelector(s);
@@ -632,7 +802,7 @@ function km(a1, o1, a2, o2){
   const h = Math.sin(da/2)**2 + Math.cos(a1*r)*Math.cos(a2*r)*Math.sin(dl/2)**2;
   return 2*R*Math.asin(Math.min(1, Math.sqrt(h)));
 }
-function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("on"), 2800); }
+function toast(msg, kind){ if (kind === "err" || /impossible|trop tard|erreur|vérifie/i.test(msg)) SFX.error(); else SFX.blip(); const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("on"), 2800); }
 function normalize(s){ return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(); }
 
 /* ================= City data ================= */
@@ -670,7 +840,7 @@ async function loadCities(){
   D.pts = new Float64Array(n);
   for (let i = 0; i < n; i++) D.pts[i] = scoreOf(i, false).pts;
   D.sorted = Float64Array.from(D.pts).sort();
-  D.tier = new Uint8Array(n); D.tierCount = [0,0,0,0,0,0];
+  D.tier = new Uint8Array(n); D.tierCount = TIERS.map(() => 0);
   for (let i = 0; i < n; i++){
     const t = tierOf(D.pts[i]);
     D.tier[i] = t; D.tierCount[t]++;
@@ -930,6 +1100,7 @@ async function initStore(){
 }
 function stopListeners(){ for (const u of S.unsub) try { u(); } catch {} S.unsub = []; }
 function onUser(user){
+  if (user && S.mode === "guest") SFX.success();
   stopListeners();
   S.user = user; S.players = new Map(); S.requests = new Map();
   if (!user){
@@ -1131,7 +1302,7 @@ function applyTheme(){
   } catch (e){ console.warn("theme repaint", e); }
 }
 function setTheme(t, fromProfile){
-  lsSet("rngworld.theme", t); applyTheme();
+  lsSet("rngworld.theme", t); applyTheme(); if (!fromProfile) SFX.theme(isDark());
   if (!fromProfile && S.me && (S.mode === "online" || S.mode === "local") && S.me.theme !== t) writeMe({theme:t});
 }
 if (darkMQ) (darkMQ.addEventListener ? darkMQ.addEventListener("change", applyTheme) : darkMQ.addListener(applyTheme));
@@ -1160,7 +1331,7 @@ function renderHeader(){
     if (!nf){ if (d) d.remove(); continue; }
     if (!d){ d = document.createElement("span"); d.className = "nbadge"; b.appendChild(d); }
     const txt = nf > 9 ? "9+" : String(nf);
-    if (d.textContent !== txt){ d.textContent = txt; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
+    if (d.textContent !== txt){ if (+txt.replace("+", "") > +(d.textContent || "0").replace("+", "")) SFX.notif(); d.textContent = txt; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
     b.setAttribute("aria-label", `Amis, ${nf} notification${nf > 1 ? "s" : ""}`);
   }
   if (!nf) for (const b of $$(".tabs [data-go=friends],.dtabs [data-go=friends]")) b.removeAttribute("aria-label");
@@ -1421,12 +1592,12 @@ async function paintPlan(cv, i){
   ctx.fillStyle = E.planSea; ctx.fillRect(0, 0, W, H);
   ctx.beginPath(); path(land); ctx.fillStyle = E.planLand; ctx.fill();
   ctx.save(); ctx.beginPath(); path(land); ctx.clip();
-  if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = hexA(T.c, .5); ctx.lineWidth = 1; ctx.stroke(); }
-  if (g.region){ ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.c, .12); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = T.c; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
+  if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = hexA((T.line || T.c), .5); ctx.lineWidth = 1; ctx.stroke(); }
+  if (g.region){ ctx.beginPath(); path(g.region); ctx.fillStyle = hexA((T.line || T.c), .12); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
   ctx.restore();
   ctx.save();
   if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
-  ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA(T.c, .7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = T.d; ctx.stroke();
+  ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA((T.line || T.c), .7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = T.d; ctx.stroke();
   ctx.restore();
   const [x, y] = proj(c);
   ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fillStyle = "#fff"; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = T.d; ctx.stroke();
@@ -1554,7 +1725,7 @@ const Stage = {
   ring(x, y, col, max, life, width){ this.rings.push({x, y, col, max, life, width, age:0}); },
   step(now){
     const a = this.anim;
-    if (a.skip){ a.t0 = now - a.land*1000; a.skip = false; a.level = a.tier; }
+    if (a.skip){ a.t0 = now - a.land*1000; a.skip = false; a.level = a.tier; a.skipped = true; }
     const p = (now - a.t0)/1000, g0 = this.globeCam();
     let lvl = 0; for (let k = 1; k <= a.tier; k++) if (p >= SIG_FIRST + SIG_STEP*(k - 1)) lvl = k;
     if (p < a.sig && lvl !== a.level){
@@ -1566,8 +1737,12 @@ const Stage = {
       const fl = $("#flash");
       fl.style.background = `radial-gradient(circle at 50% 50%,${hexA(col, .9)},${hexA(col, .35)} 35%,transparent 70%)`;
       fl.animate([{opacity:0}, {opacity:last ? .55 : .25, offset:.1}, {opacity:0}], {duration:last ? 800 : 420, easing:"ease-out"});
-      if (last && lvl >= 4 && !matchMedia("(prefers-reduced-motion: reduce)").matches){ const st = $("#stage"); st.classList.remove("shake"); void st.offsetWidth; st.classList.add("shake"); }
+      if (last && lvl >= 4 && !matchMedia("(prefers-reduced-motion: reduce)").matches){ const st = $("#stage"); st.classList.remove("shake", "big"); void st.offsetWidth; st.classList.add("shake"); if (lvl === TOP) st.classList.add("big"); }
+      if (last && lvl === TOP){ this.ring(x, y, "#FFFFFF", 420, 1.6, 7); this.burst(x, y, "#FFFFFF", 60, 700);
+        fl.animate([{opacity:0, background:"#FFFDF0"}, {opacity:.9, offset:.08}, {opacity:0}], {duration:1400, easing:"ease-out"}); }
+      SFX.tierStep(lvl, last);
     }
+    if (p >= a.sig && !a.dived){ a.dived = true; if (!a.skipped){ if (a.tier === 0) SFX.tierFinal(0); SFX.dive(); } }
     const to = this.focusCam(a.idx, a.geo); a.to = to;
     const ll = a.interp(easeIO(clamp(p/(a.sig + DIVE*.55), 0, 1)));
     let S, tx, ty;
@@ -1674,7 +1849,7 @@ const Stage = {
       ctx.globalAlpha = clamp(3 - z, 0, 1); ctx.beginPath(); ctx.arc(cam.tx, cam.ty, cam.S, 0, 7); ctx.fillStyle = sh; ctx.fill(); ctx.globalAlpha = 1;
     }
     if (g && z > 6){
-      const col = TIERS[D.tier[fi]].c;
+      const col = TIERS[D.tier[fi]].line || TIERS[D.tier[fi]].c;
       ctx.save(); ctx.beginPath(); path(wp.land); ctx.clip();
       if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = hexA(col, .35*A); ctx.lineWidth = 1.2; ctx.stroke(); }
       if (g.region){
@@ -1740,7 +1915,7 @@ const Stage = {
     ctx.restore();
   },
   highlight(ctx, path, proj, i, g, r, z){
-    const T = TIERS[D.tier[i]], col = T.c;
+    const T = TIERS[D.tier[i]], col = T.line || T.c;
     const c = proj([D.lon[i], D.lat[i]]); if (!c) return;
     const u = clamp((r - .1)/1.0, 0, 1), F = clamp((r - .7)/.6, 0, 1);
     // projected outline cached per camera: Path2D for fills/strokes + point list for the progressive trace
@@ -1792,7 +1967,7 @@ const Stage = {
     ctx.globalAlpha = 1;
   },
   onLand(a){
-    const col = TIERS[a.tier].c;
+    const col = TIERS[a.tier].c; SFX.land(a.tier);
     this.ring(a.to ? a.to.tx : this.cam.tx, a.to ? a.to.ty : this.cam.ty, col, 120 + a.tier*30, .8, 4);
     setTimeout(() => { this.showCard(a.idx, true); a.cardShown = true; }, 1100);
   },
@@ -1803,7 +1978,7 @@ const Stage = {
   },
   /* Claim: rings and particles from the city and the card, the card gets stamped. */
   claimFx(i){
-    const col = TIERS[D.tier[i]].c, t = D.tier[i];
+    const col = TIERS[D.tier[i]].c, t = D.tier[i]; SFX.claim(t);
     const c = this.cityScreen();
     if (c){ for (let k = 0; k < 3; k++) setTimeout(() => this.ring(c[0], c[1], col, 140 + k*90 + t*30, 1 + k*.15, 5 - k), k*140); this.burst(c[0], c[1], col, 40 + t*8, 420); this.burst(c[0], c[1], "#FFFFFF", 16, 260); }
     const card = $("#card");
@@ -1821,7 +1996,7 @@ const Stage = {
   showCard(i, fromReveal){
     const slot = $("#card-slot"), t = today();
     const kept = t.kept === D.id[i];
-    slot.innerHTML = `<div class="card-scale"><div class="card-pop ${fromReveal ? "rise" : ""}" id="card" role="button" tabindex="0" aria-label="Voir la fiche de ${esc(cityName(i))}">${stampHTML(i, true)}</div></div>`;
+    slot.innerHTML = `<div class="card-scale"><div class="card-pop ${fromReveal ? "rise" : ""}" id="card" role="button" tabindex="0" aria-label="Voir la fiche de ${esc(cityName(i))}">${D.tier[i] === TOP ? `<div class="god-rays"></div>` : ""}${stampHTML(i, true)}</div></div>`;
     if (kept) $(".stamp", slot).insertAdjacentHTML("beforeend", `<div class="claim-mark still">Obtenue</div>`);
     fillPhotos(slot);
     const pts = $(".st-pts", slot);
@@ -1898,7 +2073,7 @@ const Stage = {
         if (this.scoring !== null && this.scoring.tok !== tok) return res();
         const u = clamp((now - t0)/dur, 0, 1), e = 1 - Math.pow(1 - u, 3);
         val.textContent = fmt(from + (to - from)*e);
-        if (u < 1) requestAnimationFrame(tick); else res();
+        if (u < 1){ SFX.tick(e); requestAnimationFrame(tick); } else res();
       };
       requestAnimationFrame(tick);
     });
@@ -1906,6 +2081,7 @@ const Stage = {
     const alive = () => this.scoring && this.scoring.tok === tok;
     const chip = (label, mult, icon, cls) => { const c = document.createElement("span"); c.className = "fchip big " + (mult && mult < 1 ? "neg " : "") + (cls || ""); c.innerHTML = `${icon ? factorIcon(icon) : ""}<span>${esc(label)}</span>${mult ? `<b>${multLabel(mult)}</b>` : ""}`; chips.appendChild(c); return c; };
     const pulse = () => {
+      SFX.bump();
       val.parentElement.classList.remove("hit"); void val.offsetWidth; val.parentElement.classList.add("hit");
       const r = val.getBoundingClientRect(), s0 = $("#stage").getBoundingClientRect();
       this.burst(r.left + r.width/2 - s0.left, r.top + r.height/2 - s0.top, TIERS[t].c, 18, 260); this.lastSig = "";
@@ -1915,6 +2091,7 @@ const Stage = {
       // pace: the whole run of criteria takes about 4.5 s, whatever their number
       const step = clamp(4500/Math.max(1, sc.m.length), 420, 1160), narrow = innerWidth < 760;
       const trail = $("#sc-trail");
+      let nk = 0;
       for (const [label, mult, def, icon] of sc.m){
         await wait(step*.36); if (!alive()) return;
         if (narrow){
@@ -1923,11 +2100,12 @@ const Stage = {
           if (old){ const ic = old.dataset.ic; old.remove(); if (trail && ic){ const d = document.createElement("span"); d.className = "sc-dot" + (old.classList.contains("neg") ? " neg" : ""); d.innerHTML = factorIcon(ic); trail.appendChild(d); } }
         }
         const c = chip(label, mult, icon); c.dataset.tip = def; c.dataset.ic = icon; c.tabIndex = 0;
+        SFX.chip(nk++, mult < 1);
         await wait(step*.19); if (!alive()) return;
         const next = cur*mult; await tween(cur, next, step*.45); cur = next; if (!alive()) return; pulse();
       }
       await wait(250); if (!alive()) return;
-      $("#sc-wrap").classList.add("done"); val.textContent = fmt(D.pts[i]);
+      $("#sc-wrap").classList.add("done"); val.textContent = fmt(D.pts[i]); SFX.scoreDone(t);
       const r = val.getBoundingClientRect(), s0 = $("#stage").getBoundingClientRect();
       this.ring(r.left + r.width/2 - s0.left, r.top + r.height/2 - s0.top, TIERS[t].c, 160 + t*30, .9, 4); this.burst(r.left + r.width/2 - s0.left, r.top + r.height/2 - s0.top, TIERS[t].c, 40 + t*8, 420);
       await wait(1100); if (!alive()) return;
@@ -1943,11 +2121,11 @@ const Stage = {
   reroll(btn, cur){
     const t = D.tier[cur];
     if (t >= 3 && !btn.classList.contains("warn")){
-      btn.classList.add("warn"); btn.innerHTML = `Sûr ? Tu perds une ${TIERS[t].name}`;
+      btn.classList.add("warn"); btn.innerHTML = `Sûr ? Tu perds une ${TIERS[t].name}`; SFX.warn();
       clearTimeout(this.confirmTimer); this.confirmTimer = setTimeout(() => this.renderUI(), 3200);
       return;
     }
-    drawOne();
+    SFX.reroll(); drawOne();
   },
 };
 const BLOOM = new Map();
@@ -2004,6 +2182,7 @@ function drawOne(){
   if (t.kept || t.used >= DAILY) return;
   const idx = randInt(D.n);
   t.used += 1; t.cur = D.id[idx]; t.seen = [...(t.seen || []), D.id[idx]];
+  SFX.draw();
   Stage.start(idx);
   writeMe({today:t});
 }
@@ -2045,6 +2224,7 @@ async function keepCurrent(){
 /* ================= City sheet ================= */
 function openSheet(html, opts = {}){
   const sh = $("#sheet"), sc = $("#scrim");
+  if (sh.hidden) SFX.open();
   delete sh.dataset.city;
   sh.className = "sheet" + (opts.cls ? " " + opts.cls : "") + (opts.peek ? " peek" : "");
   $("#sheet-body").innerHTML = opts.raw ? html : `<div class="sh-generic"><div class="grab"></div><button class="x" data-close aria-label="Fermer">×</button>${html}</div>`;
@@ -2062,6 +2242,7 @@ function setPeek(peek){
 }
 function closeSheet(){
   const sh = $("#sheet"), sc = $("#scrim"); if (sh.hidden) return;
+  SFX.close();
   sh.classList.remove("on"); sc.classList.remove("on"); delete sh.dataset.city;
   setTimeout(() => { if (!sh.classList.contains("on")){ sh.hidden = true; sc.hidden = true; } }, 340);
   MapView.selected = null; MapView.draw();
@@ -2153,7 +2334,7 @@ function openCitySheet(i, opts = {}){
 }
 
 function openRules(){
-  const tiers = TIERS.map((T, t) => `<div class="tr-row t${t}"><span class="tr-dot"></span><b>${T.name}</b><span class="mono">${t === 0 ? "< 20 k" : t === 5 ? "20 M +" : kM(TIER_MIN[t]) + " – " + kM(TIER_MIN[t+1])}</span></div>`).join("");
+  const tiers = TIERS.map((T, t) => `<div class="tr-row t${t}"><span class="tr-dot"></span><b>${T.name}</b><span class="mono">${t === 0 ? "< 20 k" : t === TOP ? kM(TIER_MIN[t]) + " +" : kM(TIER_MIN[t]) + " – " + kM(TIER_MIN[t+1])}</span></div>`).join("");
   openSheet(`<div class="rules">
     <h2>Règles</h2>
     <div class="rl-steps">
@@ -2313,6 +2494,7 @@ const MapView = {
     this.cv.addEventListener("click", e => { if (this.dragged){ this.dragged = false; return; } this.click(e); });
     this.initGlobe();
     new ResizeObserver(() => { if (view === "map") this.resize(); }).observe($("#v-map"));
+    $("#z-in").addEventListener("click", () => SFX.zoom(1)); $("#z-out").addEventListener("click", () => SFX.zoom(-1));
     $("#z-in").onclick = () => this.mode === "globe" ? this.tween({z:this.gl.z*2}, 300) : d3.select(this.cv).transition().duration(300).call(this.zoom.scaleBy, 2);
     $("#z-out").onclick = () => this.mode === "globe" ? this.tween({z:this.gl.z/2}, 300) : d3.select(this.cv).transition().duration(300).call(this.zoom.scaleBy, .5);
     $("#z-home").onclick = () => this.mode === "globe" ? this.tween({z:1, lat:20, ty:this.cy0}, 700) : d3.select(this.cv).transition().duration(600).call(this.zoom.transform, d3.zoomIdentity);
@@ -2483,12 +2665,12 @@ const MapView = {
     if (!g){ pr.then(() => this.draw()); return; }
     if (pp){
       const T = TIERS[D.tier[i]];
-      if (g.region){ ctx.save(); if (this.landClipPath) ctx.clip(this.landClipPath); ctx.beginPath(); pp(g.region); ctx.fillStyle = hexA(T.c, .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA(T.c, .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+      if (g.region){ ctx.save(); if (this.landClipPath) ctx.clip(this.landClipPath); ctx.beginPath(); pp(g.region); ctx.fillStyle = hexA((T.line || T.c), .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA((T.line || T.c), .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
       ctx.save();
       if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); pp(g.region); ctx.clip(); }
-      ctx.beginPath(); pp(g.shape); ctx.fillStyle = hexA(T.c, .6); ctx.fill();
-      ctx.lineJoin = "round"; ctx.strokeStyle = hexA(T.c, .25); ctx.lineWidth = 12; ctx.stroke();
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = T.c; ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.beginPath(); pp(g.shape); ctx.fillStyle = hexA((T.line || T.c), .6); ctx.fill();
+      ctx.lineJoin = "round"; ctx.strokeStyle = hexA((T.line || T.c), .25); ctx.lineWidth = 12; ctx.stroke();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 2.4; ctx.stroke();
       ctx.restore(); return;
     }
     const key = i + ":" + g.ver + ":" + this.w + "x" + this.h;
@@ -2498,15 +2680,15 @@ const MapView = {
     }
     const T = TIERS[D.tier[i]], h = this.hl, now = performance.now();
     if (h.region){
-      ctx.fillStyle = hexA(T.c, .1); ctx.fill(h.region);
-      ctx.setLineDash([8/k, 6/k]); ctx.strokeStyle = hexA(T.c, .8); ctx.lineWidth = 1.8/k; ctx.stroke(h.region); ctx.setLineDash([]);
+      ctx.fillStyle = hexA((T.line || T.c), .1); ctx.fill(h.region);
+      ctx.setLineDash([8/k, 6/k]); ctx.strokeStyle = hexA((T.line || T.c), .8); ctx.lineWidth = 1.8/k; ctx.stroke(h.region); ctx.setLineDash([]);
     }
     ctx.save();
     if (h.clip && h.region) ctx.clip(h.region);
-    ctx.fillStyle = hexA(T.c, .6); ctx.fill(h.shape);
-    ctx.lineJoin = "round"; ctx.strokeStyle = hexA(T.c, .25); ctx.lineWidth = 12/k; ctx.stroke(h.shape);
+    ctx.fillStyle = hexA((T.line || T.c), .6); ctx.fill(h.shape);
+    ctx.lineJoin = "round"; ctx.strokeStyle = hexA((T.line || T.c), .25); ctx.lineWidth = 12/k; ctx.stroke(h.shape);
     ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5/k; ctx.stroke(h.shape);
-    ctx.strokeStyle = T.c; ctx.lineWidth = 2.4/k; ctx.stroke(h.shape);
+    ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 2.4/k; ctx.stroke(h.shape);
     ctx.restore();
   },
   pin(ctx, x, y, p, s, ring){
@@ -2545,7 +2727,7 @@ const MapView = {
         if (d < 12 && d < bd){ bd = d; best = i; }
       }
     }
-    if (best != null) openCitySheet(best, {peek:true});
+    if (best != null){ SFX.pop(); openCitySheet(best, {peek:true}); }
   },
   flyTo(i, peek){
     if (!this.px) this.resize();
@@ -2611,12 +2793,12 @@ const MapView = {
     const i = this.selected, pr = geoFor(i), g = pr.value;
     if (!g){ pr.then(() => this.draw()); return; }
     const T = TIERS[D.tier[i]];
-    if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.c, .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA(T.c, .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+    if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = hexA((T.line || T.c), .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA((T.line || T.c), .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
     ctx.save();
     if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
-    ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA(T.c, .6); ctx.fill();
-    ctx.lineJoin = "round"; ctx.strokeStyle = hexA(T.c, .25); ctx.lineWidth = 12; ctx.stroke();
-    ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = T.c; ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA((T.line || T.c), .6); ctx.fill();
+    ctx.lineJoin = "round"; ctx.strokeStyle = hexA((T.line || T.c), .25); ctx.lineWidth = 12; ctx.stroke();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 2.4; ctx.stroke();
     ctx.restore();
   },
   initGlobe(){
@@ -2666,6 +2848,7 @@ const MapView = {
   },
   setMode(m){
     if (m === this.mode) return;
+    SFX.swoosh();
     this.stopTween();
     if (!this.px) this.resize();
     const W = this.w, H = this.h;
@@ -2729,7 +2912,7 @@ function roundRect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); c
 let collSort = lsGet("landfall.sort", "recent"), collTier = -1;
 function renderCollection(){
   const root = $("#coll"), list = myCities().map(c => ({c, i:D.byId.get(c.id)}));
-  const counts = [0,0,0,0,0,0]; let total = 0;
+  const counts = TIERS.map(() => 0); let total = 0;
   for (const x of list){ counts[D.tier[x.i]]++; total += D.pts[x.i]; }
   let shown = collTier >= 0 ? list.filter(x => D.tier[x.i] === collTier) : list.slice();
   shown.sort(collSort === "points" ? (a, b) => D.pts[b.i] - D.pts[a.i] : collSort === "rarity" ? (a, b) => D.tier[b.i] - D.tier[a.i] || D.pts[b.i] - D.pts[a.i] : (a, b) => b.c.t - a.c.t);
@@ -2804,7 +2987,7 @@ function renderFriends(){
     </div>`;
   $("#add-form").onsubmit = e => { e.preventDefault(); sendRequest($("#add-pseudo").value); };
   $("#inv-copy").onclick = async () => { const i = $("#inv-link"); try { await navigator.clipboard.writeText(i.value); toast("Lien copié"); } catch { i.select(); } };
-  for (const b of $$("[data-acc]", root)) b.onclick = () => S.db.doc("requests/" + b.dataset.acc).update({status:"accepted", at:Date.now()}).then(() => toast("Vous êtes maintenant amis !")).catch(() => toast("Action impossible pour l'instant."));
+  for (const b of $$("[data-acc]", root)) b.onclick = () => S.db.doc("requests/" + b.dataset.acc).update({status:"accepted", at:Date.now()}).then(() => { SFX.success(); toast("Vous êtes maintenant amis !"); }).catch(() => toast("Action impossible pour l'instant."));
   for (const b of $$("[data-del]", root)) b.onclick = () => S.db.doc("requests/" + b.dataset.del).delete().catch(() => toast("Action impossible pour l'instant."));
   for (const r of $$("[data-player]", root)) r.onclick = () => openPlayerSheet(r.dataset.player);
   const setBoard = patch => { boardMode = Object.assign({}, boardMode, patch); lsSet("rngworld.board2", boardMode); renderFriends(); };
@@ -2833,8 +3016,8 @@ async function sendRequest(raw){
   if (friendSet().has(target)) return say("Vous êtes déjà amis.");
   const back = S.requests.get(target + "__" + S.uid);
   try {
-    if (back && back.status === "pending"){ await S.db.doc("requests/" + target + "__" + S.uid).update({status:"accepted", at:Date.now()}); say("Il t'avait déjà ajouté : vous êtes amis !", true); }
-    else { await S.db.doc("requests/" + S.uid + "__" + target).set({from:S.uid, to:target, status:"pending", at:Date.now()}); say("Demande envoyée à @" + S.players.get(target).pseudo + ".", true); }
+    if (back && back.status === "pending"){ await S.db.doc("requests/" + target + "__" + S.uid).update({status:"accepted", at:Date.now()}); say("Il t'avait déjà ajouté : vous êtes amis !", true); SFX.success(); }
+    else { await S.db.doc("requests/" + S.uid + "__" + target).set({from:S.uid, to:target, status:"pending", at:Date.now()}); say("Demande envoyée à @" + S.players.get(target).pseudo + ".", true); SFX.success(); }
     $("#add-pseudo").value = "";
   } catch { say("Envoi impossible pour l'instant. Réessaie."); }
 }
@@ -2855,8 +3038,16 @@ function openPlayerSheet(uid){
 /* ================= Profile ================= */
 const settingsPanel = () => `<div class="panel" style="margin-top:14px"><h3>Paramètres</h3>
     <div class="set-row"><div><b>Thème</b><div class="hint" style="margin-top:2px">Auto suit le réglage de ton appareil.</div></div>
-    <div class="seg" role="radiogroup" aria-label="Thème">${THEMES.map(x => `<button role="radio" aria-pressed="${themePref() === x.k}" aria-checked="${themePref() === x.k}" data-theme-set="${x.k}">${x.label}</button>`).join("")}</div></div></div>`;
-const bindSettings = root => { for (const b of $$("[data-theme-set]", root)) b.onclick = () => { setTheme(b.dataset.themeSet); renderProfile(); }; };
+    <div class="seg" role="radiogroup" aria-label="Thème">${THEMES.map(x => `<button role="radio" aria-pressed="${themePref() === x.k}" aria-checked="${themePref() === x.k}" data-theme-set="${x.k}">${x.label}</button>`).join("")}</div></div>
+    <div class="set-row" style="margin-top:14px"><div><b>Sons</b></div>
+    <div class="set-snd"><input type="range" id="set-vol" min="0" max="1" step="0.05" value="${SFX.vol}" aria-label="Volume" ${SFX.on ? "" : "disabled"}>
+    <div class="seg" role="radiogroup" aria-label="Sons" data-nosfx><button role="radio" aria-pressed="${SFX.on}" aria-checked="${SFX.on}" data-snd="1">Oui</button><button role="radio" aria-pressed="${!SFX.on}" aria-checked="${!SFX.on}" data-snd="0">Non</button></div></div></div></div>`;
+const bindSettings = root => {
+  for (const b of $$("[data-theme-set]", root)) b.onclick = () => { setTheme(b.dataset.themeSet); renderProfile(); };
+  for (const b of $$("[data-snd]", root)) b.onclick = () => { SFX.setOn(b.dataset.snd === "1"); renderProfile(); };
+  const v = $("#set-vol", root);
+  if (v){ v.oninput = () => SFX.setVol(+v.value); v.onchange = () => SFX.chip(4, false); }
+};
 let draft = null;
 function renderProfile(){
   const root = $("#profile"), p = S.me;
