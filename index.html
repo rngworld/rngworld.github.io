@@ -39,6 +39,7 @@
 :root[data-theme="dark"] .banner{background:#3A3210;border-color:#6B5A17;color:#FFE79A}
 :root[data-theme="dark"] .owner{background:var(--surface)}
 :root[data-theme="dark"] #v-map{background:#070920}
+:root[data-theme="dark"] #v-draw{background:radial-gradient(120% 90% at 50% 38%,#1C248F 0%,#0F145C 45%,#060824 100%)}
 html{transition:background-color .25s}
 *{box-sizing:border-box}
 *{scrollbar-width:thin;scrollbar-color:var(--scroll) transparent}
@@ -1112,7 +1113,12 @@ function applyTheme(){
   const next = dark ? "dark" : "light";
   if (document.documentElement.dataset.theme === next) return;
   document.documentElement.dataset.theme = next;
-  try { MapView.draw(); } catch {}
+  try {
+    MapView.draw(); Stage.layerKey = ""; Stage.lastSig = "";
+    for (const c of $$("canvas.st-globe")) delete c.dataset.painted;
+    paintGlobes(document);
+    for (const cv of $$(".st-photo[data-idx] canvas, .sheet-photo[data-idx] canvas")){ const box = cv.parentElement; paintPlan(cv, +box.dataset.idx); }
+  } catch (e){ console.warn("theme repaint", e); }
 }
 function setTheme(t, fromProfile){
   lsSet("rngworld.theme", t); applyTheme();
@@ -1180,7 +1186,7 @@ function paintGlobes(root){
     const path = d3.geoPath(proj, ctx);
     ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle = T.ocean; ctx.fill();
     ctx.beginPath(); path(G.grat); ctx.strokeStyle = "rgba(255,255,255,.14)"; ctx.lineWidth = .6; ctx.stroke();
-    ctx.beginPath(); path(G.land110); ctx.fillStyle = "rgba(255,255,255,.92)"; ctx.fill();
+    ctx.beginPath(); path(G.land110); ctx.fillStyle = EARTH().stampLand; ctx.fill();
     const [x, y] = proj([D.lon[i], D.lat[i]]);
     ctx.beginPath(); ctx.arc(x, y, Math.max(3.5, w*.055), 0, 7); ctx.fillStyle = "#FF5B6E"; ctx.fill();
     ctx.lineWidth = 2; ctx.strokeStyle = "#fff"; ctx.stroke();
@@ -1401,8 +1407,9 @@ async function paintPlan(cv, i){
   const proj = d3.geoOrthographic().rotate([-c[0], -c[1]]).translate([W/2, H/2]).scale(Math.min(W, H)*.42/Math.sin(half)).clipAngle(90).clipExtent([[0, 0], [W, H]]);
   const path = d3.geoPath(proj, ctx);
   const land = G.land10parts ? visibleGeo(G.land10parts, c, half*(W/Math.min(W, H))*1.6 + .01, "MultiPolygon") : G.land50;
-  ctx.fillStyle = "#2E3BE3"; ctx.fillRect(0, 0, W, H);
-  ctx.beginPath(); path(land); ctx.fillStyle = "#F4F5FF"; ctx.fill();
+  const E = EARTH();
+  ctx.fillStyle = E.planSea; ctx.fillRect(0, 0, W, H);
+  ctx.beginPath(); path(land); ctx.fillStyle = E.planLand; ctx.fill();
   ctx.save(); ctx.beginPath(); path(land); ctx.clip();
   if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = hexA(T.c, .5); ctx.lineWidth = 1; ctx.stroke(); }
   if (g.region){ ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.c, .12); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = T.c; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
@@ -1645,14 +1652,15 @@ const Stage = {
       halo.addColorStop(0, hexA(col, a ? .45 : .22)); halo.addColorStop(1, hexA(col, 0));
       ctx.fillStyle = halo; ctx.fillRect(0, 0, W, H);
     }
-    ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle = "#3443F0"; ctx.fill();
-    if (z < 8){ ctx.globalAlpha = clamp((8 - z)/6, 0, 1); ctx.beginPath(); path(G.grat); ctx.strokeStyle = "rgba(255,255,255,.13)"; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1; }
+    const E = EARTH();
+    ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle = E.sphere; ctx.fill();
+    if (z < 8){ ctx.globalAlpha = clamp((8 - z)/6, 0, 1); ctx.beginPath(); path(G.grat); ctx.strokeStyle = E.grat; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1; }
     const wp = this.worldPath(path, cam, z);
-    ctx.beginPath(); path(wp.land); ctx.fillStyle = "#F1F2FC"; ctx.fill();
-    if (wp.borders){ ctx.beginPath(); path(wp.borders); ctx.strokeStyle = "rgba(52,67,240,.38)"; ctx.lineWidth = 1; ctx.stroke(); }
+    ctx.beginPath(); path(wp.land); ctx.fillStyle = E.land; ctx.fill();
+    if (wp.borders){ ctx.beginPath(); path(wp.borders); ctx.strokeStyle = E.border; ctx.lineWidth = 1; ctx.stroke(); }
     if (z < 3){
       const sh = ctx.createRadialGradient(cam.tx - cam.S*.35, cam.ty - cam.S*.4, cam.S*.1, cam.tx, cam.ty, cam.S);
-      sh.addColorStop(0, "rgba(255,255,255,.16)"); sh.addColorStop(1, "rgba(5,8,60,.34)");
+      sh.addColorStop(0, E.shadeHi); sh.addColorStop(1, E.shadeLo);
       ctx.globalAlpha = clamp(3 - z, 0, 1); ctx.beginPath(); ctx.arc(cam.tx, cam.ty, cam.S, 0, 7); ctx.fillStyle = sh; ctx.fill(); ctx.globalAlpha = 1;
     }
     if (g && z > 6){
@@ -1670,9 +1678,9 @@ const Stage = {
       for (const j of g.near){
         const q = proj([D.lon[j], D.lat[j]]); if (!q || q[0] < 0 || q[1] < 0 || q[0] > W || q[1] > H) continue;
         if (c && Math.hypot(q[0] - c[0], q[1] - c[1]) < 40) continue;
-        ctx.beginPath(); ctx.arc(q[0], q[1], 2.5, 0, 7); ctx.fillStyle = "#14163D"; ctx.fill();
-        ctx.strokeStyle = "rgba(244,245,255,.9)"; ctx.lineWidth = 3; ctx.strokeText(cityName(j), q[0] + 6, q[1]);
-        ctx.fillStyle = "#14163D"; ctx.fillText(cityName(j), q[0] + 6, q[1]);
+        ctx.beginPath(); ctx.arc(q[0], q[1], 2.5, 0, 7); ctx.fillStyle = E.dot; ctx.fill();
+        ctx.strokeStyle = E.halo; ctx.lineWidth = 3; ctx.strokeText(cityName(j), q[0] + 6, q[1]);
+        ctx.fillStyle = E.label; ctx.fillText(cityName(j), q[0] + 6, q[1]);
       }
       ctx.globalAlpha = 1;
     }
@@ -2170,8 +2178,14 @@ function openCriteria(){
 $("#btn-rules").onclick = e => { e.stopPropagation(); openRules(); };
 
 /* ================= Map ================= */
+/* Earth colours for the draw globe, stamp globes and mini-maps, per theme. */
+const EARTH_LIGHT = {shadeHi:"rgba(255,255,255,.16)", shadeLo:"rgba(5,8,60,.34)", sphere:"#3443F0", land:"#F1F2FC", border:"rgba(52,67,240,.38)", grat:"rgba(255,255,255,.13)", dot:"#14163D", halo:"rgba(244,245,255,.9)", label:"#14163D",
+  planSea:"#2E3BE3", planLand:"#F4F5FF", stampLand:"rgba(255,255,255,.92)"};
+const EARTH_DARK  = {shadeHi:"rgba(255,255,255,.05)", shadeLo:"rgba(3,4,30,.30)", sphere:"#0B0F4D", land:"#3D4277", border:"rgba(160,170,255,.30)", grat:"rgba(255,255,255,.08)", dot:"#ECEDFF", halo:"rgba(20,24,72,.9)", label:"#ECEDFF",
+  planSea:"#10155C", planLand:"#3D4277", stampLand:"rgba(12,14,46,.72)"};
+const EARTH = () => isDark() ? EARTH_DARK : EARTH_LIGHT;
 const MAP_LIGHT = {space:"#151B7A", ocean:"#2E3BE3", land:"#F6F7FF", border:"rgba(46,59,227,.32)", dot:"rgba(20,22,61,.55)", halo:"rgba(246,247,255,.92)", label:"#14163D"};
-const MAP_DARK  = {space:"#070920", ocean:"#141A63", land:"#2A2F6E", border:"rgba(160,170,255,.22)", dot:"rgba(236,237,255,.6)", halo:"rgba(20,24,72,.9)", label:"#ECEDFF"};
+const MAP_DARK  = {space:"#070920", ocean:"#10155C", land:"#343A6E", border:"rgba(160,170,255,.22)", dot:"rgba(236,237,255,.6)", halo:"rgba(20,24,72,.9)", label:"#ECEDFF"};
 const MapView = {
   t:d3.zoomIdentity, selected:null, filters:lsGet("landfall.mapf", {me:true, friends:true, others:true, cities:true}), imgs:new Map(),
   init(){
