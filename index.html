@@ -52,6 +52,9 @@ html{transition:background-color .25s}
   ::-webkit-scrollbar-thumb:hover{background-color:rgba(20,22,61,.42)}
 }
 [hidden]{display:none!important}
+/* The draw stage stays rendered while another tab is open, so its one-shot CSS animations
+   (shake, flash, card pop) never replay when coming back to it. */
+#v-draw[hidden]{display:block!important;visibility:hidden;pointer-events:none}
 html,body{height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.45 var(--f-body);overflow:hidden;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -357,6 +360,9 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .results button:first-child{border-top:0}
 .results button:hover,.results button.hl{background:var(--paper)}
 .results .meta{font-size:12px;color:var(--muted)}
+.map-mode{margin-left:auto;background:var(--surface);box-shadow:0 4px 14px rgba(10,14,70,.22);flex-wrap:nowrap}
+.map-mode button{display:inline-flex;align-items:center;gap:5px}
+.map-mode svg{width:15px;height:15px}
 .map-chips .chip{box-shadow:0 4px 14px rgba(10,14,70,.22);border-color:transparent}
 .zoom{position:absolute;right:12px;bottom:16px;display:flex;flex-direction:column;gap:6px;z-index:2}
 .zoom button{width:40px;height:40px;border-radius:12px;border:0;background:var(--surface);box-shadow:0 6px 18px rgba(10,14,70,.25);font:700 18px var(--f-body);display:grid;place-items:center}
@@ -528,6 +534,10 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
           <div class="results" id="map-results" hidden></div>
         </div>
         <div class="chips map-chips" id="map-chips"></div>
+        <div class="seg map-mode" id="map-mode" role="group" aria-label="Vue de la carte">
+          <button data-mode="flat" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg>Plate</button>
+          <button data-mode="globe" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>Ronde</button>
+        </div>
       </div>
       <div class="map-legend" id="map-legend"></div>
       <div class="zoom">
@@ -1840,7 +1850,9 @@ const Stage = {
     if (animating){ foot.innerHTML = `<p class="odds">${this.anim.landed ? "" : "Touche l'écran pour passer l'animation"}</p><div class="actions" style="height:52px"></div>`; $("#st-title").textContent = `Tirage ${t.used} sur ${DAILY}`; return; }
     if (kept != null){
       $("#st-title").textContent = "";
-      foot.innerHTML = `<div class="chip-scroll fchips-row t${D.tier[kept]}"><div class="chip-track">${factorChips(kept)}</div></div><div class="countdown" data-countdown>${hms(msToMidnight())}</div><p class="odds">avant les ${DAILY} prochains tirages</p>`;
+      // already showing this city's chips: leave them alone so their pop-in doesn't replay on every render
+      if (foot.querySelector(`.fchips-row[data-kept="${kept}"]`)) return;
+      foot.innerHTML = `<div class="chip-scroll fchips-row t${D.tier[kept]}" data-kept="${kept}"><div class="chip-track">${factorChips(kept)}</div></div><div class="countdown" data-countdown>${hms(msToMidnight())}</div><p class="odds">avant les ${DAILY} prochains tirages</p>`;
       return;
     }
     if (cur != null){
@@ -2187,17 +2199,19 @@ const EARTH = () => isDark() ? EARTH_DARK : EARTH_LIGHT;
 const MAP_LIGHT = {space:"#151B7A", ocean:"#2E3BE3", land:"#F6F7FF", border:"rgba(46,59,227,.32)", dot:"rgba(20,22,61,.55)", halo:"rgba(246,247,255,.92)", label:"#14163D"};
 const MAP_DARK  = {space:"#070920", ocean:"#10155C", land:"#343A6E", border:"rgba(160,170,255,.22)", dot:"rgba(236,237,255,.6)", halo:"rgba(20,24,72,.9)", label:"#ECEDFF"};
 const MapView = {
-  t:d3.zoomIdentity, selected:null, filters:lsGet("landfall.mapf", {me:true, friends:true, others:true, cities:true}), imgs:new Map(),
+  t:d3.zoomIdentity, selected:null, mode:lsGet("rngworld.mapmode", "flat") === "globe" ? "globe" : "flat", gl:{lon:5, lat:25, z:1, ty:null}, filters:lsGet("landfall.mapf", {me:true, friends:true, others:true, cities:true}), imgs:new Map(),
   init(){
     this.cv = $("#map"); this.ctx = this.cv.getContext("2d");
-    this.zoom = d3.zoom().scaleExtent([1, 2500]).on("zoom", e => { this.t = e.transform; this.draw(); });
+    this.zoom = d3.zoom().scaleExtent([1, 2500]).filter(e => this.mode === "flat" && (!e.ctrlKey || e.type === "wheel") && !e.button)
+      .on("zoom", e => { this.t = e.transform; this.draw(); });
     d3.select(this.cv).call(this.zoom).on("dblclick.zoom", null);
-    this.cv.addEventListener("click", e => this.click(e));
+    this.cv.addEventListener("click", e => { if (this.dragged){ this.dragged = false; return; } this.click(e); });
+    this.initGlobe();
     new ResizeObserver(() => { if (view === "map") this.resize(); }).observe($("#v-map"));
-    $("#z-in").onclick = () => d3.select(this.cv).transition().duration(300).call(this.zoom.scaleBy, 2);
-    $("#z-out").onclick = () => d3.select(this.cv).transition().duration(300).call(this.zoom.scaleBy, .5);
-    $("#z-home").onclick = () => d3.select(this.cv).transition().duration(600).call(this.zoom.transform, d3.zoomIdentity);
-    this.renderChips(); this.setupSearch();
+    $("#z-in").onclick = () => this.mode === "globe" ? this.tween({z:this.gl.z*2}, 300) : d3.select(this.cv).transition().duration(300).call(this.zoom.scaleBy, 2);
+    $("#z-out").onclick = () => this.mode === "globe" ? this.tween({z:this.gl.z/2}, 300) : d3.select(this.cv).transition().duration(300).call(this.zoom.scaleBy, .5);
+    $("#z-home").onclick = () => this.mode === "globe" ? this.tween({z:1, lat:20, ty:this.cy0}, 700) : d3.select(this.cv).transition().duration(600).call(this.zoom.transform, d3.zoomIdentity);
+    this.renderChips(); this.setupSearch(); this.renderMode();
   },
   show(){ this.resize(); },
   resize(){
@@ -2213,6 +2227,11 @@ const MapView = {
     this.px = new Float32Array(D.n); this.py = new Float32Array(D.n);
     for (let i = 0; i < D.n; i++){ const p = this.proj([D.lon[i], D.lat[i]]); this.px[i] = p[0]; this.py[i] = p[1]; }
     this.zoom.translateExtent([[-200, -200], [r.width + 200, r.height + 200]]).extent([[0, 0], [r.width, r.height]]);
+    // globe: centred in the space left between the top controls and the legend
+    const ui = $(".map-ui").getBoundingClientRect(), top = clamp(ui.bottom - r.top + 10, 60, r.height*.45), bot = r.height < 700 ? 56 : 16;
+    this.R0 = Math.max(60, Math.min(r.width - 24, r.height - top - bot)/2); this.cy0 = top + (r.height - top - bot)/2;
+    if (!this.trig){ this.trig = {sl:new Float32Array(D.n), cl:new Float32Array(D.n), lo:new Float32Array(D.n)};
+      for (let i = 0; i < D.n; i++){ const f = D.lat[i]*Math.PI/180; this.trig.sl[i] = Math.sin(f); this.trig.cl[i] = Math.cos(f); this.trig.lo[i] = D.lon[i]*Math.PI/180; } }
     this.draw();
   },
   popThreshold(){ const k = this.t.k; return k < 1.6 ? 1e6 : k < 3 ? 3e5 : k < 6 ? 8e4 : k < 12 ? 2e4 : k < 25 ? 5000 : k < 60 ? 1000 : 0; },
@@ -2221,7 +2240,8 @@ const MapView = {
     if (this.raf) return;
     this.raf = requestAnimationFrame(() => { this.raf = null; this._draw(); });
   },
-  _draw(){
+  _draw(){ if (this.mode === "globe") this._drawGlobe(); else this._drawFlat(); },
+  _drawFlat(){
     const ctx = this.ctx, {k, x, y} = this.t, W = this.w, H = this.h;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     const M = isDark() ? MAP_DARK : MAP_LIGHT;
@@ -2252,14 +2272,19 @@ const MapView = {
       ctx.fillStyle = M.land; ctx.fill(lp); ctx.strokeStyle = M.border; ctx.lineWidth = .9; ctx.stroke(lp);
       if (this.selected != null) this.drawSel(ctx, 1, pp);
     }
-    const thr = this.popThreshold(), labels = [], fs = this.filters;
+    this.pos = i => [this.px[i]*k + x, this.py[i]*k + y];
+    this.overlay(ctx, M, this.pos, this.popThreshold());
+  },
+  /* Dots, labels, pins and the selection tag, given a screen position function (null = hidden side of the globe). */
+  overlay(ctx, M, pos, thr){
+    const W = this.w, H = this.h, labels = [], fs = this.filters;
     // city dots
     if (fs.cities){
       ctx.fillStyle = M.dot; ctx.beginPath();
       const order = D.byPop;
       for (let o = 0; o < D.n; o++){
         const i = order[o]; if (D.pop[i] < thr) break;
-        const sx = this.px[i]*k + x, sy = this.py[i]*k + y;
+        const q = pos(i); if (!q) continue; const sx = q[0], sy = q[1];
         if (sx < -10 || sy < -10 || sx > W + 10 || sy > H + 10) continue;
         const r = D.pop[i] >= 1e6 ? 3 : D.pop[i] >= 1e5 ? 2.2 : 1.6;
         ctx.moveTo(sx + r, sy); ctx.arc(sx, sy, r, 0, 7);
@@ -2273,7 +2298,7 @@ const MapView = {
     let placed = 0;
     for (const i of labels){
       if (placed > 60) break;
-      const sx = this.px[i]*k + x, sy = this.py[i]*k + y, name = cityName(i), w = ctx.measureText(name).width;
+      const [sx, sy] = pos(i), name = cityName(i), w = ctx.measureText(name).width;
       const gx0 = Math.floor((sx + 6)/40), gx1 = Math.floor((sx + 8 + w)/40), gy = Math.floor(sy/18);
       let free = true; for (let gx = gx0; gx <= gx1 && free; gx++) for (let dy = -1; dy <= 0; dy++) if (occ.has(cell(gx, gy + dy))) free = false;
       if (!free) continue;
@@ -2288,11 +2313,12 @@ const MapView = {
       const i = D.byId.get(id); if (i == null) continue;
       const who = l.uid === S.uid ? "me" : fr.has(l.uid) ? "friends" : "others";
       if (!fs[who]) continue;
-      pins.push({i, uid:l.uid, who});
+      pins.push({i, uid:l.uid, who, q:pos(i)});   // counted in the legend even when on the far side of the globe
     }
-    pins.sort((a, b) => (a.who === "me") - (b.who === "me") || this.py[a.i] - this.py[b.i]);
+    pins.sort((a, b) => (a.who === "me") - (b.who === "me") || (a.q ? a.q[1] : 0) - (b.q ? b.q[1] : 0));
     for (const p of pins){
-      const sx = this.px[p.i]*k + x, sy = this.py[p.i]*k + y;
+      if (!p.q) continue;
+      const [sx, sy] = p.q;
       if (sx < -30 || sy < -10 || sx > W + 30 || sy > H + 50) continue;
       const pl = S.players.get(p.uid);
       if (p.who === "others"){
@@ -2305,11 +2331,12 @@ const MapView = {
     }
     // selection label
     if (this.selected != null){
-      const i = this.selected, sx = this.px[i]*k + x, sy = this.py[i]*k + y, col = TIERS[D.tier[i]].c;
+      const i = this.selected, q = pos(i), col = TIERS[D.tier[i]].c;
+      if (q){ const [sx, sy] = q;
       ctx.beginPath(); ctx.arc(sx, sy, 6, 0, 7); ctx.fillStyle = "#fff"; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = col; ctx.stroke();
       ctx.font = "800 13px 'Unbounded', system-ui, sans-serif"; const nm = cityName(i), w = ctx.measureText(nm).width;
       ctx.fillStyle = "#14163D"; roundRect(ctx, sx - w/2 - 12, sy + 14, w + 24, 28, 14); ctx.fill();
-      ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(nm, sx, sy + 28.5); ctx.textAlign = "left";
+      ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(nm, sx, sy + 28.5); ctx.textAlign = "left"; }
     }
     this.renderLegend(pins);
   },
@@ -2371,11 +2398,12 @@ const MapView = {
     const r = this.cv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
     let best = null, bd = Infinity;
     for (const h of this.hits || []){ const d = Math.hypot(h.x - mx, h.y - my); if (d < h.r && d < bd){ bd = d; best = h.i; } }
-    if (best == null && this.filters.cities){
-      const {k, x, y} = this.t, thr = this.popThreshold();
+    if (best == null && this.filters.cities && this.pos){
+      const thr = this.mode === "globe" ? this.globeThr() : this.popThreshold();
       for (let i = 0; i < D.n; i++){
         if (D.pop[i] < thr && !(thr === 0)) continue;
-        const sx = this.px[i]*k + x, sy = this.py[i]*k + y, d = Math.hypot(sx - mx, sy - my);
+        const q = this.pos(i); if (!q) continue;
+        const sx = q[0], sy = q[1], d = Math.hypot(sx - mx, sy - my);
         if (d < 12 && d < bd){ bd = d; best = i; }
       }
     }
@@ -2385,6 +2413,11 @@ const MapView = {
     if (!this.px) this.resize();
     this.selected = i; this.hl = null;
     const go = g => {
+      if (this.mode === "globe"){
+        const rad = g ? g.rad : 15/6371;
+        this.tween({lon:D.lon[i], lat:D.lat[i], z:clamp(Math.min(this.w, this.h)*.3/(rad*this.R0), 1, 3000), ty:this.h*(window.innerWidth < 900 ? .36 : .42)}, 1300);
+        return;
+      }
       const s0 = this.proj.scale(), rad = g ? g.rad : 15/6371;
       const k = clamp(Math.min(this.w, this.h)*.3/(rad*s0), 3, 2400);
       const cy = this.h*(window.innerWidth < 900 ? .36 : .42);
@@ -2393,6 +2426,118 @@ const MapView = {
     };
     const pr = geoFor(i); if (pr.value) go(pr.value); else pr.then(go);
     if (peek) setTimeout(() => openCitySheet(i, {peek:true}), 60);
+  },
+  globeThr(){ const k = this.R0*this.gl.z/(this.proj ? this.proj.scale() : this.R0); return k < 1.6 ? 1e6 : k < 3 ? 3e5 : k < 6 ? 8e4 : k < 12 ? 2e4 : k < 25 ? 5000 : k < 60 ? 1000 : 0; },
+  _drawGlobe(){
+    const ctx = this.ctx, W = this.w, H = this.h, g = this.gl, M = isDark() ? MAP_DARK : MAP_LIGHT;
+    const R = this.R0*g.z, ty = g.ty == null ? this.cy0 : g.ty;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.fillStyle = M.space; ctx.fillRect(0, 0, W, H);
+    const proj = d3.geoOrthographic().scale(R).translate([W/2, ty]).rotate([-g.lon, -g.lat]).clipAngle(90).clipExtent([[-4, -4], [W + 4, H + 4]]).precision(.7);
+    const path = d3.geoPath(proj, ctx), center = [g.lon, g.lat];
+    if (g.z < 2.5){
+      const halo = ctx.createRadialGradient(W/2, ty, R*.95, W/2, ty, R*1.25);
+      halo.addColorStop(0, "rgba(120,140,255,.35)"); halo.addColorStop(1, "rgba(120,140,255,0)");
+      ctx.fillStyle = halo; ctx.fillRect(0, 0, W, H);
+    }
+    ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle = M.ocean; ctx.fill();
+    if (g.z < 30){ ctx.beginPath(); path(G.grat); ctx.strokeStyle = "rgba(255,255,255,.09)"; ctx.lineWidth = 1; ctx.stroke(); }
+    const off = Math.abs(ty - H/2), va = Math.min(Math.PI/2, Math.asin(Math.min(1, (Math.hypot(W, H)/2 + off)/R)) + .02);
+    const fine = g.z > 14 && G.land10parts && G.border10parts;
+    const land = g.z < 2.5 ? G.land50 : visibleGeo(fine ? G.land10parts : G.land50parts, center, va, "MultiPolygon");
+    const bord = g.z < 2.5 ? G.borders : visibleGeo(fine ? G.border10parts : G.borderParts, center, va, "MultiLineString");
+    ctx.beginPath(); path(land); ctx.fillStyle = M.land; ctx.fill();
+    ctx.beginPath(); path(bord); ctx.strokeStyle = M.border; ctx.lineWidth = .8; ctx.stroke();
+    if (this.selected != null) this.drawSelGlobe(ctx, path, land);
+    if (g.z < 3){
+      const sh = ctx.createRadialGradient(W/2 - R*.35, ty - R*.4, R*.1, W/2, ty, R);
+      sh.addColorStop(0, "rgba(255,255,255,.10)"); sh.addColorStop(1, "rgba(5,8,60,.28)");
+      ctx.globalAlpha = clamp(3 - g.z, 0, 1); ctx.beginPath(); ctx.arc(W/2, ty, R, 0, 7); ctx.fillStyle = sh; ctx.fill(); ctx.globalAlpha = 1;
+    }
+    // visible side test without trigonometry per frame: cos(angular distance) from precomputed sin/cos
+    const f0 = g.lat*Math.PI/180, l0 = g.lon*Math.PI/180, s0 = Math.sin(f0), c0 = Math.cos(f0), cmin = Math.cos(Math.min(va, Math.PI/2 - .01)), T = this.trig;
+    this.pos = i => {
+      if (s0*T.sl[i] + c0*T.cl[i]*Math.cos(T.lo[i] - l0) < cmin) return null;
+      const q = proj([D.lon[i], D.lat[i]]); return q && q[0] > -60 && q[1] > -60 && q[0] < W + 60 && q[1] < H + 60 ? q : null;
+    };
+    this.overlay(ctx, M, this.pos, this.globeThr());
+  },
+  drawSelGlobe(ctx, path, land){
+    const i = this.selected, pr = geoFor(i), g = pr.value;
+    if (!g){ pr.then(() => this.draw()); return; }
+    const T = TIERS[D.tier[i]];
+    if (g.region){ ctx.save(); ctx.beginPath(); path(land); ctx.clip(); ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.c, .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA(T.c, .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+    ctx.save();
+    if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
+    ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA(T.c, .6); ctx.fill();
+    ctx.lineJoin = "round"; ctx.strokeStyle = hexA(T.c, .25); ctx.lineWidth = 12; ctx.stroke();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = T.c; ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.restore();
+  },
+  initGlobe(){
+    const cv = this.cv, pts = new Map(); let moved = 0;
+    const rot = (dx, dy) => { const g = this.gl, R = this.R0*g.z, d = 180/Math.PI;
+      g.lon = ((g.lon - dx/R*d) + 540) % 360 - 180; g.lat = clamp(g.lat + dy/R*d, -89, 89); };
+    const zoomBy = f => { this.gl.z = clamp(this.gl.z*f, .8, 3000); };
+    cv.addEventListener("pointerdown", e => {
+      if (this.mode !== "globe" || e.button) return;
+      this.stopTween(); cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      if (pts.size === 1) moved = 0;
+    });
+    cv.addEventListener("pointermove", e => {
+      if (this.mode !== "globe" || !pts.has(e.pointerId)) return;
+      const p = pts.get(e.pointerId);
+      if (pts.size === 1){ rot(e.clientX - p.x, e.clientY - p.y); moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y); }
+      else if (pts.size === 2){
+        const [a, b] = [...pts.values()], d0 = Math.hypot(a.x - b.x, a.y - b.y), m0 = [(a.x + b.x)/2, (a.y + b.y)/2];
+        p.x = e.clientX; p.y = e.clientY;
+        const d1 = Math.hypot(a.x - b.x, a.y - b.y), m1 = [(a.x + b.x)/2, (a.y + b.y)/2];
+        if (d0 > 0) zoomBy(d1/d0); rot(m1[0] - m0[0], m1[1] - m0[1]); moved += 20;
+        this.draw(); return;
+      }
+      p.x = e.clientX; p.y = e.clientY; this.draw();
+    });
+    const up = e => { if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); if (!pts.size && moved > 6) this.dragged = true; };
+    cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+    cv.addEventListener("wheel", e => { if (this.mode !== "globe") return; e.preventDefault(); this.stopTween(); zoomBy(Math.exp(-e.deltaY*.0018)); this.draw(); }, {passive:false});
+  },
+  stopTween(){ if (this.tw){ cancelAnimationFrame(this.tw); this.tw = null; } },
+  tween(to, ms){
+    this.stopTween();
+    const g = this.gl, from = {lon:g.lon, lat:g.lat, z:g.z, ty:g.ty == null ? this.cy0 : g.ty}, t0 = performance.now();
+    const tgt = Object.assign({}, from, to); tgt.z = clamp(tgt.z, .8, 3000);
+    const dl = ((tgt.lon - from.lon) % 360 + 540) % 360 - 180;
+    // fly: zoom out a little while turning far, then dive
+    const far = Math.min(1, Math.abs(dl)/90 + Math.abs(tgt.lat - from.lat)/90), zMid = Math.min(from.z, tgt.z, Math.max(1, 1.6 - far));
+    const step = now => {
+      const u = clamp((now - t0)/ms, 0, 1), e = d3.easeCubicInOut(u);
+      g.lon = from.lon + dl*e; g.lat = from.lat + (tgt.lat - from.lat)*e; g.ty = from.ty + (tgt.ty - from.ty)*e;
+      const lz = Math.log(from.z) + (Math.log(tgt.z) - Math.log(from.z))*e, bump = Math.sin(Math.PI*e)*(Math.log(zMid) - Math.min(Math.log(from.z), Math.log(tgt.z)))*(far > .3 ? 1 : 0);
+      g.z = Math.exp(lz + Math.min(0, bump));
+      this.draw();
+      this.tw = u < 1 ? requestAnimationFrame(step) : null;
+    };
+    this.tw = requestAnimationFrame(step);
+  },
+  setMode(m){
+    if (m === this.mode) return;
+    this.stopTween();
+    if (!this.px) this.resize();
+    const W = this.w, H = this.h;
+    if (m === "globe"){
+      const {k, x, y} = this.t, c = this.proj.invert([(W/2 - x)/k, (H/2 - y)/k]);
+      if (c && isFinite(c[0])) this.gl = {lon:c[0], lat:clamp(c[1], -80, 80), z:Math.max(1, k*this.proj.scale()/this.R0), ty:k > 1.5 ? H/2 : null};
+    } else {
+      const g = this.gl, k = clamp(g.z*this.R0/this.proj.scale(), 1, 2500), p = this.proj([g.lon, g.lat]);
+      const t = k <= 1.05 ? d3.zoomIdentity : d3.zoomIdentity.translate(W/2 - p[0]*k, (g.ty == null ? H/2 : g.ty) - p[1]*k).scale(k);
+      this.mode = m; d3.select(this.cv).call(this.zoom.transform, t);
+    }
+    this.mode = m; lsSet("rngworld.mapmode", m); this.renderMode(); this.draw();
+  },
+  renderMode(){
+    const el = $("#map-mode"); if (!el) return;
+    for (const b of $$("button", el)) b.setAttribute("aria-pressed", b.dataset.mode === this.mode);
+    if (!el.dataset.bound){ el.dataset.bound = "1"; for (const b of $$("button", el)) b.onclick = () => this.setMode(b.dataset.mode); }
   },
   renderChips(){
     const f = this.filters, defs = [["me","Mes villes"],["friends","Amis"],["others","Autres joueurs"],["cities","Toutes les villes"]];
