@@ -324,7 +324,35 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 @keyframes hueflow{to{background-position:-400% 0}}
 .t6 .cs-hero::before{background:radial-gradient(120% 140% at 90% -30%,rgba(255,255,255,.5),transparent 55%),repeating-conic-gradient(from var(--ang) at 88% -10%,rgba(255,255,255,.28) 0 4deg,transparent 4deg 14deg);animation:spin 16s linear infinite}
 .t6 .cs-main h2,.t6 .cs-sub,.t6 .cs-tier,.t6 .cs-score b,.t6 .cs-score span{text-shadow:0 1px 3px rgba(30,8,51,.55)}
-.t6 .cs-score .live-num{background-image:linear-gradient(100deg,#fff 40%,#FFF6B0 50%,#fff 60%);filter:drop-shadow(0 1px 2px rgba(30,8,51,.75)) drop-shadow(0 0 6px rgba(30,8,51,.35))}
+.t6 .cs-score .live-num,.t6 .cs-score b{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:#fff;filter:none;animation:ultnum 3s linear infinite}
+@keyframes ultnum{0%,100%{text-shadow:0 0 2px #fff,0 0 10px rgba(255,255,255,.9),0 0 22px #FF3D77,0 0 40px #FF9A3D}
+  33%{text-shadow:0 0 2px #fff,0 0 10px rgba(255,255,255,.9),0 0 22px #3DFF8C,0 0 40px #3DD5FF}
+  66%{text-shadow:0 0 2px #fff,0 0 10px rgba(255,255,255,.9),0 0 22px #6B5CFF,0 0 40px #D43DFF}}
+/* Ultime sheet: the whole panel in rainbow, not only violet */
+:root{--rb:#FF3D77,#FF9A3D,#FFE53D,#3DFF8C,#3DD5FF,#6B5CFF,#D43DFF,#FF3D77}
+.t6 .cs-more{background:linear-gradient(165deg,rgba(255,61,119,.16),rgba(255,154,61,.14) 16%,rgba(255,229,61,.14) 32%,rgba(61,255,140,.13) 48%,rgba(61,213,255,.15) 64%,rgba(107,92,255,.16) 80%,rgba(212,61,255,.18)),var(--surface)}
+.t6 .cs-more .sheet-photo{box-shadow:0 0 18px rgba(193,59,255,.35);border:3px solid transparent;background:linear-gradient(#2E3BE3,#2E3BE3) padding-box,linear-gradient(120deg,var(--rb)) border-box}
+.t6 .points{border:2px solid transparent;background:linear-gradient(120deg,rgba(255,61,119,.14),rgba(255,229,61,.12),rgba(61,255,140,.12),rgba(61,213,255,.14),rgba(212,61,255,.16)) padding-box,linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(120deg,var(--rb)) border-box;background-size:auto,auto,200% 100%;animation:rbborder 4s linear infinite}
+@keyframes rbborder{to{background-position:0 0,0 0,-200% 0}}
+.t6 .points .total b{background:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bandshift 3s linear infinite;filter:drop-shadow(0 0 10px rgba(193,59,255,.35))}
+.t6 .points .total b .live-num{background-image:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E);background-size:200% 100%;animation:bandshift 3s linear infinite}
+.t6 .bd-row .mul{background:linear-gradient(90deg,var(--rb)) 0 0/200% 100%;animation:bandshift 3s linear infinite;text-shadow:0 1px 1px rgba(30,8,51,.45)}
+.t6 .bd-row.base .mul{background:#24093F;animation:none}
+.t6 .bd-row:nth-child(7n+1) .add{color:#E0245E}.t6 .bd-row:nth-child(7n+2) .add{color:#E8770E}.t6 .bd-row:nth-child(7n+3) .add{color:#B89300}
+.t6 .bd-row:nth-child(7n+4) .add{color:#14A85A}.t6 .bd-row:nth-child(7n+5) .add{color:#0E9BD6}.t6 .bd-row:nth-child(7n+6) .add{color:#5B4BE0}.t6 .bd-row:nth-child(7n) .add{color:#B02BD9}
+.t6 .bd-row:nth-child(7n+1) .lbl .fi{background:linear-gradient(135deg,#FF7AA0,#E0245E)}.t6 .bd-row:nth-child(7n+2) .lbl .fi{background:linear-gradient(135deg,#FFB070,#E8770E)}
+.t6 .bd-row:nth-child(7n+3) .lbl .fi{background:linear-gradient(135deg,#FFE96B,#C9A400)}.t6 .bd-row:nth-child(7n+4) .lbl .fi{background:linear-gradient(135deg,#7DFFB0,#14A85A)}
+.t6 .bd-row:nth-child(7n+5) .lbl .fi{background:linear-gradient(135deg,#7FE6FF,#0E9BD6)}.t6 .bd-row:nth-child(7n+6) .lbl .fi{background:linear-gradient(135deg,#A79CFF,#5B4BE0)}
+.t6 .bd-row:nth-child(7n) .lbl .fi{background:linear-gradient(135deg,#E79BFF,#B02BD9)}
+.t6 .bd-row .lbl .fi{color:#fff}
+.t6 .facts{background:linear-gradient(120deg,var(--rb));border-color:transparent}
+.t6 .fact:nth-child(4n+1) .k{color:#E0245E}.t6 .fact:nth-child(4n+2) .k{color:#14A85A}.t6 .fact:nth-child(4n+3) .k{color:#0E9BD6}.t6 .fact:nth-child(4n) .k{color:#B02BD9}
+.t6 .owner{border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(120deg,var(--rb)) border-box}
+.t6 .owner.free{color:#6B2BD9}
+.t6 .st-pts.live-num{background-image:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E);background-size:200% 100%;animation:bandshift 3s linear infinite}
+.sc-wrap.t6 .sc-num{animation:ultnum 3s linear infinite}
+.sc-wrap.t6.done .sc-num span{background-image:linear-gradient(100deg,#FFB3C6,#FFD79A,#FFF4A3,#B5FFD0,#AEEFFF,#C2BBFF,#F0B5FF,#FFB3C6);background-size:200% 100%;animation:bandshift 2.5s linear infinite}
+@media (prefers-reduced-motion:reduce){.t6 .cs-score b,.t6 .points,.t6 .points .total b,.t6 .bd-row .mul,.sc-wrap.t6 .sc-num{animation:none}}
 .chip[data-t="6"] .dot,.tr-row.t6 .tr-dot,.t6 .tr-dot{background:conic-gradient(#FF3D77,#FF9A3D,#FFE53D,#3DFF8C,#3DD5FF,#6B5CFF,#D43DFF,#FF3D77)}
 @media (prefers-reduced-motion:reduce){.god-rays,.god-rays::after,.stamp.lg.t6,.t6 .st,.t6 .st-band,.t6 .cs-hero,.spk,.t4 .st,.t4 .st-band{animation:none}}
 .stage.shake.big{animation:shakebig .8s cubic-bezier(.36,.07,.19,.97)}
@@ -703,6 +731,15 @@ const RAINBOW = ["#FF3D77", "#FF9A3D", "#FFE53D", "#3DFF8C", "#3DD5FF", "#6B5CFF
 // colour of a rarity for the reveal effects: Ultime cycles through the rainbow
 const tcol = t => t === TOP ? RAINBOW[Math.floor(performance.now()/110) % RAINBOW.length] : TIERS[t].c;
 const tfx = t => t === TOP ? "rainbow" : TIERS[t].c;
+// fill/stroke style for a city of tier T drawn around (cx, cy): Ultime gets a rainbow wheel
+function tpaint(ctx, T, a, cx, cy){
+  if (!T.rainbow) return hexA(T.line || T.c, a);
+  const n = RAINBOW.length;
+  if (!ctx.createConicGradient || !isFinite(cx) || !isFinite(cy)){ const g = ctx.createLinearGradient((cx || 0) - 120, cy || 0, (cx || 0) + 120, cy || 0); RAINBOW.forEach((c, k) => g.addColorStop(k/(n - 1), hexA(c, a))); return g; }
+  const g = ctx.createConicGradient((performance.now()/2400) % (Math.PI*2), cx, cy);
+  RAINBOW.forEach((c, k) => g.addColorStop(k/n, hexA(c, a))); g.addColorStop(1, hexA(RAINBOW[0], a));
+  return g;
+}
 const tierOf = v => { let t = 0; while (t < TOP && v >= TIER_MIN[t+1]) t++; return t; };
 const COLORS = ["#FF5B6E","#FF8A3D","#F5B700","#2BC48A","#14AFC4","#3F7CFF","#6A4CFF","#A855F7","#FF4FA3","#14163D","#8A5A44","#5E8C31"];
 
@@ -1234,6 +1271,7 @@ function onUser(user){
     rebuildLocks(); S.ready = true; afterData(); return;
   }
   S.mode = "online"; S.uid = user.uid;
+  if (S.guest && S.guest.today && S.guest.today.used){ S.guestHadDraws = true; S.guest = {today:freshToday()}; lsSet("rngworld.guest", S.guest); $("#card-slot").innerHTML = ""; }
   S.isOwner = (CFG.admins || []).map(x => String(x).toLowerCase()).includes(String(user.email || "").toLowerCase());
   let first = true;
   S.unsub.push(S.db.collection("players").onSnapshot(snap => {
@@ -1248,16 +1286,16 @@ function onUser(user){
   S.unsub.push(S.db.collection("requests").where("from", "==", S.uid).onSnapshot(s => { reqs.from = new Map(s.docs.map(d => [d.id, d.data()])); merge(); }, e => console.warn("req from", e)));
   S.unsub.push(S.db.collection("requests").where("to", "==", S.uid).onSnapshot(s => { reqs.to = new Map(s.docs.map(d => [d.id, d.data()])); merge(); }, e => console.warn("req to", e)));
 }
-/* A guest who drew cities before signing in keeps today's draws on the account (unless the account already played today). */
-async function adoptGuest(){
+/* Draws made without an account never carry over to the account: otherwise one could reroll as a guest
+   until a great city shows up and only then sign in to keep it. */
+function adoptGuest(){
   const g = S.guest && S.guest.today;
-  if (!S.me || !g || g.d !== dayKey() || !g.used) return;
-  const acc = S.me.today;
-  if (acc && acc.d === dayKey() && acc.used){ toast("Ce compte a déjà joué aujourd'hui : on garde ses tirages."); }
-  else { await writeMe({today:Object.assign({}, g)}); }
+  if (S.guestHadDraws || (g && g.d === dayKey() && g.used)) toast("Les tirages faits sans compte ne sont pas conservés.");
+  S.guestHadDraws = false;
   S.guest = {today:freshToday()}; lsSet("rngworld.guest", S.guest);
-  if (S.pendingKeep && today().cur === S.pendingKeep){ S.pendingKeep = null; keepCurrent(); }
   S.pendingKeep = null;
+  Stage.anim = null; Stage.scoring = null; SFX.revealStop();
+  $("#card-slot").innerHTML = ""; Stage.renderUI();
 }
 function rebuildLocks(){
   const locks = new Map();
@@ -1751,16 +1789,16 @@ async function paintPlan(cv, i){
   const proj = d3.geoOrthographic().rotate([-c[0], -c[1]]).translate([W/2, H/2]).scale(Math.min(W, H)*.42/Math.sin(half)).clipAngle(90).clipExtent([[0, 0], [W, H]]);
   const path = d3.geoPath(proj, ctx);
   const land = G.land10parts ? visibleGeo(G.land10parts, c, half*(W/Math.min(W, H))*1.6 + .01, "MultiPolygon") : G.land50;
-  const E = EARTH();
+  const E = EARTH(), CC = proj(c) || [W/2, H/2];
   ctx.fillStyle = E.planSea; ctx.fillRect(0, 0, W, H);
   ctx.beginPath(); path(land); ctx.fillStyle = E.planLand; ctx.fill();
   ctx.save(); ctx.beginPath(); path(land); ctx.clip();
-  if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = hexA((T.line || T.c), .5); ctx.lineWidth = 1; ctx.stroke(); }
-  if (g.region){ ctx.beginPath(); path(g.region); ctx.fillStyle = hexA((T.line || T.c), .12); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
+  if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = tpaint(ctx, T, .5, CC[0], CC[1]); ctx.lineWidth = 1; ctx.stroke(); }
+  if (g.region){ ctx.beginPath(); path(g.region); ctx.fillStyle = tpaint(ctx, T, .12, CC[0], CC[1]); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = tpaint(ctx, T, 1, CC[0], CC[1]); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
   ctx.restore();
   ctx.save();
   if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
-  ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA((T.line || T.c), .7); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = T.d; ctx.stroke();
+  ctx.beginPath(); path(g.shape); ctx.fillStyle = tpaint(ctx, T, .7, CC[0], CC[1]); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = T.d; ctx.stroke();
   ctx.restore();
   const [x, y] = proj(c);
   ctx.beginPath(); ctx.arc(x, y, 4, 0, 7); ctx.fillStyle = "#fff"; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = T.d; ctx.stroke();
@@ -2100,7 +2138,7 @@ const Stage = {
     ctx.save();
     if (h.clip) ctx.clip(h.clip);
     ctx.lineJoin = "round"; ctx.lineCap = "round";
-    if (F > 0){ ctx.fillStyle = hexA(col, .6*F); ctx.fill(h.shape); ctx.strokeStyle = hexA(col, .28*F); ctx.lineWidth = 14; ctx.stroke(h.shape); }
+    if (F > 0){ ctx.fillStyle = tpaint(ctx, T, .6*F, c[0], c[1]); ctx.fill(h.shape); ctx.strokeStyle = tpaint(ctx, T, .28*F, c[0], c[1]); ctx.lineWidth = 14; ctx.stroke(h.shape); }
     let trace = h.shape;
     if (u < 1){
       trace = new Path2D(); let left = h.total*u;
@@ -2111,7 +2149,7 @@ const Stage = {
       }
     }
     ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = 5; ctx.stroke(trace);
-    ctx.strokeStyle = col; ctx.lineWidth = 2.6; ctx.stroke(trace);
+    ctx.strokeStyle = tpaint(ctx, T, 1, c[0], c[1]); ctx.lineWidth = 2.6; ctx.stroke(trace);
     ctx.restore();
     const d = clamp((r - .2)/.55, 0, 1), y = c[1] - (1 - easeOutBack(d))*70;
     if (d > 0){
@@ -2359,8 +2397,7 @@ function drawOne(){
 async function keepCurrent(){
   const t = today(); if (t.cur == null || t.kept) return;
   if (S.mode === "guest" || (S.mode === "online" && !S.me)){
-    S.pendingKeep = t.cur;
-    if (S.mode === "guest") openAuth("Crée un compte ou connecte-toi pour garder cette ville. Tes tirages du jour sont conservés.");
+    if (S.mode === "guest") openAuth("Il faut un compte pour garder une ville. Les tirages faits sans compte ne comptent pas : connecte-toi, puis lance tes 5 tirages du jour.");
     else maybeOnboard(true);
     return;
   }
@@ -2829,13 +2866,13 @@ const MapView = {
     const i = this.selected, pr = geoFor(i), g = pr.value;
     if (!g){ pr.then(() => this.draw()); return; }
     if (pp){
-      const T = TIERS[D.tier[i]];
-      if (g.region){ ctx.save(); if (this.landClipPath) ctx.clip(this.landClipPath); ctx.beginPath(); pp(g.region); ctx.fillStyle = hexA((T.line || T.c), .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA((T.line || T.c), .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+      const T = TIERS[D.tier[i]], {k:K, x:X, y:Y} = this.t, CX = this.px[i]*K + X, CY = this.py[i]*K + Y;
+      if (g.region){ ctx.save(); if (this.landClipPath) ctx.clip(this.landClipPath); ctx.beginPath(); pp(g.region); ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
       ctx.save();
       if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); pp(g.region); ctx.clip(); }
-      ctx.beginPath(); pp(g.shape); ctx.fillStyle = hexA((T.line || T.c), .6); ctx.fill();
-      ctx.lineJoin = "round"; ctx.strokeStyle = hexA((T.line || T.c), .25); ctx.lineWidth = 12; ctx.stroke();
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 2.4; ctx.stroke();
+      ctx.beginPath(); pp(g.shape); ctx.fillStyle = tpaint(ctx, T, .6, CX, CY); ctx.fill();
+      ctx.lineJoin = "round"; ctx.strokeStyle = tpaint(ctx, T, .25, CX, CY); ctx.lineWidth = 12; ctx.stroke();
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = tpaint(ctx, T, 1, CX, CY); ctx.lineWidth = 2.4; ctx.stroke();
       ctx.restore(); return;
     }
     const key = i + ":" + g.ver + ":" + this.w + "x" + this.h;
@@ -2843,17 +2880,17 @@ const MapView = {
       const pth = d3.geoPath(this.proj);
       this.hl = {key, region:g.region ? new Path2D(pth(g.region)) : null, shape:new Path2D(pth(g.shape)), clip:g.kind === "estimate" && !g.clipped};
     }
-    const T = TIERS[D.tier[i]], h = this.hl, now = performance.now();
+    const T = TIERS[D.tier[i]], h = this.hl, now = performance.now(), CX = this.px[i], CY = this.py[i];
     if (h.region){
-      ctx.fillStyle = hexA((T.line || T.c), .1); ctx.fill(h.region);
-      ctx.setLineDash([8/k, 6/k]); ctx.strokeStyle = hexA((T.line || T.c), .8); ctx.lineWidth = 1.8/k; ctx.stroke(h.region); ctx.setLineDash([]);
+      ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(h.region);
+      ctx.setLineDash([8/k, 6/k]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8/k; ctx.stroke(h.region); ctx.setLineDash([]);
     }
     ctx.save();
     if (h.clip && h.region) ctx.clip(h.region);
-    ctx.fillStyle = hexA((T.line || T.c), .6); ctx.fill(h.shape);
-    ctx.lineJoin = "round"; ctx.strokeStyle = hexA((T.line || T.c), .25); ctx.lineWidth = 12/k; ctx.stroke(h.shape);
+    ctx.fillStyle = tpaint(ctx, T, .6, CX, CY); ctx.fill(h.shape);
+    ctx.lineJoin = "round"; ctx.strokeStyle = tpaint(ctx, T, .25, CX, CY); ctx.lineWidth = 12/k; ctx.stroke(h.shape);
     ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5/k; ctx.stroke(h.shape);
-    ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 2.4/k; ctx.stroke(h.shape);
+    ctx.strokeStyle = tpaint(ctx, T, 1, CX, CY); ctx.lineWidth = 2.4/k; ctx.stroke(h.shape);
     ctx.restore();
   },
   pin(ctx, x, y, p, s, ring){
@@ -2957,13 +2994,13 @@ const MapView = {
   drawSelGlobe(ctx, path, land){
     const i = this.selected, pr = geoFor(i), g = pr.value;
     if (!g){ pr.then(() => this.draw()); return; }
-    const T = TIERS[D.tier[i]];
-    if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = hexA((T.line || T.c), .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA((T.line || T.c), .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+    const T = TIERS[D.tier[i]], cc = path.projection()([D.lon[i], D.lat[i]]) || [this.w/2, this.h/2], CX = cc[0], CY = cc[1];
+    if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
     ctx.save();
     if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
-    ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA((T.line || T.c), .6); ctx.fill();
-    ctx.lineJoin = "round"; ctx.strokeStyle = hexA((T.line || T.c), .25); ctx.lineWidth = 12; ctx.stroke();
-    ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = (T.line || T.c); ctx.lineWidth = 2.4; ctx.stroke();
+    ctx.beginPath(); path(g.shape); ctx.fillStyle = tpaint(ctx, T, .6, CX, CY); ctx.fill();
+    ctx.lineJoin = "round"; ctx.strokeStyle = tpaint(ctx, T, .25, CX, CY); ctx.lineWidth = 12; ctx.stroke();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 4.5; ctx.stroke(); ctx.strokeStyle = tpaint(ctx, T, 1, CX, CY); ctx.lineWidth = 2.4; ctx.stroke();
     ctx.restore();
   },
   initGlobe(){
@@ -2973,11 +3010,16 @@ const MapView = {
     const zoomBy = f => { this.gl.z = clamp(this.gl.z*f, .8, 3000); };
     // zoom keeping the place under the cursor (or between the fingers) where it is
     const orth = () => { const g = this.gl; return d3.geoOrthographic().scale(this.R0*g.z).translate([this.w/2, g.ty == null ? this.cy0 : g.ty]).rotate([-g.lon, -g.lat]).clipAngle(90); };
+    // zooming in goes toward the cursor; zooming out stays put (dragging the far side around looks wrong),
+    // and the anchor fades out near the edge of the globe where it would swing it around
     const zoomAt = (f, sx, sy) => {
-      const p0 = orth().invert([sx, sy]);
+      const g = this.gl, z0 = g.z, p0 = orth().invert([sx, sy]);
       zoomBy(f);
-      if (!p0 || !isFinite(p0[0]) || !isFinite(p0[1]) || d3.geoDistance(p0, [this.gl.lon, this.gl.lat]) > 1.56) return;
+      if (f <= 1 || g.z === z0 || !p0 || !isFinite(p0[0]) || !isFinite(p0[1])) return;
+      const dist = d3.geoDistance(p0, [g.lon, g.lat]); if (dist > 1.2) return;
+      const w = dist < .8 ? 1 : 1 - (dist - .8)/.4, lon0 = g.lon, lat0 = g.lat;
       for (let k = 0; k < 24; k++){ const q = orth()(p0); if (!q) break; const dx = sx - q[0], dy = sy - q[1]; if (Math.abs(dx) + Math.abs(dy) < .3) break; rot(dx, dy); }
+      if (w < 1){ const dl = ((g.lon - lon0 + 540) % 360) - 180; g.lon = lon0 + dl*w; g.lat = lat0 + (g.lat - lat0)*w; }
     };
     const local = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
     cv.addEventListener("pointerdown", e => {
@@ -3396,7 +3438,7 @@ async function saveProfile(pseudo, color, avatar){
       if (n.exists && n.data().uid !== S.uid){ const e = new Error("taken"); throw e; }
       if (!n.exists) tx.set(nref, {uid:S.uid});
       if (old && old !== pl) tx.delete(S.db.doc("pseudos/" + old));
-      const base = S.me ? {} : {cities:[], joined:Date.now(), today:Object.assign({}, today())};
+      const base = S.me ? {} : {cities:[], joined:Date.now(), today:freshToday()};
       tx.set(S.db.doc("players/" + S.uid), Object.assign(base, data), {merge:true});
     });
     return {ok:true};
@@ -3437,9 +3479,8 @@ function maybeOnboard(force){
     btn.disabled = false;
     if (!r.ok){ $("#ob-msg").innerHTML = `<p class="err">${esc(r.err)}</p>`; return; }
     m.hidden = true; m.innerHTML = ""; toast("Profil créé !"); go("draw");
-    const pk = S.pendingKeep; S.pendingKeep = null;
+    S.pendingKeep = null;
     S.guest = {today:freshToday()}; lsSet("rngworld.guest", S.guest);
-    if (pk){ for (let k = 0; k < 30 && !S.me; k++) await sleep(100); if (S.me && today().cur === pk) keepCurrent(); }
   };
   setTimeout(() => $("#ob-pseudo") && $("#ob-pseudo").focus(), 50);
 }
