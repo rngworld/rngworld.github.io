@@ -1674,9 +1674,15 @@ function geoFor(i){
     const g = {region, country, near:[], ver:1};
     // Base outline right away (urban area, or the estimate cut to the coast). Official OSM limits replace it
     // only if they arrive before the outline is first drawn: once on screen (g.frozen), it never changes.
-    osmShape(i).then(f => { if (f && !g.frozen){ g.shape = f; g.kind = "osm"; g.ver++; frame(g, i); } });
+    osmShape(i).then(f => { if (f && !g.frozen){ g.shape = f; g.kind = "osm"; g.ver++; frame(g, i); Stage.layerKey = ""; Stage.lastSig = ""; } });
     if (ug){ g.shape = {type:"Feature", geometry:ug}; g.kind = "urban"; }
-    else { g.shape = territory(i); g.kind = "estimate"; await Promise.race([landClip(g, i), sleep(1500)]); }
+    else {
+      g.shape = territory(i); g.kind = "estimate";
+      // cut to the coast (waits for the detailed coastline on the very first draw); if it finishes late,
+      // apply it only while the outline isn't on screen yet, and refresh every cache (ver)
+      const lc = landClip(g, i), r = await Promise.race([lc, sleep(G.land10parts ? 900 : 3000).then(() => "late")]);
+      if (r === "late") lc.then(ok => { if (ok){ g.ver++; frame(g, i); Stage.layerKey = ""; Stage.lastSig = ""; } });
+    }
     frame(g, i);
     return g;
   })();
@@ -2005,10 +2011,13 @@ const Stage = {
   },
   frame(now, dt){
     const fi = this.anim ? this.anim.idx : this.focusIdx();
-    if (this.anim) this.step(now);
-    if (this.anim && this.anim.landed && fi != null){
-      if (!geoFor(fi).value) this.anim.geoLate = true;
-      else if (this.anim.geoLate){ this.anim.geoLate = false; this.landedAt = now; geoFor(fi).value.frozen = true; }
+    if (this.anim){
+      this.step(now);
+      // outline arriving after the landing (skip): animate its trace instead of popping it
+      if (this.anim && this.anim.landed && fi != null){
+        if (!geoFor(fi).value) this.anim.geoLate = true;
+        else if (this.anim.geoLate){ this.anim.geoLate = false; this.landedAt = now; geoFor(fi).value.frozen = true; }
+      }
     }
     else {
       let tgt;
