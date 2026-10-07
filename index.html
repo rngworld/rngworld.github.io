@@ -2198,6 +2198,111 @@ const EARTH_DARK  = {shadeHi:"rgba(255,255,255,.05)", shadeLo:"rgba(3,4,30,.30)"
 const EARTH = () => isDark() ? EARTH_DARK : EARTH_LIGHT;
 const MAP_LIGHT = {space:"#151B7A", ocean:"#2E3BE3", land:"#F6F7FF", border:"rgba(46,59,227,.32)", dot:"rgba(20,22,61,.55)", halo:"rgba(246,247,255,.92)", label:"#14163D"};
 const MAP_DARK  = {space:"#070920", ocean:"#10155C", land:"#343A6E", border:"rgba(160,170,255,.22)", dot:"rgba(236,237,255,.6)", halo:"rgba(20,24,72,.9)", label:"#ECEDFF"};
+/* ---------- Fast map geometry ----------
+   The map redraws on every drag/zoom frame, so coastlines are drawn from pre-computed arrays
+   instead of going through d3's (slow) clipping each frame. */
+const GEO_FAST = {
+  buf:new Float64Array(4096),
+  // unit vectors of every ring of a part, computed once
+  vecs(p){
+    if (p.v) return p.v;
+    const g = p.g, rings = g.type === "Polygon" ? g.coordinates : g.type === "LineString" ? [g.coordinates] : g.type === "MultiLineString" ? g.coordinates : [];
+    const R = Math.PI/180;
+    p.v = rings.map(r => { const a = new Float64Array(r.length*3); for (let k = 0; k < r.length; k++){ const l = r[k][0]*R, f = r[k][1]*R, cf = Math.cos(f); a[k*3] = cf*Math.cos(l); a[k*3+1] = cf*Math.sin(l); a[k*3+2] = Math.sin(f); } return a; });
+    const l = p.c[0]*R, f = p.c[1]*R, c = p.cv = [Math.cos(f)*Math.cos(l), Math.cos(f)*Math.sin(l), Math.sin(f)];
+    // tight cap radius (bounding-box based radii are far too large for parts crossing the antimeridian)
+    let mn = 1; for (const a of p.v) for (let k = 0; k < a.length; k += 3){ const d = a[k]*c[0] + a[k+1]*c[1] + a[k+2]*c[2]; if (d < mn) mn = d; }
+    p.rr = Math.acos(Math.max(-1, mn)) + .01;
+    return p.v;
+  },
+  /* Orthographic globe: front points projected, back points pushed onto the rim (fills stay correct),
+     whole parts outside the visible cap skipped. Parts big enough to wrap the far side use d3's exact clipping. */
+  // lighter copy of a part for small globes: drops vertices closer than `tol` radians to the previous kept one
+  lod(p, tol){
+    const key = "l" + tol; if (p[key]) return p[key];
+    const full = this.vecs(p), ct = Math.cos(tol);
+    return p[key] = full.map(a => {
+      const out = [a[0], a[1], a[2]]; let px = a[0], py = a[1], pz = a[2];
+      for (let k = 3; k < a.length; k += 3){ const x = a[k], y = a[k+1], z = a[k+2]; if (x*px + y*py + z*pz < ct || k === a.length - 3){ out.push(x, y, z); px = x; py = y; pz = z; } }
+      return Float64Array.from(out);
+    }).filter(a => a.length >= 9 || a.length >= 6);
+  },
+  globe(ctx, parts, o, closed){
+    const {lon, lat, R, cx, cy, va, d3path} = o, D2R = Math.PI/180;
+    const want = 2.5/R, tol = [.008, .006, .004, .003, .002, .0014, .001, .0007, .0005, .00035, .00025].find(t => t <= want) || 0;   // a couple of px of error at most
+    const mx = -80, my = -80, Mx = cx*2 + 80, My = o.H + 80;
+    const cl = Math.cos(lon*D2R), sl = Math.sin(lon*D2R), cf = Math.cos(lat*D2R), sf = Math.sin(lat*D2R);
+    const C0 = cf*cl, C1 = cf*sl, C2 = sf, eps = .9;
+    for (const p of parts){
+      this.vecs(p); const rings = tol ? this.lod(p, tol) : p.v, c = p.cv, r = p.rr;
+      const ang = Math.acos(Math.max(-1, Math.min(1, c[0]*C0 + c[1]*C1 + c[2]*C2)));
+      if (ang - r > va) continue;
+      if (closed && Math.PI - ang < r + .03){ d3path(p.g); continue; }
+      for (const a of rings){
+        // project into a scratch buffer first, so rings smaller than ~1.5px are dropped without any canvas call
+        let n = 0, lx = 0, ly = 0, pen = false, x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+        const buf = this.buf.length >= a.length ? this.buf : (this.buf = new Float64Array(a.length*2));
+        for (let k = 0; k < a.length; k += 3){
+          const x = a[k], y = a[k+1], z = a[k+2];
+          const x1r = x*cl + y*sl, y1r = -x*sl + y*cl, x2 = x1r*cf + z*sf;
+          let z2 = -x1r*sf + z*cf, yy = y1r;
+          if (x2 < 0){
+            if (!closed){ if (n > 3){ ctx.moveTo(buf[0], buf[1]); for (let q = 2; q < n; q += 2) ctx.lineTo(buf[q], buf[q+1]); } n = 0; pen = false; continue; }
+            const d = Math.hypot(yy, z2) || 1; yy /= d; z2 /= d;
+          }
+          const sx = cx + R*yy, sy = cy - R*z2;
+          if (!closed){
+            const inside = sx > mx && sx < Mx && sy > my && sy < My;
+            if (!inside && !(pen && lx > mx && lx < Mx && ly > my && ly < My)){ if (n > 3){ ctx.moveTo(buf[0], buf[1]); for (let q = 2; q < n; q += 2) ctx.lineTo(buf[q], buf[q+1]); } n = 0; pen = false; lx = sx; ly = sy; continue; }
+          }
+          if (!pen || Math.abs(sx - lx) + Math.abs(sy - ly) > eps){ buf[n++] = sx; buf[n++] = sy; lx = sx; ly = sy; pen = true;
+            if (sx < x0) x0 = sx; if (sx > x1) x1 = sx; if (sy < y0) y0 = sy; if (sy > y1) y1 = sy; }
+        }
+        if (n < 4) continue;
+        if (closed && (x1 - x0) + (y1 - y0) < 1.5) continue;
+        ctx.moveTo(buf[0], buf[1]); for (let q = 2; q < n; q += 2) ctx.lineTo(buf[q], buf[q+1]);
+        if (closed) ctx.closePath();
+      }
+    }
+  },
+  // flat map: parts projected once with the map's projection (d3 cuts the antimeridian), kept with their bounds
+  flatPrep(parts, proj){
+    const out = [];
+    for (const p of parts){
+      const lines = []; let cur = null, x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      const sink = {point(x, y){ cur.push(x, y); if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; },
+        lineStart(){ cur = []; }, lineEnd(){ if (cur.length > 2) lines.push(Float64Array.from(cur)); cur = null; }, polygonStart(){}, polygonEnd(){}, sphere(){}};
+      if (p.g.type === "Polygon"){
+        // 5° tiles never cross the antimeridian: project the vertices directly (d3's spherical clipping
+        // would read some tile windings as "the whole world except this tile")
+        for (const ring of p.g.coordinates){ sink.lineStart(); for (const c of ring){ const q = proj(c); if (q) sink.point(q[0], q[1]); } sink.lineEnd(); }
+      } else d3.geoStream(p.g, proj.stream(sink));
+      if (lines.length) out.push({lines, b:[x0, y0, x1, y1]});
+    }
+    return out;
+  },
+  flat(ctx, prepped, t, W, H, closed){
+    const {k, x, y} = t, eps = .6;
+    for (const p of prepped){
+      const b = p.b; if (b[2]*k + x < -2 || b[0]*k + x > W + 2 || b[3]*k + y < -2 || b[1]*k + y > H + 2) continue;
+      for (const a of p.lines){
+        let lx = a[0]*k + x, ly = a[1]*k + y; ctx.moveTo(lx, ly);
+        if (closed){
+          for (let q = 2; q < a.length; q += 2){ const sx = a[q]*k + x, sy = a[q+1]*k + y; if (Math.abs(sx - lx) + Math.abs(sy - ly) > eps){ ctx.lineTo(sx, sy); lx = sx; ly = sy; } }
+          ctx.closePath();
+        } else {
+          // lines: only the segments touching the screen
+          let lin = lx > -50 && lx < W + 50 && ly > -50 && ly < H + 50;
+          for (let q = 2; q < a.length; q += 2){
+            const sx = a[q]*k + x, sy = a[q+1]*k + y, inn = sx > -50 && sx < W + 50 && sy > -50 && sy < H + 50;
+            if (!inn && !lin){ ctx.moveTo(sx, sy); lx = sx; ly = sy; continue; }
+            if (Math.abs(sx - lx) + Math.abs(sy - ly) > eps || !inn){ ctx.lineTo(sx, sy); lx = sx; ly = sy; lin = inn; }
+          }
+        }
+      }
+    }
+  },
+};
 const MapView = {
   t:d3.zoomIdentity, selected:null, mode:lsGet("rngworld.mapmode", "flat") === "globe" ? "globe" : "flat", gl:{lon:5, lat:25, z:1, ty:null}, filters:lsGet("landfall.mapf", {me:true, friends:true, others:true, cities:true}), imgs:new Map(),
   init(){
@@ -2230,6 +2335,7 @@ const MapView = {
     // globe: centred in the space left between the top controls and the legend
     const ui = $(".map-ui").getBoundingClientRect(), top = clamp(ui.bottom - r.top + 10, 60, r.height*.45), bot = r.height < 700 ? 56 : 16;
     this.R0 = Math.max(60, Math.min(r.width - 24, r.height - top - bot)/2); this.cy0 = top + (r.height - top - bot)/2;
+    if (!this.lw) this.lw = new Float32Array(D.n);
     if (!this.trig){ this.trig = {sl:new Float32Array(D.n), cl:new Float32Array(D.n), lo:new Float32Array(D.n)};
       for (let i = 0; i < D.n; i++){ const f = D.lat[i]*Math.PI/180; this.trig.sl[i] = Math.sin(f); this.trig.cl[i] = Math.cos(f); this.trig.lo[i] = D.lon[i]*Math.PI/180; } }
     this.draw();
@@ -2248,46 +2354,77 @@ const MapView = {
     ctx.fillStyle = M.space; ctx.fillRect(0, 0, W, H);
     ctx.save(); ctx.translate(x, y); ctx.scale(k, k);
     ctx.fillStyle = M.ocean; if (k > 3){ ctx.save(); ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); ctx.fillRect(0, 0, W, H); ctx.restore(); } else ctx.fill(this.sphere);
-    const deep = k > 30 && G.c10;
     if (k < 30){ ctx.strokeStyle = "rgba(255,255,255,.09)"; ctx.lineWidth = 1/k; ctx.stroke(this.gratP); }
-    if (k >= 7 && G.c10 && !this.c10){ const pth = d3.geoPath(this.proj); this.c10 = G.c10.map(f => ({f, p:new Path2D(pth(f)), b:pth.bounds(f)})); }
-    if (deep){ /* drawn below in screen space */ }
-    else if (k >= 7 && this.c10){
-      const vis = this.c10.filter(c => !(c.b[1][0]*k + x < 0 || c.b[0][0]*k + x > W || c.b[1][1]*k + y < 0 || c.b[0][1]*k + y > H));
-      ctx.fillStyle = M.land; for (const c of vis) ctx.fill(c.p);
-      ctx.strokeStyle = M.border; ctx.lineWidth = 0.9/k; for (const c of vis) ctx.stroke(c.p);
-    } else {
+    const detail = k >= 12 && G.land10parts;
+    if (!detail){
       ctx.fillStyle = M.land; ctx.fill(this.land);
       ctx.strokeStyle = M.border; ctx.lineWidth = 0.8/k; ctx.stroke(this.bord);
+      if (this.selected != null) this.drawSel(ctx, k);
     }
-    if (this.selected != null && !deep) this.drawSel(ctx, k);
     ctx.restore();
-    if (deep){
-      const s0 = this.proj.scale(), t0 = this.proj.translate();
-      const pz = d3.geoNaturalEarth1().scale(s0*k).translate([t0[0]*k + x, t0[1]*k + y]).clipExtent([[-20, -20], [W + 20, H + 20]]);
-      const pp = d3.geoPath(pz, ctx);
-      const vis = this.c10.filter(c => !(c.b[1][0]*k + x < 0 || c.b[0][0]*k + x > W || c.b[1][1]*k + y < 0 || c.b[0][1]*k + y > H));
-      const lp = new Path2D(); const pz2 = d3.geoPath(pz); for (const c of vis){ const d = pz2(c.f); if (d) lp.addPath(new Path2D(d)); }
+    if (detail){
+      // detailed coast + borders in screen space (no huge transformed paths, no per-frame reprojection)
+      if (!this.f10 || this.f10.proj !== this.proj){ this.f10 = {proj:this.proj, land:GEO_FAST.flatPrep(G.land10parts, this.proj), bord:null}; }
+      if (!this.f10.bord && G.border10parts) this.f10.bord = GEO_FAST.flatPrep(G.border10parts, this.proj);
+      const lp = new Path2D(); GEO_FAST.flat(lp, this.f10.land, this.t, W, H, true);
       this.landClipPath = lp;
-      ctx.fillStyle = M.land; ctx.fill(lp); ctx.strokeStyle = M.border; ctx.lineWidth = .9; ctx.stroke(lp);
-      if (this.selected != null) this.drawSel(ctx, 1, pp);
+      ctx.fillStyle = M.land; ctx.fill(lp);
+      ctx.beginPath(); GEO_FAST.flat(ctx, this.f10.bord || [], this.t, W, H, false); ctx.strokeStyle = M.border; ctx.lineWidth = .9; ctx.stroke();
+      if (this.selected != null){
+        const s0 = this.proj.scale(), t0 = this.proj.translate();
+        const pz = d3.geoNaturalEarth1().scale(s0*k).translate([t0[0]*k + x, t0[1]*k + y]).clipExtent([[-20, -20], [W + 20, H + 20]]);
+        this.drawSel(ctx, 1, d3.geoPath(pz, ctx));
+      }
     }
     this.pos = i => [this.px[i]*k + x, this.py[i]*k + y];
-    this.overlay(ctx, M, this.pos, this.popThreshold());
+    let box = null;
+    if (k > 4){
+      const pts = [[0, 0], [W/2, 0], [W, 0], [W, H/2], [W, H], [W/2, H], [0, H], [0, H/2]].map(([a, b]) => this.proj.invert([(a - x)/k, (b - y)/k]));
+      if (pts.every(q => q && isFinite(q[0]) && isFinite(q[1]))){
+        const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
+        box = [Math.min(...lons) - 1, Math.min(...lats) - 1, Math.max(...lons) + 1, Math.max(...lats) + 1];
+      }
+    }
+    this.overlay(ctx, M, this.pos, this.popThreshold(), box);
+  },
+  /* Cities by 2° cell, each list biggest first: zoomed-in frames only look at the cells on screen. */
+  cityGrid(){
+    if (this.grid) return this.grid;
+    const cells = new Array(90*180);
+    for (const i of D.byPop){ const c = Math.min(89, Math.floor((D.lat[i] + 90)/2))*180 + Math.min(179, Math.floor((D.lon[i] + 180)/2)); (cells[c] || (cells[c] = [])).push(i); }
+    return this.grid = cells;
+  },
+  candidates(thr, box){
+    if (!box || thr > 20000) return null;
+    const [lo0, la0, lo1, la1] = box, cells = this.cityGrid(), keys = [];
+    const r0 = clamp(Math.floor((la0 + 90)/2), 0, 89), r1 = clamp(Math.floor((la1 + 90)/2), 0, 89);
+    const span = lo1 - lo0 >= 360 ? 180 : Math.ceil((lo1 - lo0)/2) + 1, c0 = Math.floor((lo0 + 180)/2);
+    if ((r1 - r0 + 1)*span > 2500) return null;
+    for (let r = r0; r <= r1; r++) for (let q = 0; q < span; q++){
+      const list = cells[r*180 + (((c0 + q) % 180) + 180) % 180]; if (!list) continue;
+      for (const i of list){ if (D.pop[i] < thr) break; keys.push(D.pop[i]*262144 + i); }
+    }
+    // numeric typed-array sort (much faster than a comparator), biggest first
+    const ks = Float64Array.from(keys).sort(), out = new Int32Array(ks.length);
+    for (let q = 0; q < ks.length; q++) out[q] = ks[ks.length - 1 - q] % 262144;
+    return out;
   },
   /* Dots, labels, pins and the selection tag, given a screen position function (null = hidden side of the globe). */
-  overlay(ctx, M, pos, thr){
+  overlay(ctx, M, pos, thr, box){
     const W = this.w, H = this.h, labels = [], fs = this.filters;
     // city dots
     if (fs.cities){
       ctx.fillStyle = M.dot; ctx.beginPath();
-      const order = D.byPop;
-      for (let o = 0; o < D.n; o++){
+      const order = this.candidates(thr, box) || D.byPop, n = order.length;
+      let shown = 0;
+      for (let o = 0; o < n && shown < 2500; o++){   // biggest first; past ~2500 dots the map is solid anyway
         const i = order[o]; if (D.pop[i] < thr) break;
         const q = pos(i); if (!q) continue; const sx = q[0], sy = q[1];
         if (sx < -10 || sy < -10 || sx > W + 10 || sy > H + 10) continue;
-        const r = D.pop[i] >= 1e6 ? 3 : D.pop[i] >= 1e5 ? 2.2 : 1.6;
-        ctx.moveTo(sx + r, sy); ctx.arc(sx, sy, r, 0, 7);
+        const pp = D.pop[i];
+        if (pp >= 1e5){ const r = pp >= 1e6 ? 3 : 2.2; ctx.moveTo(sx + r, sy); ctx.arc(sx, sy, r, 0, 7); }
+        else ctx.rect(sx - 1.4, sy - 1.4, 2.8, 2.8);
+        shown++;
         if (labels.length < 400) labels.push(i);
       }
       ctx.fill();
@@ -2298,7 +2435,8 @@ const MapView = {
     let placed = 0;
     for (const i of labels){
       if (placed > 60) break;
-      const [sx, sy] = pos(i), name = cityName(i), w = ctx.measureText(name).width;
+      const [sx, sy] = pos(i), name = cityName(i);
+      let w = this.lw[i]; if (!w){ w = this.lw[i] = ctx.measureText(name).width || 1; }
       const gx0 = Math.floor((sx + 6)/40), gx1 = Math.floor((sx + 8 + w)/40), gy = Math.floor(sy/18);
       let free = true; for (let gx = gx0; gx <= gx1 && free; gx++) for (let dy = -1; dy <= 0; dy++) if (occ.has(cell(gx, gy + dy))) free = false;
       if (!free) continue;
@@ -2441,14 +2579,15 @@ const MapView = {
       ctx.fillStyle = halo; ctx.fillRect(0, 0, W, H);
     }
     ctx.beginPath(); path({type:"Sphere"}); ctx.fillStyle = M.ocean; ctx.fill();
-    if (g.z < 30){ ctx.beginPath(); path(G.grat); ctx.strokeStyle = "rgba(255,255,255,.09)"; ctx.lineWidth = 1; ctx.stroke(); }
     const off = Math.abs(ty - H/2), va = Math.min(Math.PI/2, Math.asin(Math.min(1, (Math.hypot(W, H)/2 + off)/R)) + .02);
-    const fine = g.z > 14 && G.land10parts && G.border10parts;
-    const land = g.z < 2.5 ? G.land50 : visibleGeo(fine ? G.land10parts : G.land50parts, center, va, "MultiPolygon");
-    const bord = g.z < 2.5 ? G.borders : visibleGeo(fine ? G.border10parts : G.borderParts, center, va, "MultiLineString");
-    ctx.beginPath(); path(land); ctx.fillStyle = M.land; ctx.fill();
-    ctx.beginPath(); path(bord); ctx.strokeStyle = M.border; ctx.lineWidth = .8; ctx.stroke();
-    if (this.selected != null) this.drawSelGlobe(ctx, path, land);
+    if (g.z < 30){ if (!G.gratParts) G.gratParts = splitParts(G.grat); ctx.beginPath(); GEO_FAST.globe(ctx, G.gratParts, {lon:g.lon, lat:g.lat, R, cx:W/2, cy:ty, va, H}, false); ctx.strokeStyle = "rgba(255,255,255,.09)"; ctx.lineWidth = 1; ctx.stroke(); }
+    const fine = g.z >= 10 && G.land10parts && G.border10parts;   // 5° tiles of the 1:10M coast, thinned to the zoom
+    const exact = d3.geoPath(proj, null), o = {lon:g.lon, lat:g.lat, R, cx:W/2, cy:ty, va, H};
+    const lp = new Path2D(); o.d3path = geom => { const d = exact(geom); if (d) lp.addPath(new Path2D(d)); };
+    GEO_FAST.globe(lp, fine ? G.land10parts : G.land50parts, o, true);
+    ctx.fillStyle = M.land; ctx.fill(lp);
+    ctx.beginPath(); GEO_FAST.globe(ctx, fine ? G.border10parts : G.borderParts, o, false); ctx.strokeStyle = M.border; ctx.lineWidth = .8; ctx.stroke();
+    if (this.selected != null) this.drawSelGlobe(ctx, path, lp);
     if (g.z < 3){
       const sh = ctx.createRadialGradient(W/2 - R*.35, ty - R*.4, R*.1, W/2, ty, R);
       sh.addColorStop(0, "rgba(255,255,255,.10)"); sh.addColorStop(1, "rgba(5,8,60,.28)");
@@ -2456,17 +2595,23 @@ const MapView = {
     }
     // visible side test without trigonometry per frame: cos(angular distance) from precomputed sin/cos
     const f0 = g.lat*Math.PI/180, l0 = g.lon*Math.PI/180, s0 = Math.sin(f0), c0 = Math.cos(f0), cmin = Math.cos(Math.min(va, Math.PI/2 - .01)), T = this.trig;
+    const vdeg = Math.min(va, Math.PI/2)*180/Math.PI + 1, cx = W/2;
     this.pos = i => {
-      if (s0*T.sl[i] + c0*T.cl[i]*Math.cos(T.lo[i] - l0) < cmin) return null;
-      const q = proj([D.lon[i], D.lat[i]]); return q && q[0] > -60 && q[1] > -60 && q[0] < W + 60 && q[1] < H + 60 ? q : null;
+      if (vdeg < 60 && Math.abs(D.lat[i] - g.lat) > vdeg) return null;
+      const dl = T.lo[i] - l0, cd = Math.cos(dl);
+      if (s0*T.sl[i] + c0*T.cl[i]*cd < cmin) return null;
+      const sx = cx + R*T.cl[i]*Math.sin(dl), sy = ty - R*(c0*T.sl[i] - s0*T.cl[i]*cd);
+      return sx > -60 && sy > -60 && sx < W + 60 && sy < H + 60 ? [sx, sy] : null;
     };
-    this.overlay(ctx, M, this.pos, this.globeThr());
+    let box = null;
+    if (vdeg < 40 && Math.abs(g.lat) + vdeg < 85){ const dlon = vdeg/Math.cos((Math.abs(g.lat) + vdeg)*Math.PI/180); box = [g.lon - dlon, g.lat - vdeg, g.lon + dlon, g.lat + vdeg]; }
+    this.overlay(ctx, M, this.pos, this.globeThr(), box);
   },
   drawSelGlobe(ctx, path, land){
     const i = this.selected, pr = geoFor(i), g = pr.value;
     if (!g){ pr.then(() => this.draw()); return; }
     const T = TIERS[D.tier[i]];
-    if (g.region){ ctx.save(); ctx.beginPath(); path(land); ctx.clip(); ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.c, .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA(T.c, .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+    if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.c, .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA(T.c, .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
     ctx.save();
     if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
     ctx.beginPath(); path(g.shape); ctx.fillStyle = hexA(T.c, .6); ctx.fill();
