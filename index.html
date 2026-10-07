@@ -334,14 +334,14 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 :root{--rb:#FF3D77,#FF9A3D,#FFE53D,#3DFF8C,#3DD5FF,#6B5CFF,#D43DFF,#FF3D77}
 /* Ultime sheet: soft iridescent (mother-of-pearl) — pink, lilac, ice blue, mint shifting in the light */
 .t6 .cs-more{background:linear-gradient(160deg,#FCEBFF 0%,#EAF0FF 30%,#E6FBFF 55%,#F3EAFF 80%,#FFEFF6 100%)}
-.t6 .cs-more .sheet-photo{box-shadow:0 0 0 3px #C9B6FF,0 0 22px rgba(170,140,255,.35)}
+.t6 .cs-more .sheet-photo{box-shadow:0 0 0 2px rgba(150,120,255,.55),0 0 22px rgba(170,140,255,.3)}
 .irid,.t6 .points,.t6 .bd-row,.t6 .owner{background:linear-gradient(115deg,#FFF0FA 0%,#EEE8FF 25%,#E3F4FF 50%,#E8FFF7 70%,#F6ECFF 100%);background-size:220% 220%;animation:iridshift 9s ease-in-out infinite}
 @keyframes iridshift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.t6 .points{border:1.5px solid #D4C4FF;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 20px rgba(150,120,255,.15)}
-.t6 .bd-row{box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
-.t6 .owner{border:1.5px solid #D4C4FF}
+.t6 .points{border:1.5px solid rgba(150,120,255,.35);box-shadow:0 6px 20px rgba(150,120,255,.12)}
+.t6 .bd-row{box-shadow:none;border:0}
+.t6 .owner{border:1.5px solid rgba(150,120,255,.35)}
 .t6 .points .total b,.t6 .points .total b .live-num{background:linear-gradient(100deg,#6B3FD6,#2F86C9 35%,#B94FB0 65%,#6B3FD6);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bandshift 6s linear infinite;filter:none}
-.t6 .bd-row .mul{background:linear-gradient(120deg,#F7C6F0,#C9C2FF 45%,#A9E6FF);color:#3B1A63;text-shadow:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.t6 .bd-row .mul{background:linear-gradient(120deg,#F7C6F0,#C9C2FF 45%,#A9E6FF);color:#3B1A63;text-shadow:none;box-shadow:none}
 .t6 .bd-row.base .mul{background:#3B1A63;color:#fff}
 .t6 .bd-row .add{color:#5B3CC4}
 .t6 .bd-row .lbl .fi{background:linear-gradient(135deg,#C79BFF,#7FB2FF);color:#fff}
@@ -353,6 +353,10 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 :root[data-theme="dark"] .t6 .points,:root[data-theme="dark"] .t6 .bd-row,:root[data-theme="dark"] .t6 .owner,:root[data-theme="dark"] .t6 .fact{background:linear-gradient(115deg,rgba(255,170,240,.10),rgba(180,160,255,.12) 30%,rgba(140,210,255,.10) 60%,rgba(150,255,220,.08));background-size:220% 220%}
 :root[data-theme="dark"] .t6 .bd-row .add,:root[data-theme="dark"] .t6 .fact .k{color:#C9B6FF}
 :root[data-theme="dark"] .t6 .facts{background:#3A2E66;border-color:#3A2E66}
+:root[data-theme="dark"] .t6 .points,:root[data-theme="dark"] .t6 .owner{border-color:rgba(170,140,255,.22);box-shadow:none}
+:root[data-theme="dark"] .t6 .bd-row .mul{background:linear-gradient(120deg,#5A3A8C,#3E4A9C 50%,#2E6A8C);color:#EDE4FF}
+:root[data-theme="dark"] .t6 .bd-row.base .mul{background:#EDE4FF;color:#2A1B44}
+:root[data-theme="dark"] .t6 .owner.free{color:#D2C2FF}
 @media (prefers-reduced-motion:reduce){.t6 .points,.t6 .bd-row,.t6 .owner,.t6 .points .total b{animation:none}}
 .t6 .st-pts.live-num{background-image:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E);background-size:200% 100%;animation:bandshift 3s linear infinite}
 .sc-wrap.t6 .sc-num{animation:ultnum 3s linear infinite}
@@ -1827,8 +1831,8 @@ async function paintPlan(cv, i){
   ctx.fillStyle = E.planSea; ctx.fillRect(0, 0, W, H);
   ctx.beginPath(); path(land); ctx.fillStyle = E.planLand; ctx.fill();
   ctx.save(); ctx.beginPath(); path(land); ctx.clip();
-  if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = tpaint(ctx, T, .5, CC[0], CC[1]); ctx.lineWidth = 1; ctx.stroke(); }
-  if (g.region){ ctx.beginPath(); path(g.region); ctx.fillStyle = tpaint(ctx, T, .12, CC[0], CC[1]); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = tpaint(ctx, T, 1, CC[0], CC[1]); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
+  if (g.country){ ctx.beginPath(); path(g.country); ctx.strokeStyle = hexA(T.line || T.c, .5); ctx.lineWidth = 1; ctx.stroke(); }
+  if (g.region){ ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.line || T.c, .12); ctx.fill(); ctx.setLineDash([5, 4]); ctx.strokeStyle = hexA(T.line || T.c, 1); ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]); }
   ctx.restore();
   ctx.save();
   if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
@@ -2912,7 +2916,7 @@ const MapView = {
     g.frozen = true;
     if (pp){
       const T = TIERS[D.tier[i]], {k:K, x:X, y:Y} = this.t, CX = this.px[i]*K + X, CY = this.py[i]*K + Y;
-      if (g.region){ ctx.save(); if (this.landClipPath) ctx.clip(this.landClipPath); ctx.beginPath(); pp(g.region); ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+      if (g.region){ ctx.save(); if (this.landClipPath) ctx.clip(this.landClipPath); ctx.beginPath(); pp(g.region); ctx.fillStyle = hexA(T.line || T.c, .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA(T.line || T.c, .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
       ctx.save();
       if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); pp(g.region); ctx.clip(); }
       ctx.beginPath(); pp(g.shape); ctx.fillStyle = tpaint(ctx, T, .6, CX, CY); ctx.fill();
@@ -2927,8 +2931,8 @@ const MapView = {
     }
     const T = TIERS[D.tier[i]], h = this.hl, now = performance.now(), CX = this.px[i], CY = this.py[i];
     if (h.region){
-      ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(h.region);
-      ctx.setLineDash([8/k, 6/k]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8/k; ctx.stroke(h.region); ctx.setLineDash([]);
+      ctx.fillStyle = hexA(T.line || T.c, .1); ctx.fill(h.region);
+      ctx.setLineDash([8/k, 6/k]); ctx.strokeStyle = hexA(T.line || T.c, .8); ctx.lineWidth = 1.8/k; ctx.stroke(h.region); ctx.setLineDash([]);
     }
     ctx.save();
     if (h.clip && h.region) ctx.clip(h.region);
@@ -3041,7 +3045,7 @@ const MapView = {
     if (!g){ pr.then(() => this.draw()); return; }
     g.frozen = true;
     const T = TIERS[D.tier[i]], cc = path.projection()([D.lon[i], D.lat[i]]) || [this.w/2, this.h/2], CX = cc[0], CY = cc[1];
-    if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+    if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = hexA(T.line || T.c, .1); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = hexA(T.line || T.c, .8); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
     ctx.save();
     if (g.kind === "estimate" && !g.clipped && g.region){ ctx.beginPath(); path(g.region); ctx.clip(); }
     ctx.beginPath(); path(g.shape); ctx.fillStyle = tpaint(ctx, T, .6, CX, CY); ctx.fill();
