@@ -80,7 +80,7 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 
 main{position:relative;min-height:0}
 .view{position:absolute;inset:0;overflow:auto}
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));z-index:6}
+.tabs{display:grid;grid-template-columns:repeat(6,1fr);background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px));z-index:6}
 .tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11px;font-weight:600;color:var(--muted);border-radius:10px}
 .tabs button svg{width:22px;height:22px}
 .tabs button[aria-current="page"]{color:var(--ink)}
@@ -331,29 +331,24 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 /* Ultime sheet: the whole panel in rainbow, not only violet */
 :root{--rb:#FF3D77,#FF9A3D,#FFE53D,#3DFF8C,#3DD5FF,#6B5CFF,#D43DFF,#FF3D77}
 .t6 .cs-more{background:linear-gradient(165deg,rgba(255,61,119,.16),rgba(255,154,61,.14) 16%,rgba(255,229,61,.14) 32%,rgba(61,255,140,.13) 48%,rgba(61,213,255,.15) 64%,rgba(107,92,255,.16) 80%,rgba(212,61,255,.18)),var(--surface)}
-.t6 .cs-more .sheet-photo{box-shadow:0 0 18px rgba(193,59,255,.35);border:3px solid transparent;background:linear-gradient(#2E3BE3,#2E3BE3) padding-box,linear-gradient(120deg,var(--rb)) border-box}
-.t6 .points{border:2px solid transparent;background:linear-gradient(120deg,rgba(255,61,119,.14),rgba(255,229,61,.12),rgba(61,255,140,.12),rgba(61,213,255,.14),rgba(212,61,255,.16)) padding-box,linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(120deg,var(--rb)) border-box;background-size:auto,auto,200% 100%;animation:rbborder 4s linear infinite}
-@keyframes rbborder{to{background-position:0 0,0 0,-200% 0}}
-.t6 .points .total b{background:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bandshift 3s linear infinite;filter:drop-shadow(0 0 10px rgba(193,59,255,.35))}
-.t6 .points .total b .live-num{background-image:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E);background-size:200% 100%;animation:bandshift 3s linear infinite}
-.t6 .bd-row .mul{background:linear-gradient(90deg,var(--rb)) 0 0/200% 100%;animation:bandshift 3s linear infinite;text-shadow:0 1px 1px rgba(30,8,51,.45)}
-.t6 .bd-row.base .mul{background:#24093F;animation:none}
-.t6 .bd-row:nth-child(7n+1) .add{color:#E0245E}.t6 .bd-row:nth-child(7n+2) .add{color:#E8770E}.t6 .bd-row:nth-child(7n+3) .add{color:#B89300}
-.t6 .bd-row:nth-child(7n+4) .add{color:#14A85A}.t6 .bd-row:nth-child(7n+5) .add{color:#0E9BD6}.t6 .bd-row:nth-child(7n+6) .add{color:#5B4BE0}.t6 .bd-row:nth-child(7n) .add{color:#B02BD9}
-.t6 .bd-row:nth-child(7n+1) .lbl .fi{background:linear-gradient(135deg,#FF7AA0,#E0245E)}.t6 .bd-row:nth-child(7n+2) .lbl .fi{background:linear-gradient(135deg,#FFB070,#E8770E)}
-.t6 .bd-row:nth-child(7n+3) .lbl .fi{background:linear-gradient(135deg,#FFE96B,#C9A400)}.t6 .bd-row:nth-child(7n+4) .lbl .fi{background:linear-gradient(135deg,#7DFFB0,#14A85A)}
-.t6 .bd-row:nth-child(7n+5) .lbl .fi{background:linear-gradient(135deg,#7FE6FF,#0E9BD6)}.t6 .bd-row:nth-child(7n+6) .lbl .fi{background:linear-gradient(135deg,#A79CFF,#5B4BE0)}
-.t6 .bd-row:nth-child(7n) .lbl .fi{background:linear-gradient(135deg,#E79BFF,#B02BD9)}
-.t6 .bd-row .lbl .fi{color:#fff}
-.t6 .facts{background:linear-gradient(120deg,var(--rb));border-color:transparent}
-.t6 .fact:nth-child(4n+1) .k{color:#E0245E}.t6 .fact:nth-child(4n+2) .k{color:#14A85A}.t6 .fact:nth-child(4n+3) .k{color:#0E9BD6}.t6 .fact:nth-child(4n) .k{color:#B02BD9}
-.t6 .owner{border:2px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(120deg,var(--rb)) border-box}
+.t6 .cs-more .sheet-photo{box-shadow:0 0 0 3px #A855F7}
+.t6 .points{border:1.5px solid #A855F7;background:linear-gradient(120deg,rgba(255,61,119,.10),rgba(255,229,61,.10),rgba(61,255,140,.10),rgba(61,213,255,.12),rgba(212,61,255,.14)),var(--surface)}
+.t6 .points .total b,.t6 .points .total b .live-num{background:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9);-webkit-background-clip:text;background-clip:text;color:transparent;animation:none;filter:none}
+.t6 .bd-row{background:linear-gradient(90deg,rgba(255,61,119,.13),rgba(255,154,61,.11),rgba(255,229,61,.11),rgba(61,255,140,.11),rgba(61,213,255,.12),rgba(107,92,255,.13),rgba(212,61,255,.15)),var(--glass)}
+.t6 .bd-row .mul{background:linear-gradient(90deg,#FF3D77,#FF9A3D,#E8C400,#22C76E,#1FB5E8,#6B5CFF,#C43DFF);text-shadow:0 1px 1px rgba(30,8,51,.45)}
+.t6 .bd-row.base .mul{background:#24093F}
+.t6 .bd-row .add{color:#5B21B6}
+.t6 .bd-row .lbl .fi{background:linear-gradient(135deg,#A855F7,#3B82F6);color:#fff}
+.t6 .facts{background:color-mix(in srgb,#A855F7 35%,var(--mix));border-color:color-mix(in srgb,#A855F7 35%,var(--mix))}
+.t6 .fact .k{color:#6D28D9}
+.t6 .owner{border:1.5px solid #A855F7}
 .t6 .owner.free{color:#6B2BD9}
+:root[data-theme="dark"] .t6 .bd-row .add,:root[data-theme="dark"] .t6 .fact .k{color:#C4A6FF}
 .t6 .st-pts.live-num{background-image:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E);background-size:200% 100%;animation:bandshift 3s linear infinite}
 .sc-wrap.t6 .sc-num{animation:ultnum 3s linear infinite}
 .sc-wrap.t6.done .sc-num span{background-image:linear-gradient(100deg,#FFB3C6,#FFD79A,#FFF4A3,#B5FFD0,#AEEFFF,#C2BBFF,#F0B5FF,#FFB3C6);background-size:200% 100%;animation:bandshift 2.5s linear infinite}
-@media (prefers-reduced-motion:reduce){.t6 .cs-score b,.t6 .points,.t6 .points .total b,.t6 .bd-row .mul,.sc-wrap.t6 .sc-num{animation:none}}
-.chip[data-t="6"] .dot,.tr-row.t6 .tr-dot,.t6 .tr-dot{background:conic-gradient(#FF3D77,#FF9A3D,#FFE53D,#3DFF8C,#3DD5FF,#6B5CFF,#D43DFF,#FF3D77)}
+@media (prefers-reduced-motion:reduce){.t6 .cs-score b,.sc-wrap.t6 .sc-num{animation:none}}
+.chip[data-t="6"] .dot,.tr-row.t6 .tr-dot,.t6 .tr-dot{background:linear-gradient(135deg,#A855F7,#3B82F6)}
 @media (prefers-reduced-motion:reduce){.god-rays,.god-rays::after,.stamp.lg.t6,.t6 .st,.t6 .st-band,.t6 .cs-hero,.spk,.t4 .st,.t4 .st-band{animation:none}}
 .stage.shake.big{animation:shakebig .8s cubic-bezier(.36,.07,.19,.97)}
 @keyframes shakebig{10%,90%{transform:translate(-2px,2px)}20%,80%{transform:translate(6px,-4px)}30%,50%,70%{transform:translate(-9px,5px)}40%,60%{transform:translate(9px,-4px)}}
@@ -432,7 +427,31 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .set-row b{font-weight:700}
 .set-snd{display:flex;align-items:center;gap:12px}
 .set-snd input[type=range]{width:120px;accent-color:var(--coral)}
-.scope-seg{margin-left:auto}
+/* World leaderboard: pseudo first, then the city; podium for the top 3 */
+.wcity{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);font-weight:600;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.wrow .name{font:800 15px var(--f-display);letter-spacing:-.01em}
+.you{font:700 10px var(--f-body);text-transform:uppercase;letter-spacing:.08em;background:var(--coral);color:#fff;padding:2px 6px;border-radius:999px;vertical-align:middle}
+.podium{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.pod{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px 14px 14px;border-radius:18px;cursor:pointer;overflow:hidden;isolation:isolate;transition:transform .15s}
+.pod:hover{transform:translateY(-2px)}
+.pod::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.45) 50%,transparent 60%) 0 0/300% 100% no-repeat;animation:sheen 5s ease-in-out infinite}
+.pod1{background:linear-gradient(120deg,#FFF3C4,#FFD54A 45%,#F5A300);box-shadow:0 10px 30px rgba(245,163,0,.35),inset 0 0 0 2px rgba(255,255,255,.55);padding-block:18px}
+.pod2{background:linear-gradient(120deg,#F4F6FB,#CFD6E4 50%,#9AA6BD);box-shadow:0 8px 24px rgba(120,135,165,.3),inset 0 0 0 2px rgba(255,255,255,.55)}
+.pod3{background:linear-gradient(120deg,#FBE3D0,#E7A578 50%,#B8693A);box-shadow:0 8px 24px rgba(184,105,58,.3),inset 0 0 0 2px rgba(255,255,255,.45)}
+.pod-medal{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 16px var(--f-display);color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2),inset 0 0 0 2px rgba(255,255,255,.6)}
+.pod1 .pod-medal{background:linear-gradient(135deg,#FFD54A,#C98500);width:40px;height:40px;font-size:19px}
+.pod2 .pod-medal{background:linear-gradient(135deg,#DDE3EE,#7F8AA3)}
+.pod3 .pod-medal{background:linear-gradient(135deg,#F0B48A,#9C5226)}
+.pod-who{flex:1;min-width:0}
+.pod-name{font:800 18px/1.15 var(--f-display);color:#1B1530;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod1 .pod-name{font-size:22px}
+.pod .wcity{color:#3B3350}
+.pod .rnum{background:rgba(255,255,255,.72);padding:8px 10px;border-radius:12px;backdrop-filter:blur(4px)}
+.pod.me{outline:3px solid var(--coral);outline-offset:2px}
+.world .row.me{background:linear-gradient(90deg,rgba(255,91,110,.1),transparent)}
+@media (max-width:560px){.pod{gap:10px;padding:12px;flex-wrap:wrap}.pod-who{flex:1 1 0}.pod-name{font-size:17px}.pod1 .pod-name{font-size:20px}
+  .pod .rnum{flex:1 0 100%;max-width:none;display:flex;justify-content:space-between;align-items:center;padding:6px 10px}.pod .rnum b{order:2}.pod .rnum .rmeta{order:1;margin:0}}
+@media (prefers-reduced-motion:reduce){.pod::before{animation:none}}
 .rank.r2{color:#8E99AE}.rank.r3{color:#B87333}
 .rnum{text-align:right;flex:none;max-width:52%}
 .rnum b{display:block;font:700 15px/1.2 var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -619,6 +638,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
       <button data-go="map">Carte</button>
       <button data-go="coll">Collection</button>
       <button data-go="friends">Amis</button>
+      <button data-go="world">Monde</button>
       <button data-go="profile">Profil</button>
     </nav>
     <div class="top-right">
@@ -671,6 +691,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 
     <section class="view" id="v-coll" hidden><div class="page" id="coll"></div></section>
     <section class="view" id="v-friends" hidden><div class="page" id="friends"></div></section>
+    <section class="view" id="v-world" hidden><div class="page" id="world"></div></section>
     <section class="view" id="v-profile" hidden><div class="page" id="profile"></div></section>
   </main>
 
@@ -679,6 +700,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
     <button data-go="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Carte</button>
     <button data-go="coll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="3" width="12" height="16" rx="2"/><path d="M3 7v12a2 2 0 0 0 2 2h10"/></svg>Collection</button>
     <button data-go="friends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.5c2.3 0 4 1.4 4.6 4"/></svg>Amis</button>
+    <button data-go="world"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg>Monde</button>
     <button data-go="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M6.5 18.5c1.3-2.2 3.2-3.3 5.5-3.3s4.2 1.1 5.5 3.3"/></svg>Profil</button>
   </nav>
 </div>
@@ -1430,7 +1452,7 @@ function totalPts(p){ let s = 0; for (const c of (p.cities || [])){ const i = D.
 /* ================= Views & routing ================= */
 let view = "draw";
 function go(v){
-  if (!["draw","map","coll","friends","profile"].includes(v)) v = "draw";
+  if (!["draw","map","coll","friends","world","profile"].includes(v)) v = "draw";
   if (v !== "draw" && rollPending()){ toast("Garde ou relance ta ville avant de quitter le tirage."); if (view !== "draw") v = "draw"; else return; }
   view = v;
   for (const s of $$(".view")) s.hidden = s.id !== "v-" + v;
@@ -1450,6 +1472,7 @@ function render(){
   if (view === "draw") Stage.renderUI();
   if (view === "coll") renderCollection();
   if (view === "friends") renderFriends();
+  if (view === "world") renderWorld($("#world"));
   if (view === "profile") renderProfile();
   if (view === "map") MapView.draw();
 }
@@ -1631,15 +1654,15 @@ function geoFor(i){
     const country = sib.length ? {type:"Feature", geometry:{type:"GeometryCollection", geometries:sib}} : null;
     const ug = ub && ub.u[D.id[i]];
     const g = {region, country, near:[], ver:1};
+    // The final outline is settled before anything is drawn: official OSM limits if they arrive in time,
+    // otherwise the urban area or the estimate cut to the coast. No more outline changing a second later.
+    const osm = osmShape(i), late = sleep(2600).then(() => null);
     if (ug){ g.shape = {type:"Feature", geometry:ug}; g.kind = "urban"; }
-    else {
-      g.shape = territory(i); g.kind = "estimate";
-      if (G.land10parts) await landClip(g, i);
-      else landClip(g, i).then(ok => { if (ok){ g.ver++; frame(g, i); MapView.hl = null; MapView.draw(); Stage.layerKey = ""; Stage.lastSig = "";
-        for (const cv of $$(`.st-photo[data-idx="${i}"] canvas, .sheet-photo[data-idx="${i}"] canvas`)) paintPlan(cv, i); } });
-    }
+    else { g.shape = territory(i); g.kind = "estimate"; await Promise.race([landClip(g, i), sleep(2600)]); }
+    const f = await Promise.race([osm, late]);
+    if (f){ g.shape = f; g.kind = "osm"; }
+    g.frozen = true;
     frame(g, i);
-    osmShape(i).then(f => { if (f){ g.shape = f; g.kind = "osm"; g.ver++; frame(g, i); MapView.hl = null; MapView.draw(); } });
     return g;
   })();
   pr.then(g => { pr.value = g; });
@@ -1689,7 +1712,7 @@ async function landClip(g, i){
       let bd = Infinity;
       for (const pg of res){ for (const [x, y] of pg[0]){ const d = (x - P[0])**2 + (y - P[1])**2; if (d < bd){ bd = d; pick = pg; } } }
     }
-    if (!pick) return false;
+    if (!pick || g.frozen) return false;   // already on screen: never swap the outline under the player's eyes
     g.shape = fixWinding({type:"Feature", geometry:{type:"Polygon", coordinates:pick}});
     g.clipped = true;
     return true;
@@ -1930,6 +1953,11 @@ const Stage = {
   step(now){
     const a = this.anim;
     if (a.skip){ a.t0 = now - a.land*1000; a.skip = false; a.level = a.tier; a.skipped = true; SFX.revealSkip(a.tier); }
+    // hold on the revealed rarity until the city outline is settled (max 3 s), so the dive aims right the first time
+    if (!a.geo && !a.waitDone && !a.skipped && (now - a.t0)/1000 >= a.sig - .05){
+      if (!a.waitStart) a.waitStart = now;
+      if (now - a.waitStart > 3000) a.waitDone = true; else a.t0 = now - (a.sig - .05)*1000;
+    }
     const p = (now - a.t0)/1000, g0 = this.globeCam();
     let lvl = 0; for (let k = 1; k <= a.tier; k++) if (p >= SIG_FIRST + SIG_STEP*(k - 1)) lvl = k;
     if (p < a.sig && lvl !== a.level){
@@ -3161,18 +3189,8 @@ function renderCollection(){
 }
 
 /* ================= Friends ================= */
-/* Amis page: friends (requests + board) or the world leaderboard, switched at the top. */
-let lbScope = lsGet("rngworld.lbscope", "friends") === "world" ? "world" : "friends";
-let worldMode = lsGet("rngworld.worldmode", {p:"week", what:"drops"});
-function renderFriends(){
-  const root = $("#friends");
-  if (lbScope === "world") renderWorld(root); else renderFriendsInner(root);
-  const head = $(".page-head", root);
-  if (head && !$(".scope-seg", head)){
-    head.insertAdjacentHTML("beforeend", `<div class="seg scope-seg" role="tablist" aria-label="Classement"><button role="tab" aria-selected="${lbScope === "friends"}" data-scope="friends">Amis</button><button role="tab" aria-selected="${lbScope === "world"}" data-scope="world">Monde</button></div>`);
-    for (const b of $$("[data-scope]", head)) b.onclick = () => { lbScope = b.dataset.scope; lsSet("rngworld.lbscope", lbScope); renderFriends(); };
-  }
-}
+let worldMode = (m => m && typeof m === "object" ? m : {p:"week"})(lsGet("rngworld.worldmode", null));
+function renderFriends(){ renderFriendsInner($("#friends")); }
 /* Pseudos are public (one document per pseudo): guests read them once to name the players of the world board. */
 async function loadPseudos(){
   if (S.pseudoByUid || S.pseudoLoading || !S.db) return;
@@ -3183,42 +3201,32 @@ async function loadPseudos(){
 }
 function renderWorld(root){
   if (S.mode === "guest") loadPseudos();
-  const P = BOARD_PERIODS.find(b => b.k === worldMode.p) || BOARD_PERIODS[1], from = P.from(), what = worldMode.what === "players" ? "players" : "drops";
-  const drops = [];
-  for (const [id, l] of S.locks){ const i = D.byId.get(id); if (i == null || !(l.t >= from)) continue; drops.push({i, uid:l.uid, t:l.t}); }
-  drops.sort((a, b) => D.pts[b.i] - D.pts[a.i]);
-  const medal = k => k < 3 ? ` r${k + 1}` : "";
-  const who = uid => uid === S.uid ? "toi" : "@" + esc(pseudoOf(uid));
-  const av = uid => S.players.get(uid) ? avatarHTML(S.players.get(uid), 34) : `<span class="av" style="--s:34px;--c:#9BA0BD">${esc(String(pseudoOf(uid)).slice(0, 1).toUpperCase())}</span>`;
-  const dateOf = t => new Date(t).toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
-  let rows = "";
-  if (what === "drops"){
-    rows = drops.slice(0, 50).map((d, k) => `<div class="row click wrow ${d.uid === S.uid ? "me" : ""}" data-city="${d.i}">
-      <span class="rank${medal(k)}">${k + 1}</span>
-      <div class="grow"><div class="name">${flag(D.cc[d.i])} ${esc(cityName(d.i))}</div><div class="meta">${who(d.uid)} · ${dateOf(d.t)}</div></div>
-      ${rnumHTML(D.pts[d.i], D.tier[d.i], "pts")}</div>`).join("");
-  } else {
-    const by = new Map();
-    for (const d of drops){ const e = by.get(d.uid) || {uid:d.uid, sum:0, n:0, best:0}; e.sum += D.pts[d.i]; e.n++; e.best = Math.max(e.best, D.tier[d.i]); by.set(d.uid, e); }
-    rows = [...by.values()].sort((a, b) => b.sum - a.sum).slice(0, 50).map((e, k) => `<div class="row wrow ${e.uid === S.uid ? "me" : ""} ${S.players.has(e.uid) ? "click" : ""}" data-player="${esc(e.uid)}">
-      <span class="rank${medal(k)}">${k + 1}</span>${av(e.uid)}
-      <div class="grow"><div class="name">${who(e.uid)}</div><div class="meta">${villes(e.n)}</div></div>
-      ${rnumHTML(e.sum, e.best, "pts")}</div>`).join("");
+  const P = BOARD_PERIODS.find(b => b.k === worldMode.p) || BOARD_PERIODS[1], from = P.from();
+  // each player once, with the best city they kept in the period
+  const best = new Map();
+  for (const [id, l] of S.locks){
+    const i = D.byId.get(id); if (i == null || !(l.t >= from)) continue;
+    const e = best.get(l.uid); if (!e || D.pts[i] > D.pts[e.i]) best.set(l.uid, {uid:l.uid, i});
   }
+  const list = [...best.values()].sort((a, b) => D.pts[b.i] - D.pts[a.i]).slice(0, 100);
+  const name = uid => esc(pseudoOf(uid)) + (uid === S.uid ? ` <span class="you">toi</span>` : "");
+  const av = (uid, size) => S.players.get(uid) ? avatarHTML(S.players.get(uid), size) : `<span class="av" style="--s:${size}px;--c:#9BA0BD">${esc(String(pseudoOf(uid)).slice(0, 1).toUpperCase())}</span>`;
+  const city = i => `<span class="wcity">${flag(D.cc[i])} ${esc(cityName(i))}</span>`;
+  const podium = list.slice(0, 3).map((e, k) => `<div class="pod pod${k + 1} click ${e.uid === S.uid ? "me" : ""}" data-city="${e.i}">
+      <span class="pod-medal">${k + 1}</span>${av(e.uid, k === 0 ? 58 : 48)}
+      <div class="pod-who"><div class="pod-name">@${name(e.uid)}</div>${city(e.i)}</div>
+      ${rnumHTML(D.pts[e.i], D.tier[e.i], "pts")}</div>`).join("");
+  const rest = list.slice(3).map((e, k) => `<div class="row click wrow ${e.uid === S.uid ? "me" : ""}" data-city="${e.i}">
+      <span class="rank">${k + 4}</span>${av(e.uid, 36)}
+      <div class="grow"><div class="name">@${name(e.uid)}</div>${city(e.i)}</div>
+      ${rnumHTML(D.pts[e.i], D.tier[e.i], "pts")}</div>`).join("");
   root.innerHTML = `
-    <div class="page-head"><div><h2>Classement mondial</h2><div class="sub">Les meilleures villes gardées par tous les joueurs</div></div></div>
-    <div class="panel world">
-      <div class="board-ctl">
-        <div class="seg" role="tablist" aria-label="Période">${BOARD_PERIODS.map(b => `<button role="tab" aria-selected="${b.k === P.k}" data-wperiod="${b.k}">${b.label}</button>`).join("")}</div>
-        <div class="seg seg-sm" role="group" aria-label="Type"><button aria-pressed="${what === "drops"}" data-what="drops">Tirages</button><button aria-pressed="${what === "players"}" data-what="players">Joueurs</button></div>
-      </div>
-      ${rows ? `<div class="rows">${rows}</div>` : `<div class="empty" style="margin-top:8px"><p>Aucune ville gardée sur cette période pour l'instant.</p></div>`}
-    </div>`;
-  const setW = patch => { worldMode = Object.assign({}, worldMode, patch); lsSet("rngworld.worldmode", worldMode); renderFriends(); };
-  for (const b of $$("[data-wperiod]", root)) b.onclick = () => setW({p:b.dataset.wperiod});
-  for (const b of $$("[data-what]", root)) b.onclick = () => setW({what:b.dataset.what});
+    <div class="page-head"><div><h2>Classement mondial</h2><div class="sub">Le meilleur tirage de chaque joueur</div></div>
+      <div class="seg" role="tablist" aria-label="Période">${BOARD_PERIODS.map(b => `<button role="tab" aria-selected="${b.k === P.k}" data-wperiod="${b.k}">${b.label}</button>`).join("")}</div></div>
+    ${list.length ? `<div class="podium">${podium}</div>${rest ? `<div class="panel world"><div class="rows">${rest}</div></div>` : ""}`
+      : `<div class="empty"><h3>Personne n'a encore gardé de ville</h3><p>Sur cette période, aucune ville n'a été gardée pour l'instant.</p></div>`}`;
+  for (const b of $$("[data-wperiod]", root)) b.onclick = () => { worldMode = {p:b.dataset.wperiod}; lsSet("rngworld.worldmode", worldMode); renderWorld(root); };
   for (const r of $$("[data-city]", root)) r.onclick = () => openCitySheet(+r.dataset.city);
-  for (const r of $$(".wrow.click[data-player]", root)) r.onclick = () => openPlayerSheet(r.dataset.player);
 }
 function renderFriendsInner(root){
   if (S.mode === "guest" || (S.mode === "online" && !S.me)){
