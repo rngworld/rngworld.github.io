@@ -52,7 +52,6 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:
 .pips{display:flex;gap:5px;align-items:center}
 .pips i{width:10px;height:10px;border-radius:50%;border:2px solid var(--ink);display:block}
 .pips i.on{background:var(--coral);border-color:var(--coral)}
-.pips .done{font:700 11px var(--f-display);color:var(--ink);letter-spacing:.02em}
 .av{--s:34px;width:var(--s);height:var(--s);border-radius:50%;flex:none;display:grid;place-items:center;overflow:hidden;color:#fff;font:700 calc(var(--s)*.42)/1 var(--f-display);background:var(--c,#999);border:2px solid #fff;box-shadow:0 0 0 1.5px var(--c,#999)}
 .av img{width:100%;height:100%;object-fit:cover;display:block}
 .av-btn{background:none;border:0;padding:0;border-radius:50%}
@@ -77,10 +76,7 @@ main{position:relative;min-height:0}
 .scrim-bot{bottom:0;height:230px;background:linear-gradient(rgba(14,18,84,0),rgba(14,18,84,.85))}
 .card-pop{cursor:pointer;border-radius:8px}
 .card-pop.rise{animation:rise .6s cubic-bezier(.2,1.4,.4,1) both}
-.head-btns{position:absolute;right:18px;top:16px;display:flex;gap:8px;justify-content:flex-end}
 .stage-head{min-height:84px}
-.stage-head>div:first-child{max-width:calc(100% - 290px)}
-@media (max-width:759px){.head-btns{flex-direction:column;align-items:flex-end}.stage-head>div:first-child{max-width:calc(100% - 140px)}}
 .st-photo{position:relative;height:156px;flex:none;overflow:hidden;background:#2E3BE3;border-bottom:2px solid var(--tc)}
 .st-photo canvas,.st-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .st-photo img{animation:fadein .5s ease both}
@@ -301,7 +297,9 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .row .pts{font:600 15px var(--f-mono);text-align:right}
 .seg{display:flex;gap:4px;flex-wrap:wrap;background:var(--paper);padding:4px;border-radius:12px}
 .seg button{border:0;background:none;padding:7px 10px;border-radius:9px;font:600 12.5px var(--f-body);color:var(--muted)}
-.seg button[aria-selected="true"]{background:var(--ink);color:#fff}
+.seg button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.board-ctl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.seg-sm{padding:3px;border-radius:10px}.seg-sm button{padding:5px 9px;font-size:12px;border-radius:7px}
 .rank{font:800 14px var(--f-display);width:26px;text-align:center;color:var(--muted)}
 .rank.r1{color:#D99500}
 .row.me{background:linear-gradient(90deg,rgba(255,91,110,.08),transparent);margin-inline:-16px;padding-inline:16px}
@@ -485,7 +483,6 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
             <h1 id="st-title">Où vas-tu atterrir ?</h1>
             <div class="bigpips" id="st-pips"></div>
           </div>
-          <div class="head-btns"><button class="ghost" id="btn-reset" hidden>Remettre à 5</button></div>
         </div>
         <div class="card-slot" id="card-slot"></div>
         <div class="stage-foot" id="stage-foot"></div>
@@ -1084,8 +1081,8 @@ function renderHeader(){
   $("#hdr-login").hidden = !guest; $("#hdr-avbtn").hidden = guest;
   const t = today(), left = t.kept ? 0 : DAILY - t.used, lock = rollPending();
   for (const n of $$(".tabs,.dtabs")) n.classList.toggle("locked", lock);
-  $("#hdr-pips").innerHTML = t.kept ? `<span class="done">Ville du jour ✓</span>` : Array.from({length:DAILY}, (_, k) => `<i class="${k < left ? "on" : ""}"></i>`).join("");
-  $("#hdr-pips").setAttribute("aria-label", t.kept ? "Ville du jour gardée" : left + " tirages restants");
+  $("#hdr-pips").innerHTML = Array.from({length:DAILY}, (_, k) => `<i class="${k < left ? "on" : ""}"></i>`).join("");
+  $("#hdr-pips").setAttribute("aria-label", t.kept ? "Ville gardée aujourd'hui" : left + " tirages restants");
   const a = $("#hdr-av"), p = S.me;
   a.style.setProperty("--c", safeColor(p && p.color));
   a.innerHTML = safeAv(p) ? `<img src="${safeAv(p)}" alt="">` : esc(String((p && p.pseudo) || "?").slice(0,1).toUpperCase());
@@ -1402,7 +1399,6 @@ const Stage = {
       if (this.anim && !this.anim.landed) this.anim.skip = true;
       else if (this.scoring) this.finishScoring();
     });
-    $("#btn-reset").onclick = e => { e.stopPropagation(); resetDaily(); };
     // zoom after the reveal: wheel, pinch, buttons — never panning
     this.cv.addEventListener("wheel", e => { if (!this.canZoom()) return; e.preventDefault(); this.setUz(this.uz*Math.exp(-e.deltaY*.0016)); }, {passive:false});
     const pts = new Map(); let d0 = 0, uz0 = 1;
@@ -1751,8 +1747,6 @@ const Stage = {
     const t = today(), foot = $("#stage-foot");
     const left = t.kept ? 0 : DAILY - t.used;
     $("#st-pips").innerHTML = Array.from({length:DAILY}, (_, k) => `<i class="${k < left ? "on" : ""}"></i>`).join("");
-    $("#btn-reset").hidden = !(S.me && (S.isOwner || S.mode === "local") && (t.used > 0 || t.kept));
-    $("#btn-reset").disabled = !!this.anim;
     const cur = t.cur != null && D.byId.has(t.cur) ? D.byId.get(t.cur) : null;
     const kept = t.kept != null && D.byId.has(t.kept) ? D.byId.get(t.kept) : null;
     const animating = !!this.anim;
@@ -1907,12 +1901,6 @@ function rollPending(){
   if (!S.me || t.cur == null || t.kept || !D.byId.has(t.cur)) return false;
   if (t.used >= DAILY && !cityStatus(t.cur).free) return false;
   return true;
-}
-function resetDaily(){
-  if (!S.me || Stage.anim) return;
-  writeMe({today:{d:dayKey(), used:0, cur:null, kept:null, seen:[]}});
-  $("#card-slot").innerHTML = "";
-  toast(`Tirages remis à ${DAILY}. Ta ville du jour reste dans ta collection.`);
 }
 function hexA(hex, a){
   if (!hex.startsWith("#")) return hex;
@@ -2410,14 +2398,10 @@ function renderFriends(){
   }
   const fr = friendSet(), inc = [], out = [];
   for (const [rid, r] of S.requests){ if (r.status !== "pending") continue; if (r.to === S.uid && S.players.has(r.from)) inc.push([rid, r]); else if (r.from === S.uid) out.push([rid, r]); }
-  const B = BOARDS.find(b => b.k === boardMode) || BOARDS[0];
+  const P = BOARD_PERIODS.find(b => b.k === boardMode.p) || BOARD_PERIODS[0];
+  const B = {from:P.from, avg:P.k !== "day" && boardMode.avg};
   const board = [S.uid, ...fr].filter(u => S.players.has(u)).map(u => { const p = S.players.get(u); return Object.assign({u, p}, boardScore(p, B)); })
     .sort((a, b) => (b.n > 0) - (a.n > 0) || b.v - a.v);
-  const statusOf = p => {
-    const t = p.today; if (!t || t.d !== dayKey()) return "Pas encore joué aujourd'hui";
-    if (t.kept && D.byId.has(t.kept)) return "A gardé " + cityName(D.byId.get(t.kept)) + " aujourd'hui";
-    return t.used ? `En plein tirage (${t.used}/${DAILY})` : "Pas encore joué aujourd'hui";
-  };
   root.innerHTML = `
     <div class="page-head"><div><h2>Amis</h2><div class="sub">Ton pseudo : <b>@${esc(S.me ? S.me.pseudo : "…")}</b></div></div></div>
     <div class="twocol">
@@ -2433,10 +2417,12 @@ function renderFriends(){
       </div>
       <div class="panel">
         <h3>Classement</h3>
-        <div class="seg" role="tablist" aria-label="Type de classement">${BOARDS.map(b => `<button role="tab" aria-selected="${b.k === B.k}" data-board="${b.k}">${b.label}</button>`).join("")}</div>
-        <p class="hint" style="margin:8px 0 4px">${B.hint}</p>
+        <div class="board-ctl">
+          <div class="seg" role="tablist" aria-label="Période">${BOARD_PERIODS.map(b => `<button role="tab" aria-selected="${b.k === P.k}" data-period="${b.k}">${b.label}</button>`).join("")}</div>
+          ${P.k !== "day" ? `<div class="seg seg-sm" role="group" aria-label="Calcul"><button aria-pressed="${!B.avg}" data-avg="0">Total</button><button aria-pressed="${B.avg}" data-avg="1">Moy.</button></div>` : ""}
+        </div>
         ${board.length > 1 ? "" : `<p class="hint" style="margin-top:0">Ajoute des amis pour vous comparer.</p>`}
-        <div class="rows">${board.map((b, k) => `<div class="row click ${b.u === S.uid ? "me" : ""}" data-player="${esc(b.u)}"><span class="rank ${k === 0 && b.n ? "r1" : ""}">${b.n ? k+1 : "–"}</span>${avatarHTML(b.p, 40)}<div class="grow"><div class="name">@${esc(b.p.pseudo)}${b.u === S.uid ? " (toi)" : ""}</div><div class="meta">${b.n ? villes(b.n) : "Aucune ville"} · ${esc(statusOf(b.p))}</div></div><div class="pts">${b.n ? fmt(b.v) : "—"}<div class="meta" style="font-family:var(--f-body)">${B.avg ? "pts / ville" : "pts"}</div></div></div>`).join("")}</div>
+        <div class="rows">${board.map((b, k) => `<div class="row click ${b.u === S.uid ? "me" : ""}" data-player="${esc(b.u)}"><span class="rank ${k === 0 && b.n ? "r1" : ""}">${b.n ? k+1 : "–"}</span>${avatarHTML(b.p, 40)}<div class="grow"><div class="name">@${esc(b.p.pseudo)}${b.u === S.uid ? " (toi)" : ""}</div></div><div class="pts">${b.n ? fmt(b.v) : "—"}<div class="meta" style="font-family:var(--f-body)">${B.avg ? "pts / ville" : "pts"}</div></div></div>`).join("")}</div>
       </div>
     </div>`;
   $("#add-form").onsubmit = e => { e.preventDefault(); sendRequest($("#add-pseudo").value); };
@@ -2444,16 +2430,16 @@ function renderFriends(){
   for (const b of $$("[data-acc]", root)) b.onclick = () => S.db.doc("requests/" + b.dataset.acc).update({status:"accepted", at:Date.now()}).then(() => toast("Vous êtes maintenant amis !")).catch(() => toast("Action impossible pour l'instant."));
   for (const b of $$("[data-del]", root)) b.onclick = () => S.db.doc("requests/" + b.dataset.del).delete().catch(() => toast("Action impossible pour l'instant."));
   for (const r of $$("[data-player]", root)) r.onclick = () => openPlayerSheet(r.dataset.player);
-  for (const b of $$("[data-board]", root)) b.onclick = () => { boardMode = b.dataset.board; lsSet("rngworld.board", boardMode); renderFriends(); };
+  const setBoard = patch => { boardMode = Object.assign({}, boardMode, patch); lsSet("rngworld.board2", boardMode); renderFriends(); };
+  for (const b of $$("[data-period]", root)) b.onclick = () => setBoard({p:b.dataset.period});
+  for (const b of $$("[data-avg]", root)) b.onclick = () => setBoard({avg:b.dataset.avg === "1"});
 }
-const BOARDS = [
-  {k:"day",   label:"Jour",               hint:"Points de la ville gardée aujourd'hui.", from:() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }},
-  {k:"week",  label:"Semaine",            hint:"Total des points gagnés depuis lundi.", from:weekStart},
-  {k:"weekA", label:"Semaine · moyenne",  hint:"Moyenne par ville gardée depuis lundi.", from:weekStart, avg:true},
-  {k:"all",   label:"Total",              hint:"Total de toutes les villes de la collection.", from:() => 0},
-  {k:"allA",  label:"Moyenne",            hint:"Moyenne par ville sur toute la collection.", from:() => 0, avg:true},
+const BOARD_PERIODS = [
+  {k:"day",  label:"Jour",     from:() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }},
+  {k:"week", label:"Semaine",  from:weekStart},
+  {k:"all",  label:"All time", from:() => 0},
 ];
-let boardMode = lsGet("rngworld.board", "week");
+let boardMode = (b => b && typeof b === "object" ? b : {p:"week", avg:false})(lsGet("rngworld.board2", null));
 function weekStart(){ const d = new Date(), wd = (d.getDay() + 6) % 7; return new Date(d.getFullYear(), d.getMonth(), d.getDate() - wd).getTime(); }
 function boardScore(p, B){
   const from = B.from(); let sum = 0, n = 0;
@@ -2525,8 +2511,7 @@ function renderProfile(){
         <div id="pf-msg"></div>
       </div>
     </div>
-    ${S.isOwner ? `<div class="panel" style="margin-top:14px"><h3>Admin · Tirages du jour</h3><p class="hint" style="margin-top:0">Remet ton compteur à ${DAILY} tirages. Ta ville du jour reste dans ta collection.</p><button class="btn-s" id="pf-resetday">Remettre mes tirages à ${DAILY}</button></div>
-    <div class="panel" style="margin-top:14px"><h3>Admin · Remise à zéro</h3><p class="hint" style="margin-top:0">Libère toutes les villes obtenues par tous les joueurs (${fmt(S.mode === "online" ? S.claims.size : [...S.players.values()].reduce((n, q) => n + (q.cities || []).length, 0))} villes). Les pseudos et les amis sont conservés.</p><button class="btn-s alt" id="pf-wipe">Libérer toutes les villes</button><div id="pf-wipe-msg"></div></div>` : ""}`;
+    ${S.isOwner ? `<div class="panel" style="margin-top:14px"><h3>Admin · Remise à zéro</h3><p class="hint" style="margin-top:0">Libère toutes les villes obtenues par tous les joueurs (${fmt(S.mode === "online" ? S.claims.size : [...S.players.values()].reduce((n, q) => n + (q.cities || []).length, 0))} villes). Les pseudos et les amis sont conservés.</p><button class="btn-s alt" id="pf-wipe">Libérer toutes les villes</button><div id="pf-wipe-msg"></div></div>` : ""}`;
   const out = $("#pf-out"); if (out) out.onclick = signOut;
   $("#pf-pseudo").oninput = e => { draft.pseudo = e.target.value; };
   for (const b of $$(".sw[data-c]", root)) b.onclick = () => { draft.color = b.dataset.c; renderProfile(); };
@@ -2535,7 +2520,6 @@ function renderProfile(){
   $("#pf-file").onchange = async e => { const f = e.target.files[0]; if (!f) return; try { draft.avatar = await resizePhoto(f); renderProfile(); } catch { $("#pf-msg").innerHTML = `<p class="err">Cette image n'a pas pu être lue. Essaie un JPG ou un PNG.</p>`; } };
   const rmp = $("#pf-rmphoto"); if (rmp) rmp.onclick = () => { draft.avatar = ""; renderProfile(); };
   $("#pf-reset").onclick = () => { draft = null; renderProfile(); };
-  const rd = $("#pf-resetday"); if (rd) rd.onclick = () => resetDaily();
   const wp = $("#pf-wipe");
   if (wp) wp.onclick = async () => {
     if (!wp.classList.contains("coral")){ wp.classList.remove("alt"); wp.classList.add("coral"); wp.textContent = "Confirmer : tout libérer"; setTimeout(() => { if (wp.isConnected && wp.classList.contains("coral")){ wp.classList.add("alt"); wp.classList.remove("coral"); wp.textContent = "Libérer toutes les villes"; } }, 4000); return; }
