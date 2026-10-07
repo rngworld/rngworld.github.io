@@ -332,20 +332,28 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
   66%{text-shadow:0 0 2px #fff,0 0 10px rgba(255,255,255,.9),0 0 22px #6B5CFF,0 0 40px #D43DFF}}
 /* Ultime sheet: the whole panel in rainbow, not only violet */
 :root{--rb:#FF3D77,#FF9A3D,#FFE53D,#3DFF8C,#3DD5FF,#6B5CFF,#D43DFF,#FF3D77}
-.t6 .cs-more{background:linear-gradient(165deg,rgba(255,61,119,.16),rgba(255,154,61,.14) 16%,rgba(255,229,61,.14) 32%,rgba(61,255,140,.13) 48%,rgba(61,213,255,.15) 64%,rgba(107,92,255,.16) 80%,rgba(212,61,255,.18)),var(--surface)}
-.t6 .cs-more .sheet-photo{box-shadow:0 0 0 3px #A855F7}
-.t6 .points{border:1.5px solid #A855F7;background:linear-gradient(120deg,rgba(255,61,119,.10),rgba(255,229,61,.10),rgba(61,255,140,.10),rgba(61,213,255,.12),rgba(212,61,255,.14)),var(--surface)}
-.t6 .points .total b,.t6 .points .total b .live-num{background:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9);-webkit-background-clip:text;background-clip:text;color:transparent;animation:none;filter:none}
-.t6 .bd-row{background:linear-gradient(90deg,rgba(255,61,119,.13),rgba(255,154,61,.11),rgba(255,229,61,.11),rgba(61,255,140,.11),rgba(61,213,255,.12),rgba(107,92,255,.13),rgba(212,61,255,.15)),var(--glass)}
-.t6 .bd-row .mul{background:linear-gradient(90deg,#FF3D77,#FF9A3D,#E8C400,#22C76E,#1FB5E8,#6B5CFF,#C43DFF);text-shadow:0 1px 1px rgba(30,8,51,.45)}
-.t6 .bd-row.base .mul{background:#24093F}
-.t6 .bd-row .add{color:#5B21B6}
-.t6 .bd-row .lbl .fi{background:linear-gradient(135deg,#A855F7,#3B82F6);color:#fff}
-.t6 .facts{background:color-mix(in srgb,#A855F7 35%,var(--mix));border-color:color-mix(in srgb,#A855F7 35%,var(--mix))}
-.t6 .fact .k{color:#6D28D9}
-.t6 .owner{border:1.5px solid #A855F7}
+/* Ultime sheet: soft iridescent (mother-of-pearl) — pink, lilac, ice blue, mint shifting in the light */
+.t6 .cs-more{background:linear-gradient(160deg,#FCEBFF 0%,#EAF0FF 30%,#E6FBFF 55%,#F3EAFF 80%,#FFEFF6 100%)}
+.t6 .cs-more .sheet-photo{box-shadow:0 0 0 3px #C9B6FF,0 0 22px rgba(170,140,255,.35)}
+.irid,.t6 .points,.t6 .bd-row,.t6 .owner{background:linear-gradient(115deg,#FFF0FA 0%,#EEE8FF 25%,#E3F4FF 50%,#E8FFF7 70%,#F6ECFF 100%);background-size:220% 220%;animation:iridshift 9s ease-in-out infinite}
+@keyframes iridshift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.t6 .points{border:1.5px solid #D4C4FF;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 20px rgba(150,120,255,.15)}
+.t6 .bd-row{box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+.t6 .owner{border:1.5px solid #D4C4FF}
+.t6 .points .total b,.t6 .points .total b .live-num{background:linear-gradient(100deg,#6B3FD6,#2F86C9 35%,#B94FB0 65%,#6B3FD6);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:bandshift 6s linear infinite;filter:none}
+.t6 .bd-row .mul{background:linear-gradient(120deg,#F7C6F0,#C9C2FF 45%,#A9E6FF);color:#3B1A63;text-shadow:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)}
+.t6 .bd-row.base .mul{background:#3B1A63;color:#fff}
+.t6 .bd-row .add{color:#5B3CC4}
+.t6 .bd-row .lbl .fi{background:linear-gradient(135deg,#C79BFF,#7FB2FF);color:#fff}
+.t6 .facts{background:#D9CCFF;border-color:#D9CCFF}
+.t6 .fact{background:linear-gradient(135deg,#FFFBFF,#F4F1FF)}
+.t6 .fact .k{color:#7A55D6}
 .t6 .owner.free{color:#6B2BD9}
-:root[data-theme="dark"] .t6 .bd-row .add,:root[data-theme="dark"] .t6 .fact .k{color:#C4A6FF}
+:root[data-theme="dark"] .t6 .cs-more{background:linear-gradient(160deg,#2A1B44,#1B2547 35%,#16303F 60%,#2A1D45)}
+:root[data-theme="dark"] .t6 .points,:root[data-theme="dark"] .t6 .bd-row,:root[data-theme="dark"] .t6 .owner,:root[data-theme="dark"] .t6 .fact{background:linear-gradient(115deg,rgba(255,170,240,.10),rgba(180,160,255,.12) 30%,rgba(140,210,255,.10) 60%,rgba(150,255,220,.08));background-size:220% 220%}
+:root[data-theme="dark"] .t6 .bd-row .add,:root[data-theme="dark"] .t6 .fact .k{color:#C9B6FF}
+:root[data-theme="dark"] .t6 .facts{background:#3A2E66;border-color:#3A2E66}
+@media (prefers-reduced-motion:reduce){.t6 .points,.t6 .bd-row,.t6 .owner,.t6 .points .total b{animation:none}}
 .t6 .st-pts.live-num{background-image:linear-gradient(90deg,#E0245E,#E8770E,#C9A400,#14A85A,#0E9BD6,#5B4BE0,#B02BD9,#E0245E);background-size:200% 100%;animation:bandshift 3s linear infinite}
 .sc-wrap.t6 .sc-num{animation:ultnum 3s linear infinite}
 .sc-wrap.t6.done .sc-num span{background-image:linear-gradient(100deg,#FFB3C6,#FFD79A,#FFF4A3,#B5FFD0,#AEEFFF,#C2BBFF,#F0B5FF,#FFB3C6);background-size:200% 100%;animation:bandshift 2.5s linear infinite}
@@ -640,7 +648,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
       <button data-go="map">Carte</button>
       <button data-go="coll">Collection</button>
       <button data-go="friends">Amis</button>
-      <button data-go="world">Monde</button>
+      <button data-go="world">Classement</button>
       <button data-go="profile">Profil</button>
     </nav>
     <div class="top-right">
@@ -702,7 +710,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
     <button data-go="map"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Carte</button>
     <button data-go="coll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="3" width="12" height="16" rx="2"/><path d="M3 7v12a2 2 0 0 0 2 2h10"/></svg>Collection</button>
     <button data-go="friends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.5c2.3 0 4 1.4 4.6 4"/></svg>Amis</button>
-    <button data-go="world"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg>Monde</button>
+    <button data-go="world"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg>Classement</button>
     <button data-go="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3.2"/><path d="M6.5 18.5c1.3-2.2 3.2-3.3 5.5-3.3s4.2 1.1 5.5 3.3"/></svg>Profil</button>
   </nav>
 </div>
