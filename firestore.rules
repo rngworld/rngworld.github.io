@@ -1,0 +1,55 @@
+rules_version = '2';
+// RNGWorld — Firestore security rules.
+// Paste this file in Firebase console > Firestore Database > Rules, then click Publish.
+// Replace ton.email@exemple.com with your own e-mail (the same one as in config.js > admins).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && request.auth.token.email in ["ton.email@exemple.com"];
+    }
+
+    // Players: everyone signed in can see profiles and collections (for friends and leaderboards);
+    // each player only writes their own document. Admins can reset collections.
+    match /players/{uid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.size() < 40
+        && (!('pseudo' in request.resource.data) || (request.resource.data.pseudo is string && request.resource.data.pseudo.size() <= 16))
+        && (!('avatar' in request.resource.data) || (request.resource.data.avatar is string && request.resource.data.avatar.size() < 60000));
+      allow update: if isAdmin();
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Unique pseudos: one document per pseudo (lower case), owned by one player.
+    match /pseudos/{pl} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid
+        && pl.matches('^[a-z0-9._-]{3,16}$');
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false;
+    }
+
+    // City locks: one document per kept city. Public to read, created once, never stolen.
+    match /claims/{cityId} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 't']);
+      allow update: if false;
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
+    // Friend requests: id = fromUid__toUid. Only the two players involved see them.
+    match /requests/{rid} {
+      allow read: if signedIn() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.from == request.auth.uid
+        && rid == request.auth.uid + '__' + request.resource.data.to
+        && request.resource.data.status == 'pending';
+      allow update: if signedIn() && resource.data.to == request.auth.uid
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.from == resource.data.from && request.resource.data.to == resource.data.to;
+      allow delete: if signedIn() && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+    }
+  }
+}
