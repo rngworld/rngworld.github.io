@@ -62,6 +62,13 @@ main{position:relative;min-height:0}
 .tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;font-size:11px;font-weight:600;color:var(--muted);border-radius:10px}
 .tabs button svg{width:22px;height:22px}
 .tabs button[aria-current="page"]{color:var(--ink)}
+.tabs button,.dtabs button{position:relative}
+.nbadge{position:absolute;top:2px;right:4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#E5133A;color:#fff;font:700 10px/16px var(--f-body);text-align:center;box-shadow:0 0 0 2px var(--surface);pointer-events:none}
+.tabs .nbadge{top:3px;right:auto;left:calc(50% + 6px)}
+.dtabs .nbadge{top:-3px;right:-5px;box-shadow:0 0 0 2px var(--paper)}
+.dtabs button[aria-current="page"] .nbadge{box-shadow:0 0 0 2px var(--ink)}
+.nbadge.pop{animation:nbpop .45s cubic-bezier(.2,1.8,.4,1)}
+@keyframes nbpop{0%{transform:scale(0)}100%{transform:scale(1)}}
 .tabs button[aria-current="page"] svg{color:var(--coral)}
 @media (min-width:900px){.tabs{display:none}.dtabs{display:flex}}
 
@@ -1076,8 +1083,32 @@ function render(){
   if (view === "profile") renderProfile();
   if (view === "map") MapView.draw();
 }
+/* Friends notifications: pending requests received + own requests accepted since the last visit to Amis. */
+function friendNotifs(){
+  if (S.mode !== "online" || !S.uid || !S.requests) return 0;
+  const key = "rngworld.frseen." + S.uid;
+  let seen = lsGet(key, null);
+  if (seen == null){ seen = Date.now(); lsSet(key, seen); }
+  let n = 0, last = seen;
+  for (const r of S.requests.values()){
+    if (r.status === "pending" && r.to === S.uid && S.players.has(r.from)) n++;
+    else if (r.status === "accepted" && r.from === S.uid && (r.at || 0) > seen){ n++; last = Math.max(last, r.at); }
+  }
+  if (view === "friends" && last > seen){ lsSet(key, last); n = 0; for (const r of S.requests.values()) if (r.status === "pending" && r.to === S.uid && S.players.has(r.from)) n++; }
+  return n;
+}
 function renderHeader(){
   const guest = S.mode === "guest";
+  const nf = friendNotifs();
+  for (const b of $$(".tabs [data-go=friends],.dtabs [data-go=friends]")){
+    let d = b.querySelector(".nbadge");
+    if (!nf){ if (d) d.remove(); continue; }
+    if (!d){ d = document.createElement("span"); d.className = "nbadge"; b.appendChild(d); }
+    const txt = nf > 9 ? "9+" : String(nf);
+    if (d.textContent !== txt){ d.textContent = txt; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); }
+    b.setAttribute("aria-label", `Amis, ${nf} notification${nf > 1 ? "s" : ""}`);
+  }
+  if (!nf) for (const b of $$(".tabs [data-go=friends],.dtabs [data-go=friends]")) b.removeAttribute("aria-label");
   $("#hdr-login").hidden = !guest; $("#hdr-avbtn").hidden = guest;
   const t = today(), left = t.kept ? 0 : DAILY - t.used, lock = rollPending();
   for (const n of $$(".tabs,.dtabs")) n.classList.toggle("locked", lock);
