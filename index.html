@@ -239,7 +239,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .t1{--tc:#16A34A;--td:#0A5A2A;--tl:#CDEFD9;--g1:#2BCB66;--g2:#0B7533}
 .t2{--tc:#1F6BFF;--td:#0F3591;--tl:#D3E1FF;--g1:#3E8CFF;--g2:#123BC4}
 .t3{--tc:#9333EA;--td:#45127F;--tl:#E8D5FF;--g1:#B15CFF;--g2:#6516C2}
-.t4{--tc:#F59E0B;--td:#6E3500;--tl:#FFE7AE;--g1:#FFC21A;--g2:#E86400}
+.t4{--tc:#0FC6D6;--td:#03515C;--tl:#C9F7FB;--g1:#5CF0FF;--g2:#0284A8}
 .t5{--tc:#D9003A;--td:#5E0019;--tl:#FFCFDB;--g1:#FF2E62;--g2:#A3002B}
 .t1 .st{background-image:radial-gradient(color-mix(in srgb,var(--tc) 14%,transparent) 1px,transparent 1.5px);background-size:9px 9px}
 .t2 .st::after,.t4 .st::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.75) 48%,transparent 58%) 0 0/300% 100% no-repeat;animation:sheen 4.5s ease-in-out infinite;mix-blend-mode:soft-light}
@@ -249,13 +249,33 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .t3 .st,.t5 .st{border:0}
 .t3 .st::before,.t5 .st::before{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:3px;padding:2.5px;
   background:conic-gradient(from var(--ang),#9333EA,#D9B3FF,#6516C2,#9333EA);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 4s linear infinite}
-.t4 .st{border-color:#F59E0B;background:linear-gradient(160deg,#FFEDB8,#FFD46B 60%,#FFB938)}
-.t5 .st{background:linear-gradient(160deg,#FFD9E3,#FFB0C4 60%,#FF8FAB)}
-.t5 .st::before{padding:3px;background:conic-gradient(from var(--ang),#D9003A,#FF5C86,#FFC2D2,#A3002B,#D9003A);animation-duration:2.2s}
-.t5 .st::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.6) 48%,transparent 58%) 0 0/300% 100% no-repeat;animation:sheen 2.6s ease-in-out infinite}
-.stamp.t5{box-shadow:0 8px 22px rgba(217,0,58,.4)}
-.stamp.lg.t5{box-shadow:0 18px 46px rgba(217,0,58,.6)}
-.stamp.lg.t4{box-shadow:0 18px 46px rgba(245,158,11,.5)}
+.t4 .st{border-color:#0FC6D6;background:linear-gradient(150deg,#E6FEFF 0%,#A6F4FA 35%,#4FDCEB 70%,#16B5D0 100%)}
+.t4 .st::before{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:3px;padding:2.5px;
+  background:conic-gradient(from var(--ang),#0FC6D6,#B8FBFF,#0284A8,#5CF0FF,#0FC6D6);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 3s linear infinite}
+.t4 .st{border:0}
+.t5 .st{color:#FFF1F4;background:radial-gradient(130% 85% at 50% -5%,#FF4F7E 0%,#E3003F 32%,#93002B 68%,#3D000F 100%)}
+.t5 .st::before{padding:3px;background:conic-gradient(from var(--ang),#FF2E62,#FFB3C6,#7A0020,#FF5C86,#2A0008,#FF2E62);animation-duration:2s}
+.t5 .st::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(105deg,transparent 40%,rgba(255,170,195,.35) 48%,transparent 56%) 0 0/300% 100% no-repeat;animation:sheen 2.8s ease-in-out infinite;mix-blend-mode:screen}
+.t5 .st-band{background:linear-gradient(90deg,#2A0008,#A3002B 30%,#FF2E62 50%,#A3002B 70%,#2A0008);background-size:200% 100%;animation:bandshift 3.5s linear infinite;color:#FFE3EA;text-shadow:0 0 8px rgba(255,46,98,.8)}
+.t5 .st-name{color:#FFFFFF;text-shadow:0 0 14px rgba(255,60,110,.55)}
+.t5 .st-country,.t5 .st-unit,.t5 .st-pop{color:#FFB8C9}
+.t5 .st-pts{color:#FFFFFF}
+.t5 .st-pts.live-num{background-image:linear-gradient(100deg,#FFFFFF 40%,#FF8FAB 50%,#FFFFFF 60%)}
+.t5 .st-foot{border-top-color:rgba(255,120,150,.45)}
+.t5 .spk{background:radial-gradient(circle,#FFF0F4 0 15%,#FF2E62 45%,transparent 72%);animation-name:ember;clip-path:none;border-radius:50%;width:6px;height:6px}
+@keyframes ember{0%{opacity:0;transform:translateY(14px) scale(.6)}30%{opacity:1}100%{opacity:0;transform:translateY(-40px) scale(1.1)}}
+.stamp.t5{--perf:#FFD6E0;box-shadow:0 0 0 1.5px #D9003A,0 8px 24px rgba(217,0,58,.5)}
+.stamp.lg.t5{animation:mythglow 2.2s ease-in-out infinite}
+@keyframes mythglow{0%,100%{box-shadow:0 0 0 2px #D9003A,0 0 26px 6px rgba(255,30,90,.5),0 18px 46px rgba(120,0,30,.6)}50%{box-shadow:0 0 0 2px #FF5C86,0 0 60px 20px rgba(255,30,90,.75),0 18px 46px rgba(120,0,30,.7)}}
+.myth-aura{position:absolute;left:50%;top:50%;width:220%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:-1;pointer-events:none;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,30,90,.45),rgba(160,0,40,.18) 50%,transparent 72%),repeating-conic-gradient(from 0deg,rgba(255,60,110,.28) 0 4deg,transparent 4deg 22deg);
+  -webkit-mask:radial-gradient(closest-side,#000 20%,transparent 100%);mask:radial-gradient(closest-side,#000 20%,transparent 100%);animation:raysspin 30s linear infinite reverse}
+.t5 .cs-hero{background:linear-gradient(120deg,#3D000F,#A3002B 30%,#FF2E62 55%,#A3002B 78%,#3D000F);background-size:300% 100%;animation:goldflow 9s ease-in-out infinite;box-shadow:inset 0 0 40px rgba(255,60,110,.35)}
+.t5 .cs-hero::before{background:radial-gradient(120% 140% at 90% -30%,rgba(255,140,170,.45),transparent 55%),repeating-conic-gradient(from var(--ang) at 88% -10%,rgba(255,120,160,.22) 0 4deg,transparent 4deg 16deg);animation:spin 22s linear infinite}
+.stamp:not(.lg) .st-band{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.myth-aura,.stamp.lg.t5,.t5 .st-band,.t5 .cs-hero{animation:none}}
+.stamp.lg.t4{box-shadow:0 0 30px 4px rgba(15,198,214,.45),0 18px 46px rgba(2,132,168,.5)}
+.stamp.t4{box-shadow:0 8px 22px rgba(15,198,214,.35)}
 /* Ultime: pale gold, white light, slow god rays */
 /* Ultime: molten, living gold — deep amber to bright sun gold, never washed to white */
 .t6{--tc:#FFB800;--td:#3E2400;--tl:#FFE7A0;--g1:#FFD84A;--g2:#E07B00}
@@ -432,7 +452,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .cs-hero{position:relative;color:#fff;background:linear-gradient(130deg,var(--g1),var(--g2));padding:12px 16px 16px;overflow:hidden;cursor:pointer;isolation:isolate}
 .cs-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(120% 140% at 90% -30%,rgba(255,255,255,.5),transparent 50%),repeating-linear-gradient(115deg,rgba(255,255,255,.09) 0 2px,transparent 2px 14px)}
 .t2 .cs-hero::after,.t3 .cs-hero::after,.t4 .cs-hero::after,.t5 .cs-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.4) 48%,transparent 60%) 0 0/300% 100% no-repeat;animation:sheen 3.6s ease-in-out infinite}
-.t5 .cs-hero{box-shadow:inset 0 0 40px rgba(255,255,255,.25)}
+
 .cs-top{display:flex;align-items:center;gap:8px}
 .cs-tier{font:800 11px var(--f-display);letter-spacing:.12em;text-transform:uppercase;text-shadow:0 1px 2px rgba(0,0,0,.25)}
 .cs-btns{margin-left:auto;display:flex;gap:6px}
@@ -647,7 +667,7 @@ const TIERS = [
   {name:"Peu commune", c:"#16A34A", d:"#0A5A2A", ocean:"#12873D", g1:"#2BCB66", g2:"#0B7533"},
   {name:"Rare",        c:"#1F6BFF", d:"#0F3591", ocean:"#1847D6", g1:"#3E8CFF", g2:"#123BC4"},
   {name:"Épique",      c:"#9333EA", d:"#45127F", ocean:"#7322C9", g1:"#B15CFF", g2:"#6516C2"},
-  {name:"Légendaire",  c:"#F59E0B", d:"#6E3500", ocean:"#D97706", g1:"#FFC21A", g2:"#E86400"},
+  {name:"Légendaire",  c:"#0FC6D6", d:"#03515C", ocean:"#0A9FB4", g1:"#5CF0FF", g2:"#0284A8"},
   {name:"Mythique",    c:"#D9003A", d:"#5E0019", ocean:"#B0002F", g1:"#FF2E62", g2:"#A3002B"},
   {name:"Ultime",      c:"#FFB800", d:"#3E2400", ocean:"#C86A00", g1:"#FFD84A", g2:"#E07B00", line:"#E08A00"},
 ];
@@ -694,22 +714,31 @@ const SFX = {
     osc.type = o.type || "sine"; osc.frequency.setValueAtTime(o.f, t);
     if (o.f2) osc.frequency.exponentialRampToValueAtTime(Math.max(20, o.f2), t + (o.glide || dur));
     if (o.detune) osc.detune.value = o.detune;
+    if (o.vib){ const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = o.vib; lg.gain.value = o.vibDepth || 12; l.connect(lg).connect(osc.detune); l.start(t); l.stop(t + a + (o.hold || 0) + dur + .1); }
     env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(g, t + a);
-    env.gain.exponentialRampToValueAtTime(.0001, t + a + dur);
+    if (o.hold) env.gain.setValueAtTime(g, t + a + o.hold);
+    env.gain.exponentialRampToValueAtTime(.0001, t + a + (o.hold || 0) + dur);
     let node = osc.connect(env);
-    if (o.lp){ const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.setValueAtTime(o.lp, t); if (o.lp2) f.frequency.exponentialRampToValueAtTime(o.lp2, t + a + dur); f.Q.value = o.q || .7; node = env.connect(f); }
-    node.connect(this.master);
-    if (o.wet){ const w = c.createGain(); w.gain.value = o.wet; node.connect(w).connect(this.revIn); }
-    osc.start(t); osc.stop(t + a + dur + .05);
+    if (o.lp){ const f = c.createBiquadFilter(); f.type = "lowpass"; f.frequency.setValueAtTime(o.lp, t); if (o.lp2) f.frequency.exponentialRampToValueAtTime(o.lp2, t + (o.lpT || a + dur)); f.Q.value = o.q || .7; node = env.connect(f); }
+    if (o.pan){ const pn = c.createStereoPanner(); pn.pan.value = o.pan; node = node.connect(pn); }
+    const R = this.route || {};
+    node.connect(R.out || this.master);
+    if (o.wet){ const w = c.createGain(); w.gain.value = o.wet; node.connect(w).connect(R.wet || this.revIn); }
+    osc.start(t); osc.stop(t + a + (o.hold || 0) + dur + .05);
   },
   noise(o){
     const c = this.ctx, t = c.currentTime + (o.at || 0), dur = o.dur || .2, a = o.a || .005;
     const src = c.createBufferSource(); src.buffer = this.noiseBuf; src.loop = true;
     const f = c.createBiquadFilter(); f.type = o.type || "bandpass"; f.Q.value = o.q || 1;
     f.frequency.setValueAtTime(o.f || 1000, t); if (o.f2) f.frequency.exponentialRampToValueAtTime(o.f2, t + a + dur);
-    const env = c.createGain(); env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(o.g || .1, t + a); env.gain.exponentialRampToValueAtTime(.0001, t + a + dur);
-    src.connect(f).connect(env).connect(this.master);
-    if (o.wet){ const w = c.createGain(); w.gain.value = o.wet; env.connect(w).connect(this.revIn); }
+    const env = c.createGain();
+    if (o.swell){ env.gain.setValueAtTime(.001, t); env.gain.exponentialRampToValueAtTime(o.g || .1, t + a); env.gain.linearRampToValueAtTime(.0001, t + a + .04); }   // risers: grow, then cut
+    else { env.gain.setValueAtTime(0, t); env.gain.linearRampToValueAtTime(o.g || .1, t + a); env.gain.exponentialRampToValueAtTime(.0001, t + a + dur); }
+    let node = src.connect(f).connect(env);
+    if (o.pan){ const pn = c.createStereoPanner(); pn.pan.value = o.pan; node = node.connect(pn); }
+    const R = this.route || {};
+    node.connect(R.out || this.master);
+    if (o.wet){ const w = c.createGain(); w.gain.value = o.wet; node.connect(w).connect(R.wet || this.revIn); }
     src.start(t, Math.random()*.5); src.stop(t + a + dur + .05);
   },
   bell(f, at, g, wet){ this.tone({f, dur:.9, g, at, wet:wet ?? .35}); this.tone({f:f*2.76, dur:.35, g:g*.25, at, wet:wet ?? .35}); this.tone({f:f*5.4, dur:.12, g:g*.1, at}); },
@@ -723,38 +752,103 @@ const SFX = {
   notif(){ if (!this.ready() || !this.gate("notif", 800)) return; this.tone({f:988, dur:.12, g:.07, wet:.3}); this.tone({f:1319, dur:.2, g:.07, at:.09, wet:.3}); },
   success(){ if (!this.ready()) return; [523, 659, 784, 1047].forEach((f, k) => this.pluck(f, k*.07, .09, .3)); this.sparkle(.3, 1568, 4, .035); },
   /* ---- Draw ---- */
-  draw(){ if (!this.ready()) return; this.noise({type:"bandpass", f:250, f2:3200, dur:.6, g:.09, q:.6, a:.2}); this.tone({f:196, f2:784, glide:.7, dur:.7, g:.05, a:.15, wet:.3}); this.tone({f:98, dur:.3, g:.12}); },
-  tierStep(lvl, last){
+  /* ---- Rarity reveal: a scored mini-trailer ----
+     Everything is scheduled at the draw on its own bus (so a skip can cut it): a riser that grows until
+     the climax, one impact + chord stab per rarity step (the harmony climbs), then the final hit,
+     whose size depends on the rarity. */
+  revealStart(tier){
     if (!this.ready()) return;
-    const scale = [523, 587, 659, 784, 880, 1047, 1175];
-    const f = scale[Math.min(lvl, scale.length - 1)];
-    this.bell(f, 0, .08 + lvl*.015);
-    this.noise({type:"highpass", f:3000, dur:.12, g:.02 + lvl*.006});
-    if (last) this.tierFinal(lvl);
+    this.revealStop();
+    const c = this.ctx, bus = c.createGain(), wet = c.createGain();
+    bus.connect(this.master); wet.connect(this.revIn); this.bus = {bus, wet};
+    const T0 = .03, at = k => T0 + SIG_FIRST + SIG_STEP*(k - 1);
+    const climax = tier ? at(tier) : T0 + SIG_FIRST*.8;
+    this.route = {out:bus, wet};
+    try {
+      // launch: air sweep + low hit
+      this.noise({type:"bandpass", f:250, f2:2400, dur:.5, g:.07, q:.6, a:.15, at:T0});
+      this.tone({f:65, f2:45, glide:.3, dur:.35, g:.18, at:T0});
+      if (tier) this.riser(T0 + .1, climax, tier);
+      for (let k = 1; k < tier; k++) this.stepHit(k, at(k), tier);
+      this.finalHit(tier, climax);
+    } finally { this.route = null; }
+    this.climaxAt = performance.now() + climax*1000;
   },
-  tierFinal(t){
+  revealStop(){
+    if (!this.bus) return;
+    const t = this.ctx.currentTime, {bus, wet} = this.bus;
+    for (const g of [bus.gain, wet.gain]){ g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + .08); }
+    setTimeout(() => { bus.disconnect(); wet.disconnect(); }, 400);
+    this.bus = null;
+  },
+  // skipped before the climax: cut the trailer and land straight on the final hit
+  revealSkip(tier){
+    if (!this.bus || performance.now() >= (this.climaxAt || 0) - 30) return;
+    this.revealStop();
     if (!this.ready()) return;
-    const at = .08;
-    if (t === 0){ this.pluck(392, at, .09); this.pluck(523, at + .07, .08); return; }
-    if (t === 1){ [523, 659, 784].forEach((f, k) => this.pluck(f, at + k*.06, .09)); return; }
-    if (t === 2){ [523, 659, 784, 1047].forEach((f, k) => this.pluck(f, at + k*.06, .09)); this.bell(1568, at + .26, .05); return; }
-    if (t === 3){ this.pad([294, 370, 440, 587], at, .9, .09, 2200); [587, 740, 880, 1175].forEach((f, k) => this.pluck(f, at + k*.07, .09)); this.boom(at, .25); return; }
-    if (t === 4){ this.boom(at, .4); this.pad([262, 330, 392, 523], at, 1.3, .11, 2600);
-      [523, 659, 784, 1047, 1319].forEach((f, k) => this.tone({f, type:"sawtooth", dur:.22, g:.05, at:at + k*.08, lp:3000, lp2:1200, wet:.3}));
-      this.noise({type:"highpass", f:6000, f2:9000, dur:1.2, g:.04, a:.05, wet:.4}); this.sparkle(at + .45, 1568, 6, .04); return; }
-    if (t === 5){ this.boom(at, .55); this.noise({type:"lowpass", f:1200, f2:100, dur:.6, g:.18, at});
-      this.pad([147, 220, 294, 349, 440], at, 1.8, .14, 2000);
-      [587, 698, 880, 1175, 1397].forEach((f, k) => this.bell(f, at + .15 + k*.09, .05));
-      this.noise({type:"highpass", f:5000, f2:10000, dur:1.6, g:.05, a:.04, wet:.5}); return; }
-    // Ultime: rising swell, sub boom, a bright choir-like chord and a cascade of high bells
-    this.noise({type:"bandpass", f:400, f2:6000, dur:.55, g:.07, q:.5, a:.5});
-    const T = at + .5;
-    this.boom(T, .6);
-    this.pad([131, 262, 330, 392, 523, 587, 784], T, 3.2, .2, 3200);
-    for (const f of [1047, 1319, 1568]) this.tone({f, type:"triangle", a:.4, dur:2.6, g:.025, at:T, wet:.7});
-    [1047, 1319, 1568, 2093, 2637, 3136, 2637, 2093].forEach((f, k) => this.bell(f, T + .1 + k*.11, .045, .6));
-    this.noise({type:"highpass", f:7000, dur:2.4, g:.035, a:.3, at:T, wet:.6});
+    const c = this.ctx, bus = c.createGain(), wet = c.createGain(); bus.connect(this.master); wet.connect(this.revIn);
+    this.route = {out:bus, wet}; try { this.finalHit(tier, .02); } finally { this.route = null; }
   },
+  riser(t0, t1, tier){
+    const d = Math.max(.4, t1 - t0), top = 1800 + tier*900;
+    this.noise({type:"bandpass", f:220, f2:top, q:1.4, dur:d, a:d, g:.04 + tier*.012, at:t0, swell:true, wet:.3});
+    for (const [det, pan] of [[-12, -.6], [12, .6]]) this.tone({f:55*Math.pow(2, tier/12), f2:55*Math.pow(2, 1.6 + tier/6), glide:d, type:"sawtooth", detune:det, a:d*.9, dur:.06, g:.025 + tier*.006, at:t0, lp:300, lp2:2600 + tier*500, lpT:d, pan, wet:.25});
+    // heartbeat that speeds up toward the climax
+    if (tier >= 2){ let t = t0 + .15, gap = .5; while (t < t0 + d - .12){ this.tone({f:58, f2:40, glide:.12, dur:.14, g:.16 + tier*.02, at:t}); t += gap; gap = Math.max(.16, gap*.8); } }
+  },
+  chordAt(root, steps, at, o){
+    for (const [k, st] of steps.entries()){
+      const f = root*Math.pow(2, st/12), pan = steps.length > 1 ? -.7 + 1.4*k/(steps.length - 1) : 0;
+      for (const det of o.dets || [-10, 10]) this.tone(Object.assign({f, type:o.type || "sawtooth", detune:det, pan, at}, o.v));
+    }
+  },
+  impact(at, g){
+    this.tone({f:110, f2:40, glide:.4, dur:.5, g, at, a:.002});
+    this.noise({type:"lowpass", f:3200, f2:160, dur:.28, g:g*.6, at, a:.002});
+    this.noise({type:"highpass", f:2500, dur:.09, g:g*.25, at, a:.001});
+  },
+  stepHit(k, at, tier){
+    // climbing harmony: A – C – D – E – F – G – A (each step a brighter, wider chord)
+    const roots = [0, 3, 5, 7, 8, 10, 12], root = 110*Math.pow(2, roots[k - 1]/12);
+    this.impact(at, .2 + k*.025);
+    this.chordAt(root, [0, 7, 12, 16, 19], at, {v:{dur:.5, g:.022 + k*.004, a:.006, lp:900, lp2:5200, lpT:.05, wet:.45}});
+    this.chordAt(root*4, [0, 7, 12], at + .02, {type:"triangle", dets:[0], v:{dur:.7, g:.03, wet:.6}});
+    for (let q = 0; q < 3; q++) this.tone({f:root*16*(1 + q*.004), dur:.5, g:.012, at:at + .04 + q*.03, wet:.7, pan:q - 1});
+  },
+  crash(at, g, len){ this.noise({type:"highpass", f:3500, dur:len, g, at, a:.002, wet:.6}); this.noise({type:"bandpass", f:7000, f2:3000, q:.7, dur:len*.7, g:g*.6, at, wet:.6}); },
+  finalHit(t, at){
+    const A = at;
+    if (t === 0){ [262, 330, 392].forEach((f, k) => this.pluck(f, A + k*.05, .08, .35)); return; }
+    if (t === 1){ this.impact(A, .22); [392, 494, 587, 784].forEach((f, k) => this.pluck(f, A + k*.06, .09, .4)); this.bell(1568, A + .25, .05); return; }
+    if (t === 2){ this.impact(A, .28); this.chordAt(196, [0, 7, 12, 16], A, {v:{dur:.9, g:.03, a:.008, lp:1200, lp2:4000, lpT:.08, wet:.5}});
+      [784, 988, 1175, 1568].forEach((f, k) => this.bell(f, A + .12 + k*.07, .045)); return; }
+    if (t === 3){ this.impact(A, .34); this.crash(A, .05, .9);
+      this.chordAt(147, [0, 7, 12, 15, 19], A, {v:{dur:1.4, g:.032, a:.01, lp:900, lp2:4200, lpT:.12, wet:.55}});
+      [587, 740, 880, 1175, 1480, 1760].forEach((f, k) => this.pluck(f, A + .1 + k*.06, .07, .4)); return; }
+    if (t === 4){ // Légendaire: wide shimmering major-9 wall + fast arpeggio over two octaves
+      this.impact(A, .42); this.crash(A, .07, 1.6);
+      this.chordAt(165, [0, 7, 12, 16, 19, 23, 26], A, {v:{dur:2.2, g:.03, a:.01, lp:1200, lp2:6000, lpT:.15, wet:.6, vib:5, vibDepth:6}});
+      this.chordAt(82.4, [0, 12], A, {type:"triangle", dets:[0], v:{dur:2, g:.12}});
+      [659, 831, 988, 1319, 1661, 1976, 2637].forEach((f, k) => this.bell(f, A + .12 + k*.065, .045, .55));
+      this.noise({type:"highpass", f:8000, dur:2, g:.03, at:A + .2, a:.4, wet:.7}); return; }
+    if (t === 5){ // Mythique: dark epic — sub drop, low brass, minor chord that blooms into major
+      this.impact(A, .55); this.crash(A, .09, 2.2);
+      this.tone({f:55, f2:36, glide:1.6, dur:2, g:.4, at:A, a:.003});
+      this.chordAt(73.4, [0, 7, 12, 15], A, {v:{dur:1.6, g:.05, a:.01, lp:700, lp2:2400, lpT:.3, wet:.5}});
+      this.chordAt(146.8, [0, 7, 12, 15, 19], A + .02, {v:{hold:.4, dur:1.4, g:.026, a:.02, lp:1400, lp2:4800, lpT:.5, wet:.6, vib:4.5, vibDepth:10}});
+      this.chordAt(146.8, [0, 7, 12, 16, 19, 24], A + .9, {v:{dur:2.2, g:.024, a:.25, lp:2400, lp2:6000, lpT:1, wet:.7, vib:5, vibDepth:8}});
+      [587, 698, 880, 1175, 1397, 1760].forEach((f, k) => this.bell(f, A + .95 + k*.09, .045, .6)); return; }
+    // Ultime: a double impact, a gong, an angelic choir with vibrato, and a cascade of bells
+    this.impact(A, .6); this.impact(A + .09, .4); this.crash(A, .11, 3.2);
+    for (const [f, g] of [[82, .18], [157, .09], [243, .06], [331, .04]]) this.tone({f, dur:3.4, g, at:A, a:.003, wet:.5});
+    this.tone({f:49, f2:33, glide:2.4, dur:2.8, g:.45, at:A, a:.003});
+    this.chordAt(130.8, [0, 7, 12, 16, 19, 24, 26, 28], A + .05, {v:{hold:.8, dur:2.6, g:.024, a:.35, lp:1800, lp2:7000, lpT:1.2, wet:.75, vib:5.2, vibDepth:14}});
+    this.chordAt(523, [0, 4, 7, 12], A + .1, {type:"triangle", dets:[-6, 6], v:{hold:.8, dur:2.6, g:.022, a:.5, wet:.8, vib:5.5, vibDepth:18}});
+    [1047, 1319, 1568, 2093, 2637, 3136, 2637, 3136, 4186].forEach((f, k) => this.bell(f, A + .2 + k*.1, .04, .7));
+    this.noise({type:"highpass", f:9000, dur:3.2, g:.035, at:A + .3, a:.6, wet:.8});
+  },
+  // kept for other moments (claim, score) that reuse the final palette
+  tierFinal(t){ if (!this.ready()) return; this.finalHit(t, .02); },
   dive(){ if (!this.ready()) return; this.noise({type:"bandpass", f:3000, f2:300, dur:1.6, g:.06, q:.6, a:.3}); this.tone({f:880, f2:220, glide:1.6, dur:1.6, g:.025, a:.3}); },
   land(t){ if (!this.ready()) return; this.boom(0, .3 + t*.03); this.tone({f:392*Math.pow(2, t/12), dur:.4, g:.05, at:.04, wet:.4}); },
   tick(u){ if (!this.ready() || !this.gate("tick", 55)) return; this.tone({f:700 + u*500, dur:.03, g:.02}); },
@@ -1351,7 +1445,7 @@ function renderHeader(){
 function stampHTML(i, lg){
   const t = D.tier[i], T = TIERS[t];
   return `<div class="stamp ${lg ? "lg" : ""} t${t}" data-idx="${i}">
-    <div class="st">${lg && t === TOP ? '<i class="spk"></i>'.repeat(6) : ""}
+    <div class="st">${lg && t >= TOP - 1 ? '<i class="spk"></i>'.repeat(6) : ""}
       <div class="st-band"><span>${T.name}</span><span class="st-stars">${"★".repeat(t+1)}</span></div>
       ${lg ? `<div class="st-photo" data-idx="${i}"><canvas></canvas><span class="ph-tag">Vue carte</span></div>` : `<canvas class="st-globe" data-idx="${i}"></canvas>`}
       <div class="st-body"><div class="st-name${cityName(i).length > 13 ? " long" : ""}">${esc(cityName(i))}</div><div class="st-country">${flag(D.cc[i])} ${esc(countryName(D.cc[i]))}</div></div>
@@ -1727,7 +1821,7 @@ const Stage = {
   ring(x, y, col, max, life, width){ this.rings.push({x, y, col, max, life, width, age:0}); },
   step(now){
     const a = this.anim;
-    if (a.skip){ a.t0 = now - a.land*1000; a.skip = false; a.level = a.tier; a.skipped = true; }
+    if (a.skip){ a.t0 = now - a.land*1000; a.skip = false; a.level = a.tier; a.skipped = true; SFX.revealSkip(a.tier); }
     const p = (now - a.t0)/1000, g0 = this.globeCam();
     let lvl = 0; for (let k = 1; k <= a.tier; k++) if (p >= SIG_FIRST + SIG_STEP*(k - 1)) lvl = k;
     if (p < a.sig && lvl !== a.level){
@@ -1744,9 +1838,9 @@ const Stage = {
         this.ring(x, y, "#FFE45C", 460, 1.7, 8); this.ring(x, y, "#FF9500", 320, 1.3, 5); this.burst(x, y, "#FFD84A", 70, 760); this.burst(x, y, "#FF8A00", 40, 520);
         const gf = document.createElement("div"); gf.className = "flash"; gf.style.background = "radial-gradient(circle at 50% 50%,rgba(255,228,92,.95),rgba(255,160,0,.75) 35%,rgba(160,70,0,.35) 70%,transparent)";
         fl.parentElement.appendChild(gf); gf.animate([{opacity:0}, {opacity:.95, offset:.08}, {opacity:0}], {duration:1500, easing:"ease-out"}).onfinish = () => gf.remove(); }
-      SFX.tierStep(lvl, last);
+
     }
-    if (p >= a.sig && !a.dived){ a.dived = true; if (!a.skipped){ if (a.tier === 0) SFX.tierFinal(0); SFX.dive(); } }
+    if (p >= a.sig && !a.dived){ a.dived = true; if (!a.skipped) SFX.dive(); }
     const to = this.focusCam(a.idx, a.geo); a.to = to;
     const ll = a.interp(easeIO(clamp(p/(a.sig + DIVE*.55), 0, 1)));
     let S, tx, ty;
@@ -2000,7 +2094,7 @@ const Stage = {
   showCard(i, fromReveal){
     const slot = $("#card-slot"), t = today();
     const kept = t.kept === D.id[i];
-    slot.innerHTML = `<div class="card-scale"><div class="card-pop ${fromReveal ? "rise" : ""}" id="card" role="button" tabindex="0" aria-label="Voir la fiche de ${esc(cityName(i))}">${D.tier[i] === TOP ? `<div class="god-rays"></div>` : ""}${stampHTML(i, true)}</div></div>`;
+    slot.innerHTML = `<div class="card-scale"><div class="card-pop ${fromReveal ? "rise" : ""}" id="card" role="button" tabindex="0" aria-label="Voir la fiche de ${esc(cityName(i))}">${D.tier[i] === TOP ? `<div class="god-rays"></div>` : D.tier[i] === TOP - 1 ? `<div class="myth-aura"></div>` : ""}${stampHTML(i, true)}</div></div>`;
     if (kept) $(".stamp", slot).insertAdjacentHTML("beforeend", `<div class="claim-mark still">Obtenue</div>`);
     fillPhotos(slot);
     const pts = $(".st-pts", slot);
@@ -2186,8 +2280,8 @@ function drawOne(){
   if (t.kept || t.used >= DAILY) return;
   const idx = randInt(D.n);
   t.used += 1; t.cur = D.id[idx]; t.seen = [...(t.seen || []), D.id[idx]];
-  SFX.draw();
   Stage.start(idx);
+  SFX.revealStart(D.tier[idx]);
   writeMe({today:t});
 }
 /* Keeping a city needs an account. The lock is a document per city, created in a transaction:
@@ -2807,6 +2901,15 @@ const MapView = {
     const rot = (dx, dy) => { const g = this.gl, R = this.R0*g.z, d = 180/Math.PI;
       g.lon = ((g.lon - dx/R*d) + 540) % 360 - 180; g.lat = clamp(g.lat + dy/R*d, -89, 89); };
     const zoomBy = f => { this.gl.z = clamp(this.gl.z*f, .8, 3000); };
+    // zoom keeping the place under the cursor (or between the fingers) where it is
+    const orth = () => { const g = this.gl; return d3.geoOrthographic().scale(this.R0*g.z).translate([this.w/2, g.ty == null ? this.cy0 : g.ty]).rotate([-g.lon, -g.lat]).clipAngle(90); };
+    const zoomAt = (f, sx, sy) => {
+      const p0 = orth().invert([sx, sy]);
+      zoomBy(f);
+      if (!p0 || !isFinite(p0[0]) || !isFinite(p0[1]) || d3.geoDistance(p0, [this.gl.lon, this.gl.lat]) > 1.56) return;
+      for (let k = 0; k < 24; k++){ const q = orth()(p0); if (!q) break; const dx = sx - q[0], dy = sy - q[1]; if (Math.abs(dx) + Math.abs(dy) < .3) break; rot(dx, dy); }
+    };
+    const local = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
     cv.addEventListener("pointerdown", e => {
       if (this.mode !== "globe" || e.button) return;
       this.stopTween(); cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
@@ -2820,14 +2923,15 @@ const MapView = {
         const [a, b] = [...pts.values()], d0 = Math.hypot(a.x - b.x, a.y - b.y), m0 = [(a.x + b.x)/2, (a.y + b.y)/2];
         p.x = e.clientX; p.y = e.clientY;
         const d1 = Math.hypot(a.x - b.x, a.y - b.y), m1 = [(a.x + b.x)/2, (a.y + b.y)/2];
-        if (d0 > 0) zoomBy(d1/d0); rot(m1[0] - m0[0], m1[1] - m0[1]); moved += 20;
+        const r = cv.getBoundingClientRect();
+        rot(m1[0] - m0[0], m1[1] - m0[1]); if (d0 > 0) zoomAt(d1/d0, m1[0] - r.left, m1[1] - r.top); moved += 20;
         this.draw(); return;
       }
       p.x = e.clientX; p.y = e.clientY; this.draw();
     });
     const up = e => { if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); if (!pts.size && moved > 6) this.dragged = true; };
     cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
-    cv.addEventListener("wheel", e => { if (this.mode !== "globe") return; e.preventDefault(); this.stopTween(); zoomBy(Math.exp(-e.deltaY*.0018)); this.draw(); }, {passive:false});
+    cv.addEventListener("wheel", e => { if (this.mode !== "globe") return; e.preventDefault(); this.stopTween(); const [x, y] = local(e); zoomAt(Math.exp(-e.deltaY*.0018), x, y); this.draw(); }, {passive:false});
   },
   stopTween(){ if (this.tw){ cancelAnimationFrame(this.tw); this.tw = null; } },
   tween(to, ms){
