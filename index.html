@@ -1641,10 +1641,14 @@ function osmShape(i){
       if (!r.ok) return null;
       const j = await r.json(), f = j.features && j.features[0];
       if (!f || !f.geometry || !/Polygon/.test(f.geometry.type)) return null;
+      const pr = f.properties || {}, at = String(pr.addresstype || pr.type || "");
+      if (/county|state|region|province|country|district|department|island|archipelago/.test(at)) return null;
       NET.fails = 0;
       const feat = fixWinding({type:"Feature", geometry:f.geometry});
       const a = d3.geoArea(feat);
-      if (!(a > 0) || a > 2e-4 || !d3.geoContains(feat, [D.lon[i], D.lat[i]])) return null;
+      // area check scaled to the population: a village of 2 000 people can't cover a whole county
+      const km2 = a*6371*6371, maxKm2 = clamp((D.pop[i] || 0)/400, 40, 3000);
+      if (!(a > 0) || km2 > maxKm2 || !d3.geoContains(feat, [D.lon[i], D.lat[i]])) return null;
       return feat;
     } catch (e){ if (!(e && e.name === "AbortError") && ++NET.fails >= 4) NET.blocked = true; return null; }   // only give up after several failures in a row
     finally { clearTimeout(to); await sleep(1100); }
@@ -1664,14 +1668,11 @@ function geoFor(i){
     const country = sib.length ? {type:"Feature", geometry:{type:"GeometryCollection", geometries:sib}} : null;
     const ug = ub && ub.u[D.id[i]];
     const g = {region, country, near:[], ver:1};
-    // The final outline is settled before anything is drawn: official OSM limits if they arrive in time,
-    // otherwise the urban area or the estimate cut to the coast. No more outline changing a second later.
-    const osm = osmShape(i), late = sleep(2600).then(() => null);
+    // Base outline right away (urban area, or the estimate cut to the coast). Official OSM limits replace it
+    // only if they arrive before the outline is first drawn: once on screen (g.frozen), it never changes.
+    osmShape(i).then(f => { if (f && !g.frozen){ g.shape = f; g.kind = "osm"; g.ver++; frame(g, i); } });
     if (ug){ g.shape = {type:"Feature", geometry:ug}; g.kind = "urban"; }
-    else { g.shape = territory(i); g.kind = "estimate"; await Promise.race([landClip(g, i), sleep(2600)]); }
-    const f = await Promise.race([osm, late]);
-    if (f){ g.shape = f; g.kind = "osm"; }
-    g.frozen = true;
+    else { g.shape = territory(i); g.kind = "estimate"; await Promise.race([landClip(g, i), sleep(1500)]); }
     frame(g, i);
     return g;
   })();
@@ -1813,7 +1814,7 @@ function fillPhotos(root){
 }
 async function paintPlan(cv, i){
   await Promise.race([LAND10.ready, sleep(3500)]);
-  const g = await geoFor(i);
+  const g = await geoFor(i); g.frozen = true;
   if (!cv.isConnected) return;
   const W = cv.clientWidth || 236, H = cv.clientHeight || 150, dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.width = W*dpr; cv.height = H*dpr;
@@ -1986,6 +1987,7 @@ const Stage = {
         fl.parentElement.appendChild(gf); gf.animate([{opacity:0}, {opacity:.95, offset:.08}, {opacity:0}], {duration:1500, easing:"ease-out"}).onfinish = () => gf.remove(); }
 
     }
+    if (p >= a.sig && a.geo) a.geo.frozen = true;
     if (p >= a.sig && !a.dived){ a.dived = true; if (!a.skipped) SFX.dive(); }
     const to = this.focusCam(a.idx, a.geo); a.to = to;
     const ll = a.interp(easeIO(clamp(p/(a.sig + DIVE*.55), 0, 1)));
@@ -2000,6 +2002,10 @@ const Stage = {
   frame(now, dt){
     const fi = this.anim ? this.anim.idx : this.focusIdx();
     if (this.anim) this.step(now);
+    if (this.anim && this.anim.landed && fi != null){
+      if (!geoFor(fi).value) this.anim.geoLate = true;
+      else if (this.anim.geoLate){ this.anim.geoLate = false; this.landedAt = now; geoFor(fi).value.frozen = true; }
+    }
     else {
       let tgt;
       if (fi != null){ const g = geoFor(fi).value; tgt = this.focusCam(fi, g || null); }
@@ -2903,6 +2909,7 @@ const MapView = {
   drawSel(ctx, k, pp){
     const i = this.selected, pr = geoFor(i), g = pr.value;
     if (!g){ pr.then(() => this.draw()); return; }
+    g.frozen = true;
     if (pp){
       const T = TIERS[D.tier[i]], {k:K, x:X, y:Y} = this.t, CX = this.px[i]*K + X, CY = this.py[i]*K + Y;
       if (g.region){ ctx.save(); if (this.landClipPath) ctx.clip(this.landClipPath); ctx.beginPath(); pp(g.region); ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
@@ -3032,6 +3039,7 @@ const MapView = {
   drawSelGlobe(ctx, path, land){
     const i = this.selected, pr = geoFor(i), g = pr.value;
     if (!g){ pr.then(() => this.draw()); return; }
+    g.frozen = true;
     const T = TIERS[D.tier[i]], cc = path.projection()([D.lon[i], D.lat[i]]) || [this.w/2, this.h/2], CX = cc[0], CY = cc[1];
     if (g.region){ ctx.save(); ctx.clip(land); ctx.beginPath(); path(g.region); ctx.fillStyle = tpaint(ctx, T, .1, CX, CY); ctx.fill(); ctx.setLineDash([8, 6]); ctx.strokeStyle = tpaint(ctx, T, .8, CX, CY); ctx.lineWidth = 1.8; ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
     ctx.save();
