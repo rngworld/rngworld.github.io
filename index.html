@@ -2537,12 +2537,16 @@ async function keepCurrent(){
 /* ================= City sheet ================= */
 function openSheet(html, opts = {}){
   const sh = $("#sheet"), sc = $("#scrim");
+  const wasOpen = !sh.hidden && sh.classList.contains("on");
   delete sh.dataset.city;
-  sh.className = "sheet" + (opts.cls ? " " + opts.cls : "") + (opts.peek ? " peek" : "");
+  sh.className = "sheet" + (opts.cls ? " " + opts.cls : "") + (opts.peek ? " peek" : "") + (wasOpen ? " on" : "");
   $("#sheet-body").innerHTML = opts.raw ? html : `<div class="sh-generic"><div class="grab"></div><button class="x" data-close aria-label="Fermer">×</button>${html}</div>`;
   sh.hidden = false; sh.scrollTop = 0;
   sc.hidden = !!opts.peek;
   requestAnimationFrame(() => { sh.classList.add("on"); if (!opts.peek) sc.classList.add("on"); });
+  // already open (e.g. a player's profile opened from a city): the new content slides in instead of popping
+  if (wasOpen && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+    $("#sheet-body").animate([{opacity:0, transform:"translateY(28px) scale(.985)"}, {opacity:1, transform:"none"}], {duration:340, easing:"cubic-bezier(.2,.9,.25,1)"});
   paintGlobes(sh); fillPhotos(sh);
 }
 function setPeek(peek){
@@ -3392,9 +3396,8 @@ function openPlayerSheet(uid){
   const rid = [uid + "__" + S.uid, S.uid + "__" + uid].find(r => S.requests.has(r));
   openSheet(`
     <div class="profile-hero" style="margin-bottom:14px">${avatarHTML(p, 64)}<div><h2 style="font-size:22px">@${esc(p.pseudo)}</h2><div class="sub">${villes(list.length)} · ${fmt(totalPts(p))} pts</div></div></div>
-    <div class="sheet-actions" style="margin:0 0 16px"><button class="btn-s" id="pl-map">Voir ses villes sur la carte</button>${fr && rid ? `<button class="btn-s alt" id="pl-rm">Retirer des amis</button>` : ""}</div>
+    ${fr && rid ? `<div class="sheet-actions" style="margin:0 0 16px"><button class="btn-s alt" id="pl-rm">Retirer des amis</button></div>` : ""}
     ${list.length ? `<div class="grid-stamps" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${list.map(i => `<button class="stamp-btn" data-i="${i}">${stampHTML(i)}</button>`).join("")}</div>` : `<div class="empty"><p>Aucune ville pour l'instant.</p></div>`}`);
-  $("#pl-map").onclick = () => { closeSheet(); go("map"); if (list.length) MapView.flyTo(list[0], false); };
   const rm = $("#pl-rm"); if (rm) rm.onclick = () => { S.db.doc("requests/" + rid).delete().then(() => { toast("Ami retiré."); closeSheet(); }); };
   for (const b of $$("#sheet-body .stamp-btn")) b.onclick = () => openCitySheet(+b.dataset.i);
 }
