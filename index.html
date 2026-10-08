@@ -1338,7 +1338,13 @@ function onUser(user){
   }
   S.mode = "online"; S.uid = user.uid;
   if (S.guest && S.guest.today && S.guest.today.used){ S.guestHadDraws = true; S.guest = {today:freshToday()}; lsSet("rngworld.guest", S.guest); $("#card-slot").innerHTML = ""; }
-  S.isOwner = (CFG.admins || []).map(x => String(x).toLowerCase()).includes(String(user.email || "").toLowerCase());
+  S.isOwner = false;
+  if (user.email && user.emailVerified && (CFG.adminHashes || []).length && crypto.subtle){
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(user.email.toLowerCase())).then(b => {
+      const hex = [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
+      if (S.user === user && CFG.adminHashes.map(x => String(x).toLowerCase()).includes(hex)){ S.isOwner = true; scheduleRender(); if (typeof renderProfile === "function" && view === "profile") renderProfile(); }
+    });
+  }
   let first = true;
   S.unsub.push(S.db.collection("players").onSnapshot(snap => {
     const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
@@ -3542,7 +3548,7 @@ function confirmDanger({title, body, word, label, run}){
     try { await run(); closeModal(); }
     catch (e){
       console.warn("admin", e);
-      $("#dz-msg").innerHTML = `<p class="err">Échec. Vérifie que ton e-mail est dans la liste des admins des règles Firestore.</p>`;
+      $("#dz-msg").innerHTML = `<p class="err">Échec. Vérifie que les règles Firestore à jour sont bien publiées.</p>`;
       ok.textContent = label; inp.disabled = false; $("#dz-no").disabled = false; inp.oninput();
     }
   };

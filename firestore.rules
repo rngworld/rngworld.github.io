@@ -5,8 +5,10 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     function signedIn() { return request.auth != null; }
+    // Admins are listed by the SHA-256 of their e-mail (lower case), so the address itself is never published.
     function isAdmin() {
-      return signedIn() && request.auth.token.email in ["admin@example.com"];
+      return signedIn() && request.auth.token.email_verified == true
+        && hashing.sha256(request.auth.token.email.lower()).toHexString().lower() in ["077bbeed02568422d9e722f620a838fa9f254198fdec64f00b4ea677c80bed3c"];
     }
     // Day number (days since 1970) of the request, in UTC. The player's local day is always within ±1 of it.
     function today() { return math.floor(request.time.toMillis() / 86400000); }

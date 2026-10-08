@@ -1,6 +1,7 @@
 /* RNGWorld configuration.
    The Firebase keys below are public by design: security comes from the Firestore rules (firestore.rules).
-   `admins`: put your own e-mail address here (same one as in firestore.rules). It will be visible in the public repository. */
+   `adminHashes`: SHA-256 (hex) of the admin e-mail addresses in lower case, so no address is published.
+   Same values as in firestore.rules. Compute one with: printf '%s' "you@example.com" | sha256sum */
 window.RNG_CONFIG = {
   firebase: {
     apiKey: "AIzaSyDiOZEfF1WOMUi0ka-nu50DCx_PNcYWLe4",
@@ -10,5 +11,5 @@ window.RNG_CONFIG = {
     messagingSenderId: "580612092971",
     appId: "1:580612092971:web:2a8e86950679b0c1aaa66e"
   },
-  admins: ["admin@example.com"]
+  adminHashes: ["077bbeed02568422d9e722f620a838fa9f254198fdec64f00b4ea677c80bed3c"]
 };
