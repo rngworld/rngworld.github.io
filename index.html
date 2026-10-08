@@ -646,6 +646,8 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 @keyframes bob{to{transform:translateY(-10px)}}
 .loading .ll{font:800 26px var(--f-display);margin-top:10px;letter-spacing:-.03em}
 .loading .ls{font-size:13px;opacity:.75;margin-top:6px}
+.loading .lp{max-width:420px;margin:22px auto 0;padding:0 20px;font-size:13px;line-height:1.5;opacity:.6}
+.loading .lk{font-size:12px;margin-top:8px;opacity:.6}.loading .lk a{color:#fff}
 .toast{position:fixed;left:50%;top:calc(66px + env(safe-area-inset-top,0px));transform:translate(-50%,-14px);background:var(--ink-bg);color:var(--on-ink);padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:50;opacity:0;transition:.25s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -737,6 +739,8 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 <div class="loading" id="loading"><div class="lw">
   <svg class="mark" viewBox="0 0 40 40" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="glb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A7BFF"/><stop offset="1" stop-color="#2733D9"/></linearGradient><linearGradient id="dlb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8A98"/><stop offset="1" stop-color="#FF3B57"/></linearGradient><clipPath id="clb"><circle cx="17" cy="17" r="13"/></clipPath></defs><circle cx="17" cy="17" r="14.2" fill="#FFFFFF"/><circle cx="17" cy="17" r="13" fill="url(#glb)"/><g clip-path="url(#clb)" fill="none" stroke="#FFFFFF" stroke-opacity=".9" stroke-width="1.5" stroke-linecap="round"><ellipse cx="17" cy="17" rx="5.6" ry="13"/><path d="M4 17h26"/><path d="M6.2 10.2c6.6 2.6 15 2.6 21.6 0M6.2 23.8c6.6-2.6 15-2.6 21.6 0"/></g><ellipse cx="11.5" cy="9.5" rx="5" ry="3" fill="#FFFFFF" fill-opacity=".16" transform="rotate(-30 11.5 9.5)"/><g transform="rotate(12 30 30)"><rect x="22" y="22" width="16" height="16" rx="4.2" fill="url(#dlb)" stroke="#FFFFFF" stroke-width="2.2"/><circle cx="26.2" cy="26.2" r="1.7" fill="#fff"/><circle cx="30" cy="30" r="1.7" fill="#fff"/><circle cx="33.8" cy="33.8" r="1.7" fill="#fff"/></g></svg>
   <div class="ll"><b>RNG</b>World</div><div class="ls" id="loading-msg">Chargement des 130 000 villes du monde…</div>
+  <p class="lp">RNGWorld est un jeu gratuit : chaque jour, 3 tirages au hasard parmi 130 000 villes du monde. Garde la meilleure, construis ta collection et compare-la avec tes amis. La connexion Google sert uniquement à sauvegarder ta progression.</p>
+  <p class="lk"><a href="privacy.html">Règles de confidentialité</a> · <a href="terms.html">Conditions d'utilisation</a></p>
 </div></div>
 
 <script src="lib/d3.min.js"></script>

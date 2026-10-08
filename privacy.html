@@ -1,35 +1,78 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Règles de confidentialité · RNGWorld</title>
+<title>Règles de confidentialité / Privacy Policy · RNGWorld</title>
+<meta name="description" content="Règles de confidentialité / Privacy Policy de RNGWorld, jeu de tirage de villes du monde.">
 <style>
 body{margin:0;background:#F1F2FA;color:#14163D;font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:720px;margin:0 auto;padding:32px 20px 60px}
-a{color:#2E3BE3} h1{font-size:28px;margin:8px 0 4px} h2{font-size:18px;margin:28px 0 6px}
+main{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+a{color:#2E3BE3} h1{font-size:28px;margin:8px 0 4px} h2{font-size:19px;margin:30px 0 6px} h3{font-size:16px;margin:18px 0 4px}
 .top{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;text-decoration:none;color:#14163D} .top b{color:#FF5B6E}
-.muted{color:#676B97;font-size:14px}
-@media (prefers-color-scheme:dark){body{background:#0D0F2E;color:#ECEDFF}.top{color:#ECEDFF}a{color:#8FA0FF}.muted{color:#9DA1CC}}
+.muted{color:#676B97;font-size:14px} hr{border:0;border-top:1px solid #DDDFF1;margin:40px 0}
+table{border-collapse:collapse;width:100%;font-size:14px} td,th{border:1px solid #DDDFF1;padding:8px;text-align:left;vertical-align:top}
+@media (prefers-color-scheme:dark){body{background:#0D0F2E;color:#ECEDFF}.top{color:#ECEDFF}a{color:#8FA0FF}.muted{color:#9DA1CC}td,th,hr{border-color:#2B2F66}}
 </style></head><body><main>
 <a class="top" href="./"><span><b>RNG</b>World</span></a>
-<h1>Règles de confidentialité</h1><p class="muted">Dernière mise à jour : 8 octobre 2026</p>
 
-<p>RNGWorld est un jeu gratuit : chaque jour, tu tires des villes au hasard parmi 130 000 villes du monde, tu en gardes une et tu compares ta collection avec tes amis. Cette page explique quelles données le jeu utilise et pourquoi.</p>
-<h2>Données collectées</h2>
-<ul>
-<li><b>Compte</b> : si tu te connectes avec Google ou avec une adresse e-mail, le jeu reçoit ton adresse e-mail et un identifiant unique, via Firebase Authentication (Google). Avec Google, seules les informations de profil de base et l'adresse e-mail sont demandées.</li>
-<li><b>Profil de jeu</b> : ton pseudo, la couleur choisie, les villes gardées (avec leur date), tes tirages du jour et tes demandes d'amis.</li>
-<li><b>Sur ton appareil</b> : quelques préférences (thème, sons, filtres de carte) et un cache des photos et contours de villes, stockés dans ton navigateur.</li>
-</ul>
-<h2>Utilisation</h2>
-<p>Ces données servent uniquement à faire fonctionner le jeu : sauvegarder ta progression sur tous tes appareils, empêcher deux joueurs d'obtenir la même ville, afficher les classements et les profils des joueurs. Ton pseudo, ta couleur et tes villes sont visibles par les autres joueurs. Ton adresse e-mail ne leur est jamais montrée.</p>
-<p>Il n'y a ni publicité, ni pistage, ni revente de données.</p>
-<h2>Services utilisés</h2>
-<ul>
-<li>Firebase (Google) : connexion et base de données du jeu.</li>
-<li>GitHub Pages : hébergement du site.</li>
-<li>Wikidata, Wikipédia et Wikimedia Commons : photos des villes. OpenStreetMap (Nominatim) : limites des villes. Ces services reçoivent les requêtes de ton navigateur (adresse IP) quand une ville est affichée.</li>
-</ul>
-<h2>Suppression</h2>
-<p>Tu peux te déconnecter à tout moment. Pour supprimer ton compte et toutes tes données de jeu, contacte le créateur du jeu via la page GitHub du projet : <a href="https://github.com/rngworld">github.com/rngworld</a>.</p>
+<h1>Règles de confidentialité</h1>
+<p class="muted">En vigueur au 8 octobre 2026 · <a href="#en">English version below</a></p>
+<p>RNGWorld (<a href="https://rngworld.github.io">rngworld.github.io</a>) est un jeu web gratuit : chaque jour, le joueur tire des villes au hasard parmi 130 000 villes du monde, en garde une et compare sa collection avec ses amis. Ces règles expliquent quelles données le jeu collecte, comment il les utilise, les stocke, les partage et les supprime, y compris les données reçues de Google lors de la connexion avec un compte Google.</p>
 
-<p class="muted" style="margin-top:36px"><a href="./">Retour au jeu</a> · <a href="privacy.html">Confidentialité</a> · <a href="terms.html">Conditions d'utilisation</a></p>
+<h2>1. Données collectées</h2>
+<table>
+<tr><th>Donnée</th><th>Source</th><th>Usage</th></tr>
+<tr><td>Adresse e-mail</td><td>Connexion Google (Google Sign-In, via Firebase Authentication) ou saisie lors de la création d'un compte e-mail</td><td>Identifier le compte et permettre de se reconnecter. Jamais affichée aux autres joueurs.</td></tr>
+<tr><td>Identifiant unique de compte (UID Firebase)</td><td>Créé par Firebase Authentication</td><td>Relier la progression au compte.</td></tr>
+<tr><td>Nom et photo du compte Google</td><td>Fournis par Google au moment de la connexion</td><td>Non utilisés et non enregistrés par le jeu.</td></tr>
+<tr><td>Pseudo et couleur</td><td>Choisis par le joueur</td><td>Affichés aux autres joueurs (classements, carte, profils).</td></tr>
+<tr><td>Villes gardées, dates, tirages du jour</td><td>Générés par le jeu</td><td>Collection, classements, blocage d'une ville déjà gardée.</td></tr>
+<tr><td>Demandes d'amis</td><td>Envoyées par les joueurs</td><td>Liste d'amis et classement entre amis.</td></tr>
+<tr><td>Préférences (thème, sons, filtres) et caches</td><td>Stockés uniquement dans le navigateur (localStorage)</td><td>Confort d'utilisation. Jamais envoyés à un serveur.</td></tr>
+</table>
+<p>Le jeu ne collecte pas de position GPS, de contacts, de données de paiement, ni de données sensibles.</p>
+
+<h2>2. Données Google : accès et utilisation</h2>
+<p>Lors de la connexion avec Google, le jeu demande uniquement les autorisations de base <b>openid</b>, <b>email</b> et <b>profile</b>. Seuls l'adresse e-mail et l'identifiant du compte sont utilisés, dans le seul but de créer et sécuriser le compte de jeu. Les données obtenues via les API Google ne sont ni vendues, ni louées, ni utilisées à des fins publicitaires, ni transférées à des tiers, ni utilisées pour entraîner des modèles d'intelligence artificielle. L'utilisation des informations reçues des API Google respecte les <a href="https://developers.google.com/terms/api-services-user-data-policy">règles relatives aux données utilisateur des services d'API Google</a>, y compris les exigences d'utilisation limitée (Limited Use).</p>
+
+<h2>3. Stockage et sécurité</h2>
+<p>Les données de compte et de jeu sont stockées dans Google Firebase (Authentication et Cloud Firestore), avec des communications chiffrées (HTTPS) et des règles d'accès : chaque joueur ne peut modifier que ses propres données. L'adresse e-mail n'est accessible qu'au service d'authentification et à l'administrateur du jeu.</p>
+
+<h2>4. Partage</h2>
+<p>Les données ne sont partagées avec personne, sauf les prestataires techniques nécessaires au fonctionnement : Google Firebase (compte et base de données) et GitHub Pages (hébergement du site). Pour afficher les photos et contours des villes, le navigateur du joueur interroge aussi Wikidata, Wikipédia, Wikimedia Commons et OpenStreetMap (Nominatim), qui reçoivent alors l'adresse IP et la ville affichée, mais aucune donnée de compte. Il n'y a ni publicité, ni outil d'analyse, ni pistage.</p>
+
+<h2>5. Conservation et suppression</h2>
+<p>Les données sont conservées tant que le compte existe. Le joueur peut demander à tout moment la suppression de son compte et de toutes ses données de jeu via <a href="https://github.com/rngworld/rngworld.github.io/issues">github.com/rngworld/rngworld.github.io/issues</a> ; la suppression est faite sous 30 jours. Le joueur peut aussi retirer l'accès du jeu à son compte Google depuis <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
+
+<h2>6. Enfants</h2>
+<p>Le jeu ne s'adresse pas spécifiquement aux enfants de moins de 13 ans et ne collecte pas sciemment leurs données.</p>
+
+<h2>7. Modifications et contact</h2>
+<p>Ces règles peuvent évoluer ; la date d'entrée en vigueur est indiquée en haut de la page. Pour toute question : <a href="https://github.com/rngworld/rngworld.github.io/issues">github.com/rngworld/rngworld.github.io/issues</a>.</p>
+
+<hr><h1 id="en">Privacy Policy</h1>
+<p class="muted">Effective October 8, 2026</p>
+<p>RNGWorld (<a href="https://rngworld.github.io">rngworld.github.io</a>) is a free web game: every day the player draws random cities among 130,000 cities worldwide, keeps one, and compares their collection with friends. This policy explains what data the game collects and how it is used, stored, shared and deleted, including data received from Google when signing in with a Google account.</p>
+<h2>1. Data collected</h2>
+<ul>
+<li><b>Email address</b> — from Google Sign-In (through Firebase Authentication) or entered when creating an email account. Used only to identify the account and sign back in. Never shown to other players.</li>
+<li><b>Account ID</b> (Firebase UID) — links game progress to the account.</li>
+<li><b>Google account name and photo</b> — provided by Google at sign-in; not used and not stored by the game.</li>
+<li><b>Nickname and colour</b> — chosen by the player and visible to other players.</li>
+<li><b>Kept cities, dates, daily draws, friend requests</b> — generated by gameplay; used for the collection, leaderboards and city locks.</li>
+<li><b>Preferences and caches</b> (theme, sounds, filters) — stored only in the browser (localStorage), never sent to a server.</li>
+</ul>
+<p>The game does not collect location, contacts, payment data or sensitive data.</p>
+<h2>2. Google user data</h2>
+<p>With Google Sign-In the game requests only the basic <b>openid</b>, <b>email</b> and <b>profile</b> scopes. Only the email address and account ID are used, solely to create and secure the game account. Data obtained through Google APIs is never sold, rented, used for advertising, transferred to third parties, or used to train AI models. RNGWorld's use of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+<h2>3. Storage and security</h2>
+<p>Account and game data are stored in Google Firebase (Authentication and Cloud Firestore) over encrypted connections (HTTPS), protected by access rules: each player can only modify their own data. Email addresses are only accessible to the authentication service and the game administrator.</p>
+<h2>4. Sharing</h2>
+<p>Data is not shared with anyone except the service providers needed to run the game: Google Firebase (accounts and database) and GitHub Pages (hosting). To show city photos and outlines, the player's browser also queries Wikidata, Wikipedia, Wikimedia Commons and OpenStreetMap (Nominatim), which receive the IP address and the city being viewed, but no account data. No advertising, analytics or tracking is used.</p>
+<h2>5. Retention and deletion</h2>
+<p>Data is kept as long as the account exists. Players can request deletion of their account and all game data at any time via <a href="https://github.com/rngworld/rngworld.github.io/issues">github.com/rngworld/rngworld.github.io/issues</a>; deletion is completed within 30 days. Players can also revoke the game's access to their Google account at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
+<h2>6. Children</h2>
+<p>The game is not directed at children under 13 and does not knowingly collect their data.</p>
+<h2>7. Changes and contact</h2>
+<p>This policy may change; the effective date is shown above. Questions: <a href="https://github.com/rngworld/rngworld.github.io/issues">github.com/rngworld/rngworld.github.io/issues</a>.</p>
+
+<p class="muted" style="margin-top:36px"><a href="./">RNGWorld</a> · <a href="privacy.html">Confidentialité / Privacy</a> · <a href="terms.html">Conditions / Terms</a></p>
 </main></body></html>
