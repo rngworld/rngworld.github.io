@@ -1,6 +1,6 @@
 # RNGWorld
 
-5 tirages par jour parmi 130 000 villes du monde. Garde la meilleure, verrouille-la, compare avec tes amis.
+3 tirages par jour parmi 130 000 villes du monde. Garde la meilleure, verrouille-la, compare avec tes amis.
 
 Le site est entièrement statique (GitHub Pages). Les comptes et la partie partagée passent par Firebase (gratuit à cette échelle).
 
