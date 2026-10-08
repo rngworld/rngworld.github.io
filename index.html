@@ -2528,7 +2528,8 @@ async function keepCurrent(){
         const cref = S.db.doc("claims/" + id), c = await tx.get(cref);
         if (c.exists && c.data().uid !== S.uid){ const err = new Error("taken"); err.by = c.data().uid; throw err; }
         tx.set(cref, {uid:S.uid, t:entry.t});
-        tx.set(S.db.doc("players/" + S.uid), {cities:firebase.firestore.FieldValue.arrayUnion(entry), today:nt}, {merge:true});
+        const d = new Date(), keepDay = Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+        tx.set(S.db.doc("players/" + S.uid), {cities:firebase.firestore.FieldValue.arrayUnion(entry), today:nt, keepDay}, {merge:true});
       });
       S.me = Object.assign({}, S.me, {cities:[...(S.me.cities || []).filter(c => c.id !== id), entry], today:nt});
       S.players.set(S.uid, S.me); S.claims.set(id, {uid:S.uid, t:entry.t}); rebuildLocks();
@@ -3407,9 +3408,29 @@ function openPlayerSheet(uid){
   openSheet(`
     <div class="profile-hero" style="margin-bottom:14px">${avatarHTML(p, 64)}<div><h2 style="font-size:22px">@${esc(p.pseudo)}</h2><div class="sub">${villes(list.length)} · ${fmt(totalPts(p))} pts</div></div></div>
     ${fr && rid ? `<div class="sheet-actions" style="margin:0 0 16px"><button class="btn-s alt" id="pl-rm">Retirer des amis</button></div>` : ""}
+    ${S.isOwner && S.mode === "online" && uid !== S.uid && (p.cities || []).length ? `<div class="sheet-actions" style="margin:0 0 16px"><button class="btn-s alt" id="pl-wipe">Admin · retirer ses villes</button></div>` : ""}
     ${list.length ? `<div class="grid-stamps" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${list.map(i => `<button class="stamp-btn" data-i="${i}">${stampHTML(i)}</button>`).join("")}</div>` : `<div class="empty"><p>Aucune ville pour l'instant.</p></div>`}`);
   const rm = $("#pl-rm"); if (rm) rm.onclick = () => { S.db.doc("requests/" + rid).delete().then(() => { toast("Ami retiré."); closeSheet(); }); };
   for (const b of $$("#sheet-body .stamp-btn")) b.onclick = () => openCitySheet(+b.dataset.i);
+  const wp = $("#pl-wipe");
+  if (wp) wp.onclick = async () => {
+    if (!wp.classList.contains("coral")){ wp.classList.replace("alt", "coral"); wp.textContent = `Confirmer : retirer les villes de @${p.pseudo}`; return; }
+    wp.disabled = true; wp.textContent = "Suppression…";
+    try { await wipePlayer(uid); toast(`Villes de @${p.pseudo} retirées.`); closeSheet(); }
+    catch (e){ console.warn("wipe player", e); wp.disabled = false; wp.textContent = "Échec : vérifie les règles Firestore"; }
+  };
+}
+/* Admin: frees every city held by one player (cheaters). */
+async function wipePlayer(uid){
+  const refs = [];
+  (await S.db.collection("claims").where("uid", "==", uid).get()).forEach(d => refs.push(d.ref));
+  for (let k = 0; k < refs.length; k += 400){
+    const b = S.db.batch(); for (const r of refs.slice(k, k + 400)) b.delete(r); await b.commit();
+  }
+  await S.db.doc("players/" + uid).update({cities:[]});
+  for (const r of refs) S.claims.delete(r.id);
+  const p = S.players.get(uid); if (p) S.players.set(uid, Object.assign({}, p, {cities:[]}));
+  rebuildLocks(); scheduleRender();
 }
 
 /* ================= Profile ================= */

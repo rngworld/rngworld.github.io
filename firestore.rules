@@ -1,23 +1,52 @@
 rules_version = '2';
 // RNGWorld — Firestore security rules.
-// Paste this file in Firebase console > Firestore Database > Rules, then click Publish.
-// Replace ton.email@exemple.com with your own e-mail (the same one as in config.js > admins).
+// Paste this whole file in Firebase console > Firestore Database > Rules, then click Publish.
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function signedIn() { return request.auth != null; }
     function isAdmin() {
-      return signedIn() && request.auth.token.email in ["ton.email@exemple.com"];
+      return signedIn() && request.auth.token.email in ["admin@example.com"];
+    }
+    // Day number (days since 1970) of the request, in UTC. The player's local day is always within ±1 of it.
+    function today() { return math.floor(request.time.toMillis() / 86400000); }
+    function player(uid) { return /databases/$(database)/documents/players/$(uid); }
+    function claim(id) { return /databases/$(database)/documents/claims/$(id); }
+
+    // Collections only grow through a "keep": exactly one city added, at most one keep per day
+    // (keepDay must move forward and stay within a day of the server's date), and the matching
+    // claim must be written in the same transaction, in the player's name.
+    function citiesUnchanged() {
+      return request.resource.data.get('cities', []) == resource.data.get('cities', [])
+        && request.resource.data.get('keepDay', -100) == resource.data.get('keepDay', -100);
+    }
+    function oneKeep() {
+      let before = resource.data.get('cities', []);
+      let after = request.resource.data.get('cities', []);
+      let kd = request.resource.data.get('keepDay', -1);
+      let last = after[after.size() - 1];
+      return after.size() == before.size() + 1
+        && after[0:before.size()] == before
+        && kd is int && kd >= today() - 1 && kd <= today() + 1
+        && kd > resource.data.get('keepDay', -100)
+        && existsAfter(claim(string(last.id)))
+        && getAfter(claim(string(last.id))).data.uid == request.auth.uid;
+    }
+    function validProfile() {
+      return request.resource.data.size() < 40
+        && (!('pseudo' in request.resource.data) || (request.resource.data.pseudo is string && request.resource.data.pseudo.size() <= 16))
+        && (!('avatar' in request.resource.data) || (request.resource.data.avatar is string && request.resource.data.avatar.size() < 60000));
     }
 
-    // Players: everyone signed in can see profiles and collections (for friends and leaderboards);
+    // Players: everyone signed in can see profiles and collections (friends, leaderboards);
     // each player only writes their own document. Admins can reset collections.
     match /players/{uid} {
       allow read: if signedIn();
-      allow create, update: if signedIn() && request.auth.uid == uid
-        && request.resource.data.size() < 40
-        && (!('pseudo' in request.resource.data) || (request.resource.data.pseudo is string && request.resource.data.pseudo.size() <= 16))
-        && (!('avatar' in request.resource.data) || (request.resource.data.avatar is string && request.resource.data.avatar.size() < 60000));
+      allow create: if signedIn() && request.auth.uid == uid && validProfile()
+        && request.resource.data.get('cities', []).size() == 0
+        && !('keepDay' in request.resource.data);
+      allow update: if signedIn() && request.auth.uid == uid && validProfile()
+        && (citiesUnchanged() || oneKeep());
       allow update: if isAdmin();
       allow delete: if signedIn() && request.auth.uid == uid;
     }
@@ -32,10 +61,13 @@ service cloud.firestore {
     }
 
     // City locks: one document per kept city. Public to read, created once, never stolen.
+    // Created only together with the keep on the player's document (same transaction).
     match /claims/{cityId} {
       allow read: if true;
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid
-        && request.resource.data.keys().hasOnly(['uid', 't']);
+        && request.resource.data.keys().hasOnly(['uid', 't'])
+        && getAfter(player(request.auth.uid)).data.get('keepDay', -100) >= today() - 1
+        && string(getAfter(player(request.auth.uid)).data.cities[getAfter(player(request.auth.uid)).data.cities.size() - 1].id) == cityId;
       allow update: if false;
       allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
     }
