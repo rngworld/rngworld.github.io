@@ -1,0 +1,35 @@
+# Copies Firebase's sign-in helper pages onto rngworld.github.io, so the Google sign-in screen
+# shows "rngworld.github.io" instead of "rngworld-84f7e.firebaseapp.com".
+# Runs on demand (Actions tab > "Firebase auth helper" > Run workflow) and once a week to stay current.
+name: Firebase auth helper
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+  push:
+    paths: [".github/workflows/auth-helper.yml"]
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download helper files
+        run: |
+          set -e
+          base=https://rngworld-84f7e.firebaseapp.com
+          mkdir -p __/auth __/firebase
+          for f in __/auth/handler.js __/auth/experiments.js __/auth/iframe.js __/firebase/init.json; do
+            curl -fsSL "$base/$f" -o "$f"
+          done
+          # GitHub Pages serves /__/auth/handler from handler.html (an extension-less file would be served as a download).
+          curl -fsSL "$base/__/auth/handler" -o __/auth/handler.html
+          curl -fsSL "$base/__/auth/iframe" -o __/auth/iframe.html
+          ls -la __/auth __/firebase
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add __
+          git diff --cached --quiet || (git commit -m "Update Firebase auth helper files" && git push)
