@@ -1691,7 +1691,10 @@ function trimUrban(i, ug){
   } catch (e){ console.warn("trimUrban", e); return full; }
 }
 const geoCache = new Map();
-function geoFor(i){
+/* Outline of a city. wait = true (the draw reveal, which has seconds to spare) waits for the official
+   limits; elsewhere (map, sheets) the outline is instant: official limits if already known, otherwise the
+   best local guess, upgraded only if the official one arrives before anything is drawn. */
+function geoFor(i, wait){
   if (geoCache.has(i)) return geoCache.get(i);
   const pr = (async () => {
     const reg = D.reg[i], rcc = reg >= 0 && D.regions[reg] ? D.regions[reg][0] : null;
@@ -1708,15 +1711,18 @@ function geoFor(i){
     if (ug){
       // Natural Earth "urban areas" are whole agglomerations (Paris = all of Île-de-France's sprawl):
       // wait for the official city limits, otherwise trim the sprawl to a disc sized to the population
-      const f = await Promise.race([osm, sleep(3000).then(() => null)]);
+      const known = osmStore[D.id[i]] !== undefined;
+      const f = wait || known ? await Promise.race([osm, sleep(known ? 50 : 3000).then(() => null)]) : null;
       const regKm2 = region ? d3.geoArea(region)*6371*6371 : 0, P = D.pop[i] || 0;
       if (f){ g.shape = f; g.kind = "osm"; }
       // the region is the city itself when its density makes sense for a city (Paris, Berlin, Tokyo, Moscow…)
       else if (region && regKm2 <= P/1500 && regKm2 >= P/40000 && d3.geoContains(region, [D.lon[i], D.lat[i]])){ g.shape = region; g.kind = "admin"; }
       else { g.shape = trimUrban(i, ug); g.kind = "urban"; }
+      if (!f) osm.then(f2 => { if (f2 && !g.frozen){ g.shape = f2; g.kind = "osm"; g.ver++; frame(g, i); Stage.layerKey = ""; Stage.lastSig = ""; } });
       frame(g, i);
       return g;
     }
+    if (osmStore[D.id[i]]){ const f = await osm; if (f){ g.shape = f; g.kind = "osm"; frame(g, i); return g; } }
     osm.then(f => { if (f && !g.frozen){ g.shape = f; g.kind = "osm"; g.ver++; frame(g, i); Stage.layerKey = ""; Stage.lastSig = ""; } });
     {
       g.shape = territory(i); g.kind = "estimate";
@@ -1999,7 +2005,7 @@ const Stage = {
     const sig = SIG_FIRST + SIG_STEP*tier + SIG_HOLD;
     const a = {t0:performance.now(), idx, tier, sig, land:sig + DIVE, level:0, from, geo:null,
       interp:d3.geoInterpolate([from.lon, from.lat], [D.lon[idx], D.lat[idx]])};
-    geoFor(idx).then(g => { a.geo = g; });
+    geoFor(idx, true).then(g => { a.geo = g; });   // the reveal has time to wait for the official limits
     this.anim = a; this.parts = []; this.rings = []; this.uz = 1; this.scoring = null;
     $("#card-slot").innerHTML = ""; this.renderUI();
   },
