@@ -3478,7 +3478,7 @@ function renderProfile(){
     return;
   }
   if (!p){ root.innerHTML = `<div class="empty"><h3>Choisis ton pseudo</h3><p>Il te faut un pseudo pour jouer avec tes amis.</p><button class="btn btn-main" id="pf-create">Créer mon profil</button></div>`; $("#pf-create").onclick = () => maybeOnboard(true); return; }
-  if (!draft) draft = {pseudo:p.pseudo, color:p.color, avatar:""};
+  if (!draft || draft.uid !== S.uid) draft = {uid:S.uid, pseudo:p.pseudo, color:p.color, avatar:""};
   const list = myCities(), total = totalPts(p);
   const acct = S.mode === "online"
     ? `Connecté${S.user && S.user.email ? " · " + S.user.email : ""}`
