@@ -439,6 +439,10 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .seg button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--ink-bg);color:var(--on-ink)}
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .set-row b{font-weight:700}
+.legal a{color:var(--muted)}
+.stage-legal{position:absolute;left:12px;bottom:8px;z-index:3;font-size:11px;color:rgba(255,255,255,.45);text-decoration:none}
+.stage-legal:hover{color:rgba(255,255,255,.8);text-decoration:underline}
+@media (max-width:759px){.stage-legal{bottom:auto;top:10px;left:auto;right:12px}}
 .set-snd{display:flex;align-items:center;gap:12px}
 .set-snd input[type=range]{width:120px;accent-color:var(--coral)}
 /* World leaderboard: pseudo first, then the city; podium for the top 3 */
@@ -683,6 +687,7 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
         <div class="card-slot" id="card-slot"></div>
         <div class="stage-foot" id="stage-foot"></div>
         <div class="flash" id="flash"></div>
+        <a class="stage-legal" href="privacy.html" target="_blank" rel="noopener">Confidentialité</a>
 
       </div>
     </section>
@@ -2669,6 +2674,7 @@ function openRules(){
     <h3>Rareté</h3>
     <div class="tr-list">${tiers}</div>
     <p class="hint" style="margin-top:18px">Données : GeoNames (CC BY 4.0), Natural Earth, OpenStreetMap, Wikidata, UNESCO, Smithsonian. Photos : Wikimedia Commons, auteur et licence indiqués sur chaque photo.</p>
+    <p class="hint legal"><a href="privacy.html" target="_blank" rel="noopener">Confidentialité</a> · <a href="terms.html" target="_blank" rel="noopener">Conditions d'utilisation</a></p>
   </div>`);
   $("#rl-crit").onclick = openCriteria;
 }
@@ -3403,6 +3409,7 @@ function openPlayerSheet(uid){
 }
 
 /* ================= Profile ================= */
+const legalLinks = `<p class="hint legal" style="text-align:center;margin-top:18px"><a href="privacy.html" target="_blank" rel="noopener">Confidentialité</a> · <a href="terms.html" target="_blank" rel="noopener">Conditions d'utilisation</a></p>`;
 const settingsPanel = () => `<div class="panel" style="margin-top:14px"><h3>Paramètres</h3>
     <div class="set-row"><div><b>Thème</b><div class="hint" style="margin-top:2px">Auto suit le réglage de ton appareil.</div></div>
     <div class="seg" role="radiogroup" aria-label="Thème">${THEMES.map(x => `<button role="radio" aria-pressed="${themePref() === x.k}" aria-checked="${themePref() === x.k}" data-theme-set="${x.k}">${x.label}</button>`).join("")}</div></div>
@@ -3420,7 +3427,7 @@ function renderProfile(){
   const root = $("#profile"), p = S.me;
   if (S.mode === "guest"){
     root.innerHTML = `<div class="page-head"><div><h2>Profil</h2></div></div>
-      <div class="empty"><h3>Tu joues en invité</h3><p>Connecte-toi pour garder tes villes, retrouver ta collection sur tous tes appareils et jouer avec tes amis.</p><button class="btn btn-main" id="pf-login">Se connecter</button></div>${settingsPanel()}`;
+      <div class="empty"><h3>Tu joues en invité</h3><p>Connecte-toi pour garder tes villes, retrouver ta collection sur tous tes appareils et jouer avec tes amis.</p><button class="btn btn-main" id="pf-login">Se connecter</button></div>${settingsPanel()}${legalLinks}`;
     $("#pf-login").onclick = () => openAuth(); bindSettings(root);
     return;
   }
@@ -3446,7 +3453,7 @@ function renderProfile(){
         <div id="pf-msg"></div>
       </div>
     </div>
-    ${settingsPanel()}
+    ${settingsPanel()}${legalLinks}
     ${S.isOwner ? `<div class="panel" style="margin-top:14px"><h3>Admin · Remise à zéro</h3><p class="hint" style="margin-top:0">Libère toutes les villes obtenues par tous les joueurs (${fmt(S.mode === "online" ? S.claims.size : [...S.players.values()].reduce((n, q) => n + (q.cities || []).length, 0))} villes). Les pseudos et les amis sont conservés.</p><button class="btn-s alt" id="pf-wipe">Libérer toutes les villes</button><div id="pf-wipe-msg"></div></div>` : ""}`;
   const out = $("#pf-out"); if (out) out.onclick = signOut;
   bindSettings(root);
