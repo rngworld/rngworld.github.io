@@ -636,6 +636,21 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .linkish:hover{color:var(--ink)}
 #hdr-login{padding:8px 14px}
 @media (max-width:480px){#hdr-pips{display:none}.top{gap:10px}}
+/* Admin: hidden behind a discreet toggle, red buttons, typed confirmation */
+.admin-zone{margin-top:22px;text-align:center}
+.admin-zone summary{display:inline-block;list-style:none;cursor:pointer;font:600 12px var(--f-body);color:var(--muted);opacity:.6;padding:4px 8px;user-select:none}
+.admin-zone summary::-webkit-details-marker{display:none}
+.admin-zone summary:hover{opacity:1;color:#D92D20}
+.admin-zone[open] summary{opacity:1;color:#D92D20}
+.admin-zone .az-in{margin-top:8px;text-align:left;border:1.5px solid color-mix(in srgb,#D92D20 45%,var(--line));border-radius:14px;padding:14px;background:color-mix(in srgb,#D92D20 5%,var(--surface))}
+.admin-zone .az-in p{margin:0 0 10px;font-size:13px;color:var(--muted)}
+.btn-danger{border:0;border-radius:10px;padding:10px 14px;font:700 13px var(--f-body);background:#D92D20;color:#fff;white-space:nowrap}
+.btn-danger:hover:not([disabled]){background:#B42318}
+.btn-danger[disabled]{opacity:.4;cursor:not-allowed}
+.danger-card h2{color:#D92D20;display:flex;align-items:center;gap:8px}
+.danger-card .dz-warn{margin:12px 0 0;padding:12px;border-radius:12px;background:color-mix(in srgb,#D92D20 9%,var(--surface));font-size:14px;line-height:1.45}
+.danger-card code{text-transform:none;letter-spacing:0;font:700 13px var(--f-mono);background:var(--paper);padding:2px 6px;border-radius:6px;user-select:all}
+.danger-card .dz-act{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 .modal-card label{display:block;font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:14px 0 6px}
 
 /* ---------- Loading + toast ---------- */
@@ -3408,17 +3423,17 @@ function openPlayerSheet(uid){
   openSheet(`
     <div class="profile-hero" style="margin-bottom:14px">${avatarHTML(p, 64)}<div><h2 style="font-size:22px">@${esc(p.pseudo)}</h2><div class="sub">${villes(list.length)} · ${fmt(totalPts(p))} pts</div></div></div>
     ${fr && rid ? `<div class="sheet-actions" style="margin:0 0 16px"><button class="btn-s alt" id="pl-rm">Retirer des amis</button></div>` : ""}
-    ${S.isOwner && S.mode === "online" && uid !== S.uid && (p.cities || []).length ? `<div class="sheet-actions" style="margin:0 0 16px"><button class="btn-s alt" id="pl-wipe">Admin · retirer ses villes</button></div>` : ""}
-    ${list.length ? `<div class="grid-stamps" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${list.map(i => `<button class="stamp-btn" data-i="${i}">${stampHTML(i)}</button>`).join("")}</div>` : `<div class="empty"><p>Aucune ville pour l'instant.</p></div>`}`);
+    ${list.length ? `<div class="grid-stamps" style="grid-template-columns:repeat(auto-fill,minmax(170px,1fr))">${list.map(i => `<button class="stamp-btn" data-i="${i}">${stampHTML(i)}</button>`).join("")}</div>` : `<div class="empty"><p>Aucune ville pour l'instant.</p></div>`}
+    ${S.isOwner && S.mode === "online" && uid !== S.uid && (p.cities || []).length ? `<details class="admin-zone"><summary>Zone admin</summary><div class="az-in"><p>Vide la collection de ce joueur et libère ses villes (en cas de triche).</p><button class="btn-danger" id="pl-wipe">Retirer ses villes…</button></div></details>` : ""}`);
   const rm = $("#pl-rm"); if (rm) rm.onclick = () => { S.db.doc("requests/" + rid).delete().then(() => { toast("Ami retiré."); closeSheet(); }); };
   for (const b of $$("#sheet-body .stamp-btn")) b.onclick = () => openCitySheet(+b.dataset.i);
   const wp = $("#pl-wipe");
-  if (wp) wp.onclick = async () => {
-    if (!wp.classList.contains("coral")){ wp.classList.replace("alt", "coral"); wp.textContent = `Confirmer : retirer les villes de @${p.pseudo}`; return; }
-    wp.disabled = true; wp.textContent = "Suppression…";
-    try { await wipePlayer(uid); toast(`Villes de @${p.pseudo} retirées.`); closeSheet(); }
-    catch (e){ console.warn("wipe player", e); wp.disabled = false; wp.textContent = "Échec : vérifie les règles Firestore"; }
-  };
+  if (wp) wp.onclick = () => confirmDanger({
+    title:`Retirer les villes de @${p.pseudo} ?`,
+    body:`Ses <b>${villes((p.cities || []).length)}</b> (${fmt(totalPts(p))} pts) vont être supprimées de sa collection et redeviendront libres pour les autres joueurs. <b>C'est irréversible.</b>`,
+    word:p.pseudo, label:"Retirer ses villes",
+    run:async () => { await wipePlayer(uid); toast(`Villes de @${p.pseudo} retirées.`); closeSheet(); }
+  });
 }
 /* Admin: frees every city held by one player (cheaters). */
 async function wipePlayer(uid){
@@ -3479,7 +3494,7 @@ function renderProfile(){
       </div>
     </div>
     ${settingsPanel()}${legalLinks}
-    ${S.isOwner ? `<div class="panel" style="margin-top:14px"><h3>Admin · Remise à zéro</h3><p class="hint" style="margin-top:0">Libère toutes les villes obtenues par tous les joueurs (${fmt(S.mode === "online" ? S.claims.size : [...S.players.values()].reduce((n, q) => n + (q.cities || []).length, 0))} villes). Les pseudos et les amis sont conservés.</p><button class="btn-s alt" id="pf-wipe">Libérer toutes les villes</button><div id="pf-wipe-msg"></div></div>` : ""}`;
+    ${S.isOwner ? `<details class="admin-zone"><summary>Zone admin</summary><div class="az-in"><p>Remise à zéro de la partie : libère les villes de tous les joueurs. Les pseudos et les amis sont conservés.</p><button class="btn-danger" id="pf-wipe">Libérer toutes les villes…</button></div></details>` : ""}`;
   const out = $("#pf-out"); if (out) out.onclick = signOut;
   bindSettings(root);
   $("#pf-pseudo").oninput = e => { draft.pseudo = e.target.value; };
@@ -3488,17 +3503,48 @@ function renderProfile(){
   $("#pf-color").onchange = () => renderProfile();
   $("#pf-reset").onclick = () => { draft = null; renderProfile(); };
   const wp = $("#pf-wipe");
-  if (wp) wp.onclick = async () => {
-    if (!wp.classList.contains("coral")){ wp.classList.remove("alt"); wp.classList.add("coral"); wp.textContent = "Confirmer : tout libérer"; setTimeout(() => { if (wp.isConnected && wp.classList.contains("coral")){ wp.classList.add("alt"); wp.classList.remove("coral"); wp.textContent = "Libérer toutes les villes"; } }, 4000); return; }
-    wp.disabled = true; wp.textContent = "Remise à zéro…";
-    try { await wipeAll(); $("#pf-wipe-msg").innerHTML = `<p class="hint">Toutes les villes sont libérées.</p>`; toast("Partie remise à zéro"); }
-    catch (e){ console.warn("wipe", e); $("#pf-wipe-msg").innerHTML = `<p class="err">Remise à zéro incomplète. Vérifie que ton e-mail est bien dans la liste des admins des règles Firestore.</p>`; }
-    $("#card-slot").innerHTML = ""; setTimeout(renderProfile, 1500);
+  if (wp) wp.onclick = () => {
+    const nCities = S.mode === "online" ? S.claims.size : [...S.players.values()].reduce((n, q) => n + (q.cities || []).length, 0);
+    const nPlayers = [...S.players.values()].filter(q => (q.cities || []).length).length;
+    confirmDanger({
+      title:"Remettre la partie à zéro ?",
+      body:`<b>${villes(nCities)}</b> appartenant à <b>${nPlayers} joueur${nPlayers > 1 ? "s" : ""}</b> vont être libérées. Toutes les collections seront vidées pour tout le monde. <b>C'est irréversible.</b>`,
+      word:"RESET", label:"Tout libérer",
+      run:async () => { await wipeAll(); $("#card-slot").innerHTML = ""; toast("Partie remise à zéro"); setTimeout(renderProfile, 300); }
+    });
   };
   $("#pf-save").onclick = async () => {
     const r = await saveProfile(draft.pseudo, draft.color, draft.avatar);
     $("#pf-msg").innerHTML = r.ok ? `<p class="hint">Profil enregistré.</p>` : `<p class="err">${esc(r.err)}</p>`;
     if (r.ok){ draft = null; setTimeout(renderProfile, 900); }
+  };
+}
+/* Dangerous admin actions: the red button only unlocks once the confirmation word is typed. */
+function confirmDanger({title, body, word, label, run}){
+  const m = $("#modal");
+  m.innerHTML = `<div class="modal-card auth danger-card" role="alertdialog" aria-modal="true" aria-labelledby="dz-t">
+    <button class="x" id="dz-x" aria-label="Fermer">×</button>
+    <h2 id="dz-t">⚠ ${esc(title)}</h2>
+    <div class="dz-warn">${body}</div>
+    <label for="dz-in">Tape <code>${esc(word)}</code> pour confirmer</label>
+    <input class="input" id="dz-in" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%">
+    <div id="dz-msg"></div>
+    <div class="dz-act"><button class="btn-s alt" id="dz-no">Annuler</button><button class="btn-danger" id="dz-ok" disabled>${esc(label)}</button></div>
+  </div>`;
+  m.hidden = false;
+  const inp = $("#dz-in"), ok = $("#dz-ok");
+  setTimeout(() => inp.focus(), 50);
+  inp.oninput = () => { ok.disabled = inp.value.trim().toLowerCase() !== word.toLowerCase(); };
+  inp.onkeydown = e => { if (e.key === "Enter" && !ok.disabled) ok.click(); };
+  $("#dz-x").onclick = $("#dz-no").onclick = closeModal;
+  ok.onclick = async () => {
+    ok.disabled = true; inp.disabled = true; $("#dz-no").disabled = true; ok.textContent = "En cours…";
+    try { await run(); closeModal(); }
+    catch (e){
+      console.warn("admin", e);
+      $("#dz-msg").innerHTML = `<p class="err">Échec. Vérifie que ton e-mail est dans la liste des admins des règles Firestore.</p>`;
+      ok.textContent = label; inp.disabled = false; $("#dz-no").disabled = false; inp.oninput();
+    }
   };
 }
 async function wipeAll(){
