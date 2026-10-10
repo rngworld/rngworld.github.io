@@ -1258,6 +1258,7 @@ function profileOf(i){
 }
 /* Every trait: keyword, icon, multiplier, and a plain definition (never about a specific city). */
 const FDEF = {
+  laval:     {k:"Laval",               ic:"capital",  x:435,  g:"Statut",     d:"C'est Laval. Ça se passe d'explication."},
   capital:   {k:"Capitale",            ic:"capital",  x:2.5,  g:"Statut",     d:"Capitale d'un pays."},
   regional:  {k:"Capitale régionale",  ic:"chef",     x:1.3,  g:"Statut",     d:"Chef-lieu d'une région, d'un État ou d'une province."},
   first:     {k:"N°1 du pays",         ic:"one",      x:1.2,  g:"Statut",     d:"La ville la plus peuplée de son pays."},
@@ -1302,6 +1303,7 @@ function scoreOf(i, detail = true){
   const base = popBase*profMult;
   const m = [];
   const add = id => { const f = FDEF[id]; m.push([f.k, f.x, f.d, f.ic, id]); };
+  if (D.id[i] === 3005866) add("laval");   // Laval (Mayenne)
   if (D.f[i] === "C") add("capital"); else if (D.f[i] === "A") add("regional");
   if (D.ccRank[i] === 1 && D.ccCount[D.cc[i]] >= 5) add("first");
   if (P >= 5e6 || D.area[i] >= 1500) add("mega"); else if (P >= 1e6) add("bigpop");
@@ -2845,7 +2847,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11g";
+const APP_VERSION = "2026-10-11h";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
