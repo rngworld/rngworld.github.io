@@ -15,22 +15,44 @@ service cloud.firestore {
     function player(uid) { return /databases/$(database)/documents/players/$(uid); }
     function claim(id) { return /databases/$(database)/documents/claims/$(id); }
 
-    // Collections only grow through a "keep": exactly one city added, at most one keep per day
-    // (keepDay must move forward and stay within a day of the server's date), and the matching
-    // claim must be written in the same transaction, in the player's name.
+    // Draws live on the account: draws = {day, n, t1, t2, t3}. Each draw adds one server timestamp (the city is
+    // derived from it by the game), at most 3 per day; the day stays within a day of the server's date.
+    // Collections only grow through a "keep": one city per draw day, the latest draw of that day, with the matching
+    // claim written in the same transaction, in the player's name.
     function citiesUnchanged() {
       return request.resource.data.get('cities', []) == resource.data.get('cities', [])
         && request.resource.data.get('keepDay', -100) == resource.data.get('keepDay', -100);
     }
+    function drawsUnchanged() {
+      return request.resource.data.get('draws', null) == resource.data.get('draws', null);
+    }
+    function oneDraw() {
+      let d0 = resource.data.get('draws', {'day': -100, 'n': 0});
+      let d1 = request.resource.data.get('draws', {});
+      let tk = 't' + string(d1.get('n', 0));
+      return d1.get('day', null) is int && d1.get('n', null) is int
+        && d1.day >= today() - 1 && d1.day <= today() + 1
+        && (
+          (d1.day == d0.day && d1.n == d0.n + 1 && d1.n <= 3
+            && d1.keys().hasOnly(['day', 'n', 't1', 't2', 't3'])
+            && d1.diff(d0).affectedKeys().hasOnly(['n', tk]))
+          || (d1.day > d0.day && d1.n == 1 && d1.keys().hasOnly(['day', 'n', 't1']))
+        )
+        && d1[tk] == request.time;
+    }
     function oneKeep() {
       let before = resource.data.get('cities', []);
       let after = request.resource.data.get('cities', []);
+      let d = resource.data.get('draws', {'day': -100, 'n': 0});
       let kd = request.resource.data.get('keepDay', -1);
       let last = after[after.size() - 1];
       return after.size() == before.size() + 1
         && after[0:before.size()] == before
-        && kd is int && kd >= today() - 1 && kd <= today() + 1
+        && d.n >= 1
+        && kd == d.day
         && kd > resource.data.get('keepDay', -100)
+        && last.keys().hasOnly(['id', 't', 'at'])
+        && last.at == d['t' + string(d.n)]
         && existsAfter(claim(string(last.id)))
         && getAfter(claim(string(last.id))).data.uid == request.auth.uid;
     }
@@ -46,9 +68,9 @@ service cloud.firestore {
       allow read: if signedIn();
       allow create: if signedIn() && request.auth.uid == uid && validProfile()
         && request.resource.data.get('cities', []).size() == 0
-        && !('keepDay' in request.resource.data);
+        && !('keepDay' in request.resource.data) && !('draws' in request.resource.data);
       allow update: if signedIn() && request.auth.uid == uid && validProfile()
-        && (citiesUnchanged() || oneKeep());
+        && ((citiesUnchanged() && (drawsUnchanged() || oneDraw())) || (drawsUnchanged() && oneKeep()));
       allow update: if isAdmin();
       allow delete: if signedIn() && request.auth.uid == uid;
     }

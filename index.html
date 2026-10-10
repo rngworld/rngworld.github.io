@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="description" content="3 tirages par jour parmi 130 000 villes du monde. Garde la meilleure, verrouille-la, compare avec tes amis.">
 <meta name="theme-color" content="#151B7A">
 <link rel="icon" href="data:image/svg+xml,%3Csvg viewBox=%220 0 40 40%22 aria-hidden=%22true%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cdefs%3E%3ClinearGradient id=%22glf%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%236A7BFF%22/%3E%3Cstop offset=%221%22 stop-color=%22%232733D9%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22dlf%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23FF8A98%22/%3E%3Cstop offset=%221%22 stop-color=%22%23FF3B57%22/%3E%3C/linearGradient%3E%3CclipPath id=%22clf%22%3E%3Ccircle cx=%2217%22 cy=%2217%22 r=%2213%22/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle cx=%2217%22 cy=%2217%22 r=%2214.2%22 fill=%22%23FFFFFF%22/%3E%3Ccircle cx=%2217%22 cy=%2217%22 r=%2213%22 fill=%22url%28%23glf%29%22/%3E%3Cg clip-path=%22url%28%23clf%29%22 fill=%22none%22 stroke=%22%23FFFFFF%22 stroke-opacity=%22.9%22 stroke-width=%221.5%22 stroke-linecap=%22round%22%3E%3Cellipse cx=%2217%22 cy=%2217%22 rx=%225.6%22 ry=%2213%22/%3E%3Cpath d=%22M4 17h26%22/%3E%3Cpath d=%22M6.2 10.2c6.6 2.6 15 2.6 21.6 0M6.2 23.8c6.6-2.6 15-2.6 21.6 0%22/%3E%3C/g%3E%3Cellipse cx=%2211.5%22 cy=%229.5%22 rx=%225%22 ry=%223%22 fill=%22%23FFFFFF%22 fill-opacity=%22.16%22 transform=%22rotate%28-30 11.5 9.5%29%22/%3E%3Cg transform=%22rotate%2812 30 30%29%22%3E%3Crect x=%2222%22 y=%2222%22 width=%2216%22 height=%2216%22 rx=%224.2%22 fill=%22url%28%23dlf%29%22 stroke=%22%23FFFFFF%22 stroke-width=%222.2%22/%3E%3Ccircle cx=%2226.2%22 cy=%2226.2%22 r=%221.7%22 fill=%22%23fff%22/%3E%3Ccircle cx=%2230%22 cy=%2230%22 r=%221.7%22 fill=%22%23fff%22/%3E%3Ccircle cx=%2233.8%22 cy=%2233.8%22 r=%221.7%22 fill=%22%23fff%22/%3E%3C/g%3E%3C/svg%3E">
@@ -57,7 +57,9 @@ html{transition:background-color .25s}
 /* The draw stage stays rendered while another tab is open, so its one-shot CSS animations
    (shake, flash, card pop) never replay when coming back to it. */
 #v-draw[hidden]{display:block!important;visibility:hidden;pointer-events:none}
-html,body{height:100%}
+html,body{height:100%;touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* 16px minimum on fields: below that, iOS zooms the whole page when one gets the focus */
+input,select,textarea{font-size:16px!important}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.45 var(--f-body);overflow:hidden;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
@@ -791,7 +793,7 @@ const TIERS = [
   {name:"Mythique",    c:"#D9003A", d:"#5E0019", ocean:"#B0002F", g1:"#FF2E62", g2:"#A3002B"},
   {name:"Ultime",      c:"#C13BFF", d:"#24093F", ocean:"#6B3FE4", g1:"#FF5FD2", g2:"#4D7CFF", line:"#B026FF", rainbow:true},
 ];
-const TIER_MIN = [0, 20000, 50000, 200000, 1e6, 2e7, 5e8];   // … < 20 M ≤ Mythique < 500 M ≤ Ultime
+const TIER_MIN = [0, 15000, 1e5, 5e5, 5e6, 1e8, 1.9e9];   // ~65k Commune … ~100 Mythique, ~10 Ultime (steeper towards the top)
 const TOP = TIER_MIN.length - 1;
 const RAINBOW = ["#FF3D77", "#FF9A3D", "#FFE53D", "#3DFF8C", "#3DD5FF", "#6B5CFF", "#D43DFF"];
 // colour of a rarity for the reveal effects: Ultime cycles through the rainbow
@@ -1299,6 +1301,21 @@ async function loadWorld(){
   G.borderParts = splitParts(G.borders);
 }
 
+/* The page itself never zooms (iOS ignores user-scalable=no): pinch is swallowed (double tap: touch-action),
+   except on the map canvases, which zoom the map. If the browser zoomed anyway, it is reset. */
+(() => {
+  const own = e => e.target && e.target.closest && e.target.closest("#map,#fx");
+  for (const t of ["gesturestart", "gesturechange", "gestureend"]) document.addEventListener(t, e => e.preventDefault(), {passive:false});
+  document.addEventListener("touchmove", e => { if (e.touches.length > 1 && !own(e)) e.preventDefault(); }, {passive:false});
+  const vv = window.visualViewport;
+  if (vv) vv.addEventListener("resize", () => {
+    if (vv.scale > 1.01 && !document.activeElement.matches("input,textarea,select")){
+      const m = document.querySelector('meta[name="viewport"]'), c = m.content;
+      m.content = c + ",maximum-scale=1.0001"; setTimeout(() => { m.content = c; }, 60);
+    }
+  });
+})();
+
 /* ================= Store: Firebase (accounts, saves, locks, friends) ================= */
 const S = { mode:"loading", uid:null, fb:null, auth:null, db:null, user:null, players:new Map(), requests:new Map(), claims:new Map(), locks:new Map(), me:null, ready:false, readonly:false, isOwner:false, guest:null, unsub:[] };
 const CFG = window.RNG_CONFIG || {};
@@ -1331,7 +1348,7 @@ function stopListeners(){ for (const u of S.unsub) try { u(); } catch {} S.unsub
 function onUser(user){
   if (user && S.mode === "guest") SFX.success();
   stopListeners();
-  S.user = user; S.players = new Map(); S.requests = new Map();
+  S.user = user; S.players = new Map(); S.requests = new Map(); S.meLoaded = false;
   if (!user){
     S.mode = "guest"; S.uid = null; S.me = null; S.isOwner = false;
     rebuildLocks(); S.ready = true; afterData(); return;
@@ -1347,9 +1364,11 @@ function onUser(user){
   }
   let first = true;
   S.unsub.push(S.db.collection("players").onSnapshot(snap => {
-    const m = new Map(); for (const d of snap.docs) m.set(d.id, d.data());
-    S.players = m; S.me = m.get(S.uid) || null;
-    rebuildLocks();
+    // Wait for the server's answer before deciding anything about this account (a cached or partial
+    // first answer would show "choose your pseudo" to players who already have one).
+    if (snap.metadata && snap.metadata.fromCache && !S.meLoaded) return;
+    S.raw = new Map(snap.docs.map(d => [d.id, d.data()])); S.meLoaded = true;
+    applyPlayers();
     if (first){ first = false; S.ready = true; adoptGuest(); }
     afterData();
   }, e => { console.warn("players", e); toast("Connexion à la partie perdue. Recharge la page."); }));
@@ -1369,9 +1388,22 @@ function adoptGuest(){
   Stage.anim = null; Stage.scoring = null; SFX.revealStop();
   $("#card-slot").innerHTML = ""; Stage.renderUI();
 }
+/* Players as shown in the game: every kept city must be the real result of one of that player's server draws
+   (see drawIdx), otherwise it is ignored, here and in the locks. Legacy cities (before server draws) have no "at". */
+function applyPlayers(){
+  if (!S.raw) return;
+  const m = new Map(); for (const [id, p] of S.raw) m.set(id, D.n ? sanitizePlayer(id, p) : p);
+  S.players = m; S.me = m.get(S.uid) || null;
+  rebuildLocks();
+}
 function rebuildLocks(){
   const locks = new Map();
-  for (const [id, c] of S.claims) locks.set(id, {uid:c.uid, t:c.t});
+  const verify = S.mode === "online" && S.raw && D.n;
+  for (const [id, c] of S.claims){
+    // a claim only counts if its owner really holds that city (a forged collection entry is dropped by sanitizePlayer)
+    if (verify && S.raw.has(c.uid)){ const p = S.players.get(c.uid); if (!p || !(p.cities || []).some(e => e.id === id)) continue; }
+    locks.set(id, {uid:c.uid, t:c.t});
+  }
   for (const [uid, p] of S.players) for (const c of (p.cities || [])) if (!locks.has(c.id)) locks.set(c.id, {uid, t:c.t});
   S.locks = locks;
 }
@@ -1484,7 +1516,48 @@ function closeModal(){ const m = $("#modal"); m.hidden = true; m.innerHTML = "";
 async function signOut(){ try { await S.auth.signOut(); toast("Déconnecté."); go("draw"); } catch { toast("Déconnexion impossible."); } }
 
 /* ================= Daily state ================= */
+/* ================= Server draws =================
+   Signed-in players draw on their account: each draw writes a server timestamp (draws.t1..t3, checked by the
+   Firestore rules: at most DAILY per day, time set by the server). The city is derived from that timestamp and the
+   player's id, so it cannot be chosen, replayed on another device, or reset by signing out. */
+const localDay = (d = new Date()) => Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5);
+function hash53(str){
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++){ const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+}
+const tsKey = ts => ts && ts.seconds != null && ts.nanoseconds != null ? ts.seconds + "." + ts.nanoseconds : null;
+function drawIdx(uid, ts){ const k = tsKey(ts); return k == null || !D.n ? null : hash53("rngworld|" + uid + "|" + k) % D.n; }
+function validEntry(uid, e){
+  if (!e || !D.byId.has(e.id)) return false;
+  if (e.at == null) return true;
+  const i = drawIdx(uid, e.at); return i != null && D.id[i] === e.id;
+}
+function sanitizePlayer(uid, p){
+  const c = p && Array.isArray(p.cities) ? p.cities : null;
+  return c && c.some(e => !validEntry(uid, e)) ? Object.assign({}, p, {cities:c.filter(e => validEntry(uid, e))}) : p;
+}
+function serverToday(p){
+  const d = p.draws, t = freshToday();
+  if (!d || d.day !== localDay() || !(d.n >= 1)){
+    // already kept today with the previous version of the game (no server draws yet): nothing more today
+    if (p.keepDay === localDay() && (p.cities || []).length){ t.used = DAILY; t.kept = p.cities[p.cities.length - 1].id; }
+    return t;
+  }
+  const ids = [];
+  for (let k = 1; k <= d.n; k++){ const i = drawIdx(S.uid, d["t" + k]); if (i != null) ids.push(D.id[i]); }
+  const lastTs = tsKey(d["t" + d.n]);
+  t.used = d.n; t.seen = ids;
+  if (p.keepDay === d.day){
+    const e = (p.cities || []).find(c => tsKey(c.at) === lastTs);
+    t.kept = e ? e.id : (ids.length ? ids[ids.length - 1] : null);
+  } else t.cur = lastTs && ids.length === d.n ? ids[ids.length - 1] : null;
+  return t;
+}
 function today(){
+  if (S.mode === "online" && S.me) return serverToday(S.me);
   const t = S.me ? S.me.today : (S.guest && S.guest.today);
   if (!t || t.d !== dayKey()) return freshToday();
   return t;
@@ -1503,7 +1576,8 @@ function totalPts(p){ let s = 0; for (const c of (p.cities || [])){ const i = D.
 let view = "draw";
 function go(v){
   if (!["draw","map","coll","friends","world","profile"].includes(v)) v = "draw";
-  if (v !== "draw" && rollPending()){ toast("Garde ou relance ta ville avant de quitter le tirage."); if (view !== "draw") v = "draw"; else return; }
+  if (v !== "draw" && rollPending()){ toast("Attends la fin du tirage."); if (view !== "draw") v = "draw"; else return; }
+  if (v === "world" && view !== "world") worldMode = {p:"day"};
   view = v;
   for (const s of $$(".view")) s.hidden = s.id !== "v-" + v;
   for (const b of $$("[data-go]")) if (b.closest(".tabs,.dtabs")) b.setAttribute("aria-current", b.dataset.go === v ? "page" : "false");
@@ -2361,11 +2435,13 @@ const Stage = {
     if (!animating && want != null && (!shown || +$(".stamp", shown).dataset.idx !== want)) this.showCard(want, false);
     if (!animating && want == null && shown) $("#card-slot").innerHTML = "";
     renderHeader();
+    if (S.mode === "online" && !S.meLoaded){ foot.innerHTML = `<p class="stage-msg">Connexion à ton compte…</p>`; $("#st-title").textContent = ""; return; }
     if (S.mode === "online" && !S.me){ foot.innerHTML = `<p class="stage-msg">Choisis ton pseudo pour commencer.</p><div class="actions"><button class="btn btn-main" id="b-ob">Choisir mon pseudo</button></div>`; $("#b-ob").onclick = () => maybeOnboard(true); $("#st-title").textContent = "Bienvenue sur RNGWorld"; return; }
     if (S.mode === "local" && !S.me){ foot.innerHTML = `<p class="stage-msg">Crée ton profil pour lancer ton premier tirage.</p>`; $("#st-title").textContent = "Bienvenue sur RNGWorld"; return; }
     if (S.readonly){ foot.innerHTML = `<p class="stage-msg">Tu es en mode spectateur. Pour jouer, le créateur de la partie doit t'inviter comme Éditeur.</p>`; return; }
     if (this.scoring){ $("#st-title").textContent = `Tirage ${t.used} sur ${DAILY}`; return; }
     const pop = this.fresh ? " pop" : ""; this.fresh = false;
+    if (this.drawing && !animating){ foot.innerHTML = `<div class="actions"><button class="btn btn-main big-cta" disabled>Tirage…</button></div>`; return; }
     if (animating){ foot.innerHTML = `<p class="odds">${this.anim.landed ? "" : "Touche l'écran pour passer l'animation"}</p><div class="actions" style="height:52px"></div>`; $("#st-title").textContent = `Tirage ${t.used} sur ${DAILY}`; return; }
     if (kept != null){
       $("#st-title").textContent = "";
@@ -2459,6 +2535,7 @@ const Stage = {
   finishScoring(){
     if (!this.scoring) return;
     const i = this.scoring.i; this.scoring = null;
+    if (S.reloadAfter){ S.reloadAfter = false; setTimeout(() => checkVersion(true), 1500); }
     const pts = $("#card .st-pts"); if (pts) countUp(pts, D.pts[i], 700);
     this.fresh = true; this.renderUI();
   },
@@ -2507,29 +2584,73 @@ function countUp(el, to, dur = 1200, delay = 0){
   };
   requestAnimationFrame(tick);
 }
-function rollPending(){
-  if (Stage.anim || Stage.scoring) return true;
-  const t = today();
-  if (!S.me || t.cur == null || t.kept || !D.byId.has(t.cur)) return false;
-  if (t.used >= DAILY && !cityStatus(t.cur).free) return false;
-  return true;
-}
+/* Only the reveal itself holds the player on the draw tab: once "Garder / Relancer" shows, the pending city
+   is saved (on the account for signed-in players) and they can look around and come back to it. */
+function rollPending(){ return !!(Stage.anim || Stage.scoring || Stage.drawing); }
 function hexA(hex, a){
   if (!hex.startsWith("#")) return hex;
   const h = hex.length === 4 ? hex.slice(1).split("").map(c => c+c).join("") : hex.slice(1);
   const n = parseInt(h, 16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${clamp(a,0,1)})`;
 }
 
-function drawOne(){
-  if (!canPlay() || Stage.anim) return;
+async function drawOne(){
+  if (!canPlay() || Stage.anim || Stage.drawing) return;
   const t = Object.assign({}, today());
   if (t.kept || t.used >= DAILY) return;
+  if (S.mode === "online"){
+    Stage.drawing = true; Stage.renderUI();
+    let idx = null;
+    try { idx = await serverDraw(); }
+    catch (e){ console.warn("draw", e); toast(e && e.code === "limit" ? "Plus de tirages aujourd'hui." : "Tirage impossible pour l'instant. Réessaie."); if (e && e.code === "permission-denied") checkVersion(true); }
+    Stage.drawing = false;
+    if (idx == null){ Stage.renderUI(); return; }
+    Stage.start(idx);
+    SFX.revealStart(D.tier[idx]);
+    return;
+  }
   const idx = randInt(D.n);
   t.used += 1; t.cur = D.id[idx]; t.seen = [...(t.seen || []), D.id[idx]];
   Stage.start(idx);
   SFX.revealStart(D.tier[idx]);
   writeMe({today:t});
 }
+/* One draw on the account: a server timestamp in draws.t<n>, then the city derived from it. If this device's copy
+   of the account was stale (draw made elsewhere), it retries once from the server's copy. */
+async function serverDraw(){
+  const ref = S.db.doc("players/" + S.uid), ts = firebase.firestore.FieldValue.serverTimestamp();
+  let base = S.raw && S.raw.get(S.uid);
+  for (let attempt = 0; ; attempt++){
+    const d0 = base && base.draws, day = localDay();
+    if (d0 && d0.day === day && d0.n >= DAILY){ const e = new Error("limit"); e.code = "limit"; throw e; }
+    try {
+      if (d0 && d0.day === day && d0.n >= 1) await ref.update({"draws.n":d0.n + 1, ["draws.t" + (d0.n + 1)]:ts});
+      else await ref.update({draws:{day, n:1, t1:ts}});
+      break;
+    } catch (e){
+      if (attempt >= 1 || !e || e.code !== "permission-denied") throw e;
+      base = (await ref.get({source:"server"})).data();
+    }
+  }
+  const snap = await ref.get({source:"server"}), data = snap.data(), d = data && data.draws;
+  if (!d || !d["t" + d.n]) throw new Error("no draw");
+  if (S.raw){ S.raw.set(S.uid, data); applyPlayers(); }
+  return drawIdx(S.uid, d["t" + d.n]);
+}
+/* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
+const APP_VERSION = "2026-10-11";
+async function checkVersion(force){
+  try {
+    const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
+    if (!v || v === APP_VERSION) return;
+    const last = +sessionStorage.getItem("rngworld.reloaded") || 0;
+    if (Date.now() - last < 120000) return;   // never loop if the server still serves the old page
+    if (rollPending()){ S.reloadAfter = true; return; }
+    sessionStorage.setItem("rngworld.reloaded", Date.now()); location.reload();
+  } catch {}
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkVersion(); });
+setInterval(() => { if (document.visibilityState === "visible") checkVersion(); }, 5*60*1000);
+
 /* Keeping a city needs an account. The lock is a document per city, created in a transaction:
    if two players keep the same city at the same moment, only the first one gets it. */
 async function keepCurrent(){
@@ -2545,22 +2666,28 @@ async function keepCurrent(){
   const entry = {id, t:Date.now()};
   try {
     if (S.mode === "online"){
+      const raw = S.raw && S.raw.get(S.uid), d = raw && raw.draws;
+      if (!d || !d["t" + d.n] || D.id[drawIdx(S.uid, d["t" + d.n])] !== id) throw new Error("stale draw");
+      entry.at = d["t" + d.n];
       await S.db.runTransaction(async tx => {
         const cref = S.db.doc("claims/" + id), c = await tx.get(cref);
         if (c.exists && c.data().uid !== S.uid){ const err = new Error("taken"); err.by = c.data().uid; throw err; }
         tx.set(cref, {uid:S.uid, t:entry.t});
-        const d = new Date(), keepDay = Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
-        tx.set(S.db.doc("players/" + S.uid), {cities:firebase.firestore.FieldValue.arrayUnion(entry), today:nt, keepDay}, {merge:true});
+        tx.update(S.db.doc("players/" + S.uid), {cities:firebase.firestore.FieldValue.arrayUnion(entry), keepDay:d.day});
       });
-      S.me = Object.assign({}, S.me, {cities:[...(S.me.cities || []).filter(c => c.id !== id), entry], today:nt});
-      S.players.set(S.uid, S.me); S.claims.set(id, {uid:S.uid, t:entry.t}); rebuildLocks();
+      const next = Object.assign({}, raw, {cities:[...(raw.cities || []), entry], keepDay:d.day});
+      S.raw.set(S.uid, next); S.claims.set(id, {uid:S.uid, t:entry.t}); applyPlayers();
     } else {
       await writeMe({cities:[...((S.me && S.me.cities) || []).filter(c => c.id !== id), entry], today:nt});
     }
     Stage.claimFx(i); toast(`${cityName(i)} est à toi !`);
   } catch (e){
     if (e && e.message === "taken"){ toast(`Trop tard : @${pseudoOf(e.by)} vient de la garder.`); }
-    else { console.warn("keep", e); toast("Impossible de garder la ville pour l'instant. Réessaie."); }
+    else {
+      console.warn("keep", e);
+      toast("Impossible de garder la ville pour l'instant. Réessaie.");
+      if (e && e.code === "permission-denied") checkVersion(true);
+    }
   }
   Stage.renderUI();
 }
@@ -2680,7 +2807,7 @@ function openCitySheet(i, opts = {}){
 }
 
 function openRules(){
-  const tiers = TIERS.map((T, t) => `<div class="tr-row t${t}"><span class="tr-dot"></span><b>${T.name}</b><span class="tr-n">${fmt(D.tierCount[t])} villes</span><span class="mono">${t === 0 ? "< 20 k" : t === TOP ? kM(TIER_MIN[t]) + " +" : kM(TIER_MIN[t]) + " – " + kM(TIER_MIN[t+1])}</span></div>`).join("");
+  const tiers = TIERS.map((T, t) => `<div class="tr-row t${t}"><span class="tr-dot"></span><b>${T.name}</b><span class="tr-n">${fmt(D.tierCount[t])} villes</span><span class="mono">${t === 0 ? "< " + kM(TIER_MIN[1]) : t === TOP ? kM(TIER_MIN[t]) + " +" : kM(TIER_MIN[t]) + " – " + kM(TIER_MIN[t+1])}</span></div>`).join("");
   openSheet(`<div class="rules">
     <h2>Règles</h2>
     <div class="rl-steps">
@@ -2704,7 +2831,7 @@ function openRules(){
   </div>`);
   $("#rl-crit").onclick = openCriteria;
 }
-const kM = v => v >= 1e6 ? (v/1e6) + " M" : (v/1e3) + " k";
+const kM = v => v >= 1e9 ? String(v/1e9).replace(".", ",") + " Md" : v >= 1e6 ? (v/1e6) + " M" : (v/1e3) + " k";
 function openCriteria(){
   const groups = {};
   for (const id in FDEF) (groups[FDEF[id].g] ||= []).push(FDEF[id]);
@@ -3307,7 +3434,7 @@ function renderCollection(){
 }
 
 /* ================= Friends ================= */
-let worldMode = (m => m && typeof m === "object" ? m : {p:"week"})(lsGet("rngworld.worldmode", null));
+let worldMode = {p:"day"};   // the ranking always opens on "Jour"
 function renderFriends(){ renderFriendsInner($("#friends")); }
 /* Pseudos are public (one document per pseudo): guests read them once to name the players of the world board. */
 async function loadPseudos(){
@@ -3343,7 +3470,7 @@ function renderWorld(root){
       <div class="seg" role="tablist" aria-label="Période">${BOARD_PERIODS.map(b => `<button role="tab" aria-selected="${b.k === P.k}" data-wperiod="${b.k}">${b.label}</button>`).join("")}</div></div>
     ${list.length ? `<div class="podium">${podium}</div>${rest ? `<div class="panel world"><div class="rows">${rest}</div></div>` : ""}`
       : `<div class="empty"><h3>Personne n'a encore gardé de ville</h3><p>Sur cette période, aucune ville n'a été gardée pour l'instant.</p></div>`}`;
-  for (const b of $$("[data-wperiod]", root)) b.onclick = () => { worldMode = {p:b.dataset.wperiod}; lsSet("rngworld.worldmode", worldMode); renderWorld(root); };
+  for (const b of $$("[data-wperiod]", root)) b.onclick = () => { worldMode = {p:b.dataset.wperiod}; renderWorld(root); };
   for (const r of $$("[data-city]", root)) r.onclick = () => openCitySheet(+r.dataset.city);
 }
 function renderFriendsInner(root){
@@ -3449,9 +3576,9 @@ async function wipePlayer(uid){
     const b = S.db.batch(); for (const r of refs.slice(k, k + 400)) b.delete(r); await b.commit();
   }
   await S.db.doc("players/" + uid).update({cities:[]});
-  for (const r of refs) S.claims.delete(r.id);
-  const p = S.players.get(uid); if (p) S.players.set(uid, Object.assign({}, p, {cities:[]}));
-  rebuildLocks(); scheduleRender();
+  for (const r of refs) S.claims.delete(+r.id);
+  const p = S.raw && S.raw.get(uid); if (p) S.raw.set(uid, Object.assign({}, p, {cities:[]}));
+  applyPlayers(); scheduleRender();
 }
 
 /* ================= Profile ================= */
@@ -3477,6 +3604,7 @@ function renderProfile(){
     $("#pf-login").onclick = () => openAuth(); bindSettings(root);
     return;
   }
+  if (!p && S.mode === "online" && !S.meLoaded){ root.innerHTML = `<div class="empty"><p>Connexion à ton compte…</p></div>`; return; }
   if (!p){ root.innerHTML = `<div class="empty"><h3>Choisis ton pseudo</h3><p>Il te faut un pseudo pour jouer avec tes amis.</p><button class="btn btn-main" id="pf-create">Créer mon profil</button></div>`; $("#pf-create").onclick = () => maybeOnboard(true); return; }
   if (!draft || draft.uid !== S.uid) draft = {uid:S.uid, pseudo:p.pseudo, color:p.color, avatar:""};
   const list = myCities(), total = totalPts(p);
@@ -3558,10 +3686,10 @@ async function wipeAll(){
   if (S.mode !== "online"){ await writeMe({cities:[], today:fresh}); rebuildLocks(); return; }
   const docs = [];
   (await S.db.collection("claims").get()).forEach(d => docs.push(["del", d.ref]));
-  (await S.db.collection("players").get()).forEach(d => { const v = d.data(); if ((v.cities || []).length || (v.today && v.today.kept)) docs.push(["upd", d.ref]); });
+  (await S.db.collection("players").get()).forEach(d => { const v = d.data(); if ((v.cities || []).length || (v.today && v.today.kept) || v.keepDay != null || v.draws) docs.push(["upd", d.ref]); });
   for (let k = 0; k < docs.length; k += 400){
     const b = S.db.batch();
-    for (const [op, ref] of docs.slice(k, k + 400)) op === "del" ? b.delete(ref) : b.update(ref, {cities:[], today:fresh});
+    for (const [op, ref] of docs.slice(k, k + 400)) op === "del" ? b.delete(ref) : b.update(ref, {cities:[], today:fresh, keepDay:firebase.firestore.FieldValue.delete(), draws:firebase.firestore.FieldValue.delete()});
     await b.commit();
   }
 }
@@ -3623,7 +3751,7 @@ async function saveProfile(pseudo, color, avatar){
 function maybeOnboard(force){
   if (!D.n || !S.ready) return;
   const m = $("#modal");
-  const need = S.mode === "online" ? !S.me : (S.mode === "local" && !S.me);
+  const need = S.mode === "online" ? (S.meLoaded && !S.me) : (S.mode === "local" && !S.me);
   if (!need && !force){ if (m.querySelector("#ob-form")){ m.hidden = true; m.innerHTML = ""; } return; }
   if (!need) return;
   if (!m.hidden) return;
@@ -3670,6 +3798,7 @@ setInterval(() => {
     const store = initStore();
     const [blurbs, regions, names] = await Promise.all([fetch("blurbs.json").then(r => r.json()).catch(() => ({})), fetch("regions.json").then(r => r.json()).catch(() => []), fetch("names.json").then(r => r.json()).catch(() => null), loadWorld(), loadCities()]);
     BLURBS = blurbs; D.regions = regions; if (names) NAMES = names;
+    applyPlayers();   // the account may have loaded before the city list: check its cities now
     Stage.init(); MapView.init();
     $("#hdr-login").onclick = () => openAuth();
     const setNavH = () => { const t = $(".tabs"); document.documentElement.style.setProperty("--navh", (getComputedStyle(t).display === "none" ? 0 : t.offsetHeight) + "px"); };

@@ -1,0 +1,1 @@
+{ "private": true, "type": "module", "devDependencies": { "firebase-tools": "13.29.0", "@firebase/rules-unit-testing": "3.0.4", "firebase": "10.14.1" } }
