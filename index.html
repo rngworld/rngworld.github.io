@@ -793,7 +793,7 @@ const TIERS = [
   {name:"Mythique",    c:"#D9003A", d:"#5E0019", ocean:"#B0002F", g1:"#FF2E62", g2:"#A3002B"},
   {name:"Ultime",      c:"#C13BFF", d:"#24093F", ocean:"#6B3FE4", g1:"#FF5FD2", g2:"#4D7CFF", line:"#B026FF", rainbow:true},
 ];
-const TIER_MIN = [0, 2e4, 5e4, 1.5e5, 3e5, 1e6, 1e8];   // Commune < 20 k · Peu commune < 50 k · Rare < 150 k · Épique < 300 k · Légendaire < 1 M · Mythique < 100 M · Ultime
+const TIER_MIN = [0, 2e4, 5e4, 1.5e5, 8e5, 1.2e7, 1.25e8];   // ~1 000 Légendaire, ~100 Mythique, 10 Ultime
 const TOP = TIER_MIN.length - 1;
 const RAINBOW = ["#FF3D77", "#FF9A3D", "#FFE53D", "#3DFF8C", "#3DD5FF", "#6B5CFF", "#D43DFF"];
 // colour of a rarity for the reveal effects: Ultime cycles through the rainbow
@@ -2637,7 +2637,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11b";
+const APP_VERSION = "2026-10-11c";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
