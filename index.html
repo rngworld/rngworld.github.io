@@ -801,6 +801,22 @@ select{border:1.5px solid var(--line);background:var(--surface);color:var(--ink)
 /* draw screen details */
 .stage-legal{opacity:.6}
 #st-title{text-shadow:0 2px 14px rgba(5,8,40,.35)}
+
+/* map toolbar: search, filters and view mode share one height and sit side by side */
+.search{flex:0 1 300px}
+.search .input{width:100%;height:42px;border-radius:14px}
+.map-chips{gap:2px;flex-wrap:nowrap;align-items:center;height:42px;padding:4px;border-radius:14px;background:var(--surface);box-shadow:0 6px 20px rgba(10,14,70,.25);overflow-x:auto;scrollbar-width:none;max-width:100%}
+.map-chips::-webkit-scrollbar{display:none}
+.map-chips .chip{box-shadow:none;border:0;background:none;height:34px;padding:0 12px;border-radius:10px;color:var(--muted);white-space:nowrap}
+.map-chips .chip:hover{transform:none;box-shadow:none;color:var(--ink);background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.map-chips .chip[aria-pressed="true"]{background:var(--grad-ink,var(--ink-bg));color:var(--on-ink);box-shadow:0 3px 10px -4px rgba(20,22,61,.55)}
+.map-mode{height:42px;align-items:center;border-radius:14px;padding:4px}
+.map-mode button{height:34px;border-radius:10px}
+@media (max-width:700px){.search{flex:1 1 100%;max-width:none}.map-chips{flex:1 1 auto}}
+
+/* profile: both columns start on the same line (the grid gap replaces the stacked-panel margin) and share a height */
+.twocol>.panel+.panel{margin-top:0}
+@media (min-width:821px){.twocol{align-items:stretch}.twocol>.panel:first-child{display:flex;align-items:center;justify-content:center}.twocol>.panel:first-child .profile-hero{flex-direction:column;text-align:center;gap:12px}}
 </style>
 </head>
 <body>
@@ -2879,7 +2895,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11j";
+const APP_VERSION = "2026-10-11l";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
