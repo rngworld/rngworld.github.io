@@ -685,6 +685,27 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .wk-skel i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--line) 0%,color-mix(in srgb,var(--line) 40%,var(--surface)) 50%,var(--line) 100%) 0 0/200% 100%;animation:skel 1.2s linear infinite}
 .wk-skel i:nth-child(2){width:92%}.wk-skel i:nth-child(3){width:64%}
 @keyframes skel{to{background-position:-200% 0}}
+
+/* styled dropdown (collection sort) */
+.dd{position:relative}
+.dd-btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 12px 9px 11px;font:600 14px var(--f-body);box-shadow:var(--shadow-1,0 1px 2px rgba(20,22,61,.06));transition:border-color .15s,box-shadow .15s}
+.dd-btn:hover{border-color:color-mix(in srgb,var(--ink) 30%,var(--line))}
+.dd.open .dd-btn{border-color:var(--coral);box-shadow:0 0 0 4px color-mix(in srgb,var(--coral) 16%,transparent)}
+.dd-btn svg,.dd-opt svg{width:17px;height:17px;flex:none}
+.dd-btn > svg:first-child{color:var(--coral)}
+.dd-chev{opacity:.6;transition:transform .2s}
+.dd.open .dd-chev{transform:rotate(180deg)}
+.dd-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:15;min-width:100%;width:max-content;padding:6px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 18px 40px -12px rgba(12,14,48,.35);animation:ddIn .16s ease-out}
+@media (max-width:600px){.dd-menu{left:0;right:auto}}
+@keyframes ddIn{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}
+.dd-opt{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--ink);padding:9px 10px;border-radius:9px;font:600 14px var(--f-body);text-align:left}
+.dd-opt > svg:first-child{color:var(--muted)}
+.dd-opt span{flex:1}
+.dd-opt:hover,.dd-opt:focus-visible{background:color-mix(in srgb,var(--ink) 6%,transparent);outline:none}
+.dd-check{opacity:0;color:var(--coral)}
+.dd-opt[aria-selected="true"]{color:var(--coral-ink)}
+.dd-opt[aria-selected="true"] > svg:first-child{color:var(--coral)}
+.dd-opt[aria-selected="true"] .dd-check{opacity:1}
 /* ================= Polish (visual pass, Oct 2026) — remove this block to roll back ================= */
 :root{
   --r:18px;
@@ -2858,7 +2879,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11i";
+const APP_VERSION = "2026-10-11j";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
@@ -3621,6 +3642,36 @@ function roundRect(ctx, x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); c
 
 /* ================= Collection ================= */
 let collSort = lsGet("landfall.sort", "recent"), collTier = -1;
+/* Sort menu of the collection: a styled dropdown (the native one can't be themed). */
+const SORTS = [
+  {k:"recent", label:"Plus récentes", ic:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'},
+  {k:"points", label:"Plus de points", ic:'<path d="M5 19V11M12 19V5M19 19v-6"/>'},
+  {k:"rarity", label:"Plus rares", ic:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>'},
+];
+const sortIcon = s => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${s.ic}</svg>`;
+function sortMenuHTML(){
+  const cur = SORTS.find(s => s.k === collSort) || SORTS[0];
+  return `<div class="dd" id="coll-sort">
+    <button class="dd-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Trier : ${cur.label}">${sortIcon(cur)}<span>${cur.label}</span><svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="dd-menu" role="listbox" aria-label="Trier" hidden>${SORTS.map(s => `<button class="dd-opt" role="option" data-sort="${s.k}" aria-selected="${s.k === cur.k}">${sortIcon(s)}<span>${s.label}</span><svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>`).join("")}</div>
+  </div>`;
+}
+function bindSortMenu(root){
+  const dd = $("#coll-sort", root); if (!dd) return;
+  const btn = $(".dd-btn", dd), menu = $(".dd-menu", dd), opts = $$(".dd-opt", dd);
+  const close = () => { menu.hidden = true; dd.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); document.removeEventListener("pointerdown", outside, true); };
+  const outside = e => { if (!dd.contains(e.target)) close(); };
+  const open = () => { menu.hidden = false; dd.classList.add("open"); btn.setAttribute("aria-expanded", "true"); document.addEventListener("pointerdown", outside, true); (opts.find(o => o.getAttribute("aria-selected") === "true") || opts[0]).focus(); };
+  btn.onclick = () => menu.hidden ? open() : close();
+  for (const o of opts) o.onclick = () => { close(); if (o.dataset.sort !== collSort){ collSort = o.dataset.sort; lsSet("landfall.sort", collSort); renderCollection(); } };
+  dd.onkeydown = e => {
+    if (e.key === "Escape"){ close(); btn.focus(); return; }
+    if (menu.hidden || !["ArrowDown", "ArrowUp"].includes(e.key)) return;
+    e.preventDefault();
+    const k = opts.indexOf(document.activeElement), n = opts.length;
+    opts[((k < 0 ? 0 : k + (e.key === "ArrowDown" ? 1 : -1)) + n) % n].focus();
+  };
+}
 function renderCollection(){
   const root = $("#coll"), list = myCities().map(c => ({c, i:D.byId.get(c.id)}));
   const counts = TIERS.map(() => 0); let total = 0;
@@ -3631,9 +3682,7 @@ function renderCollection(){
   root.innerHTML = `
     <div class="page-head">
       <div><h2>Ma collection</h2></div>
-      <select class="sel" id="coll-sort" aria-label="Trier">
-        <option value="recent">Plus récentes</option><option value="points">Plus de points</option><option value="rarity">Plus rares</option>
-      </select>
+      ${sortMenuHTML()}
     </div>
     <div class="stats">
       <div class="stat"><div class="k">Villes</div><div class="v">${fmt(list.length)}</div></div>
@@ -3648,8 +3697,7 @@ function renderCollection(){
     ${shown.length ? `<div class="grid-stamps">${shown.map(x => `<div><button class="stamp-btn" data-i="${x.i}" aria-label="${esc(cityName(x.i))}">${stampHTML(x.i)}</button><div class="stamp-meta">${new Date(x.c.t).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})}</div></div>`).join("")}</div>`
       : `<div class="empty"><h3>${list.length ? "Aucune ville dans ce palier" : "Ta collection est vide"}</h3><p>${list.length ? "Change de filtre pour voir tes autres villes." : (S.mode === "guest" ? "Connecte-toi pour garder des villes et commencer ta collection." : "Lance ton premier tirage pour verrouiller ta première ville.")}</p>${list.length ? "" : S.mode === "guest" ? `<button class="btn btn-main" id="coll-login">Se connecter</button>` : `<button class="btn btn-main" data-go="draw">Aller au tirage</button>`}</div>`}`;
   const cl = $("#coll-login"); if (cl) cl.onclick = () => openAuth();
-  $("#coll-sort").value = collSort;
-  $("#coll-sort").onchange = e => { collSort = e.target.value; lsSet("landfall.sort", collSort); renderCollection(); };
+  bindSortMenu(root);
   for (const b of $$(".chip[data-t]", root)) b.onclick = () => { collTier = +b.dataset.t; renderCollection(); };
   for (const b of $$(".stamp-btn", root)) b.onclick = () => openCitySheet(+b.dataset.i);
   paintGlobes(root);
