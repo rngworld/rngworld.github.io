@@ -22,4 +22,14 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm install --no-audit --no-fund
-      - run: npx firebase emulators:exec --only firestore --project demo-rngworld "node rules.test.mjs"
+      - name: Run the rules tests in the emulator
+        shell: bash
+        run: |
+          set +e
+          npx firebase emulators:exec --only firestore --project demo-rngworld "node rules.test.mjs" > out.txt 2>&1
+          status=$?
+          cat out.txt
+          # summary visible in the run's annotations
+          msg=$(grep -E "^(ok|::error::|all checks|[0-9]+ check)|Error|error" out.txt | grep -v "^::error::" | tail -60 | sed 's/%/%25/g' | sed ':a;N;$!ba;s/\n/%0A/g')
+          if [ $status -ne 0 ]; then echo "::error title=Rules tests::$msg"; else echo "::notice title=Rules tests::$msg"; fi
+          exit $status
