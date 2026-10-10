@@ -59,7 +59,6 @@ await check("keep with wrong keepDay is refused", assertFails(keep(alice, "alice
 await check("claim without keep is refused", assertFails(setDoc(doc(alice, "claims/1002"), { uid: "alice", t: 1 })));
 await check("keep latest draw", assertSucceeds(keep(alice, "alice", 1001, d.t3, d.day)));
 await check("second keep same day is refused", assertFails(keep(alice, "alice", 1003, d.t3, d.day)));
-await check("cities cannot be removed", assertFails(updateDoc(A, { cities: [] })));
 await check("claim cannot be stolen", assertFails(keep(bob, "bob", 1001, null, day)));
 await check("claim cannot be updated", assertFails(setDoc(doc(bob, "claims/1001"), { uid: "bob", t: 1 })));
 await check("profile edit after keep", assertSucceeds(setDoc(A, { color: "#654321" }, { merge: true })));
@@ -77,6 +76,9 @@ await check("fay draw 2", assertSucceeds(updateDoc(F, { "draws.n": 2, "draws.t2"
 await check("fay draw 3", assertSucceeds(updateDoc(F, { "draws.n": 3, "draws.t3": serverTimestamp() })));
 d = await draws(fay, "fay");
 await check("fay keep (1 city, 3 draws)", assertSucceeds(keep(fay, "fay", 5001, d.t3, d.day)));
+
+await check("cities cannot be removed", assertFails(updateDoc(F, { cities: [] })));
+await check("cities cannot be swapped", assertFails(updateDoc(F, { cities: [{ id: 1, t: 1 }, { id: 5001, t: 1 }] })));
 
 // next day
 await seed("players/carol", { ...profile("carol"), cities: [{ id: 5, t: 1 }], keepDay: day - 1, draws: { day: day - 1, n: 3, t1: new Date(), t2: new Date(), t3: new Date() } });

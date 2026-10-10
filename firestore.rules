@@ -47,7 +47,8 @@ service cloud.firestore {
       let kd = request.resource.data.get('keepDay', -1);
       let last = after[after.size() - 1];
       return after.size() == before.size() + 1
-        && after[0:before.size()] == before
+        // (no slice when empty: the rules engine rejects list[0:0])
+        && (before.size() == 0 || after[0:before.size()] == before)
         && d.n >= 1
         && kd == d.day
         && kd > resource.data.get('keepDay', -100)
