@@ -26,6 +26,7 @@ jobs:
         shell: bash
         run: |
           set +e
+          cp ../firestore.rules firestore.rules
           npx firebase emulators:exec --only firestore --project demo-rngworld "node rules.test.mjs" > out.txt 2>&1
           status=$?
           cat out.txt
