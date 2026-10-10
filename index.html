@@ -793,7 +793,7 @@ const TIERS = [
   {name:"Mythique",    c:"#D9003A", d:"#5E0019", ocean:"#B0002F", g1:"#FF2E62", g2:"#A3002B"},
   {name:"Ultime",      c:"#C13BFF", d:"#24093F", ocean:"#6B3FE4", g1:"#FF5FD2", g2:"#4D7CFF", line:"#B026FF", rainbow:true},
 ];
-const TIER_MIN = [0, 15000, 1e5, 5e5, 5e6, 1e8, 1.9e9];   // ~65k Commune … ~100 Mythique, ~10 Ultime (steeper towards the top)
+const TIER_MIN = [0, 2e4, 5e4, 1.5e5, 3e5, 1e6, 1e8];   // Commune < 20 k · Peu commune < 50 k · Rare < 150 k · Épique < 300 k · Légendaire < 1 M · Mythique < 100 M · Ultime
 const TOP = TIER_MIN.length - 1;
 const RAINBOW = ["#FF3D77", "#FF9A3D", "#FFE53D", "#3DFF8C", "#3DD5FF", "#6B5CFF", "#D43DFF"];
 // colour of a rarity for the reveal effects: Ultime cycles through the rainbow
@@ -1130,7 +1130,7 @@ function detailOf(i, letter){
   return null;
 }
 const has = (i, b) => (D.flags[i] >> b) & 1;
-const SC = {C:4000, K:1.05, FLOOR:800};
+const SC = {C:6300, K:0.7, FLOOR:800};   // population counts less: top scores around 250 M
 /* The city's profile: small continuous bonuses computed from its own data, so two towns of the same size never score the same. */
 function profileOf(i){
   const rank = Math.max(1, D.ccRank[i]), cn = Math.max(1, D.ccCount[D.cc[i]]), el = D.el[i] === -32768 ? 0 : D.el[i];
@@ -2637,7 +2637,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11";
+const APP_VERSION = "2026-10-11b";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
