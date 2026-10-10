@@ -1258,7 +1258,7 @@ function profileOf(i){
 }
 /* Every trait: keyword, icon, multiplier, and a plain definition (never about a specific city). */
 const FDEF = {
-  laval:     {k:"Laval",               ic:"capital",  x:435,  g:"Statut",     d:"C'est Laval. Ça se passe d'explication."},
+  laval:     {k:"Laval",               ic:"capital",  x:435,  g:"Statut",     d:"C'est Laval."},
   capital:   {k:"Capitale",            ic:"capital",  x:2.5,  g:"Statut",     d:"Capitale d'un pays."},
   regional:  {k:"Capitale régionale",  ic:"chef",     x:1.3,  g:"Statut",     d:"Chef-lieu d'une région, d'un État ou d'une province."},
   first:     {k:"N°1 du pays",         ic:"one",      x:1.2,  g:"Statut",     d:"La ville la plus peuplée de son pays."},
@@ -2016,6 +2016,8 @@ const SHAPE_LABEL = {osm:"Limites officielles · OpenStreetMap", admin:"Limites 
    the article named like the city, only if its coordinates match. Results are remembered per city. */
 const PHOTO = { cache:new Map(), active:0, wait:[] };
 let photoStore = lsGet("rngworld.photos", {}) || {};
+// cities remembered without photo are looked up again once (articles are now also found by position)
+if (!lsGet("rngworld.photos.retry1", false)){ for (const k in photoStore) if (!photoStore[k]) delete photoStore[k]; lsSet("rngworld.photos", photoStore); lsSet("rngworld.photos.retry1", true); }
 function photoSave(id, v){
   photoStore[id] = v ? [v.src, v.page || "", v.credit || ""] : 0;
   const keys = Object.keys(photoStore); if (keys.length > 500) for (const k of keys.slice(0, keys.length - 500)) delete photoStore[k];
@@ -2053,6 +2055,15 @@ function wikiEntity(i){
       if (v && v.value) p18 = v.value;
       for (const w of ["frwiki", "enwiki"]) if (ent && ent.sitelinks && ent.sitelinks[w]) titles.push([w.slice(0, 2), ent.sitelinks[w].title]);
     }
+    // no Wikidata link (GeoNames ids often differ there): the article named like the city, found around its position
+    if (!titles.length) for (const lang of ["fr", "en"]){
+      try {
+        const g = await getJSON(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&action=query&list=geosearch&gsradius=10000&gslimit=30&gscoord=${D.lat[i]}|${D.lon[i]}`);
+        const names = [normalize(cityName(i)), normalize(D.name[i])];
+        const hit = ((g.query && g.query.geosearch) || []).filter(x => { const t = normalize(x.title); return names.some(n => t === n || t.startsWith(n + " (") || t.startsWith(n + ", ")); }).sort((a, b) => a.dist - b.dist)[0];
+        if (hit) titles.push([lang, hit.title]);
+      } catch {}
+    }
     const checkCoords = !titles.length;
     return {p18, checkCoords, titles: checkCoords ? [["fr", cityName(i)], ["en", D.name[i]]] : titles};
   })();
@@ -2076,11 +2087,11 @@ async function findPhoto(i){
 /* Description: the opening of the city's Wikipedia article, plus a line or two from its history and heritage
    sections (French article, else English). Remembered per city; the generated text is the fallback. */
 const WIKI_TXT = new Map();
-let wikiStore = lsGet("rngworld.wiki", {}) || {};
+let wikiStore = lsGet("rngworld.wiki2", {}) || {};
 function wikiSave(id, v){
   wikiStore[id] = v || 0;
   const keys = Object.keys(wikiStore); if (keys.length > 300) for (const k of keys.slice(0, keys.length - 300)) delete wikiStore[k];
-  lsSet("rngworld.wiki", wikiStore);
+  lsSet("rngworld.wiki2", wikiStore);
 }
 const WIKI_SECTIONS = {
   fr:[["Histoire", /^(histoire|historique)\b/i], ["Patrimoine", /^(lieux et monuments|patrimoine|culture locale et patrimoine|monuments|architecture|sites et monuments|culture)\b/i], ["Origine du nom", /^(toponymie|étymologie)\b/i]],
@@ -2847,7 +2858,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11h";
+const APP_VERSION = "2026-10-11i";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
