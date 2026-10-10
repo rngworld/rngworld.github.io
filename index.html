@@ -668,6 +668,23 @@ a.ph-tag{color:#fff;text-decoration:none;max-width:calc(100% - 16px);white-space
 .toast{position:fixed;left:50%;top:calc(66px + env(safe-area-inset-top,0px));transform:translate(-50%,-14px);background:var(--ink-bg);color:var(--on-ink);padding:11px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:50;opacity:0;transition:.25s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
+
+/* city description from Wikipedia */
+.wk{margin:4px 0 18px}
+.wk.in{animation:wkIn .35s ease both}
+@keyframes wkIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.wk-lead{margin:0 0 12px}
+.wk-facts{display:grid;gap:10px;margin-bottom:10px}
+@media (min-width:640px){.wk-facts{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}}
+.wk-fact{border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--tc,var(--coral)) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--tc,var(--coral)) 22%,var(--line))}
+.wk-fact b{display:block;font:700 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--td,var(--tc,var(--coral-ink)));margin-bottom:4px}
+.wk-fact p{margin:0;font-size:14px;line-height:1.55}
+.wk-src{font-size:12.5px;font-weight:600;color:var(--muted);text-decoration:none}
+.wk-src:hover{color:var(--ink);text-decoration:underline}
+.wk-skel{display:grid;gap:8px;padding:4px 0}
+.wk-skel i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--line) 0%,color-mix(in srgb,var(--line) 40%,var(--surface)) 50%,var(--line) 100%) 0 0/200% 100%;animation:skel 1.2s linear infinite}
+.wk-skel i:nth-child(2){width:92%}.wk-skel i:nth-child(3){width:64%}
+@keyframes skel{to{background-position:-200% 0}}
 /* ================= Polish (visual pass, Oct 2026) — remove this block to roll back ================= */
 :root{
   --r:18px;
@@ -2016,20 +2033,34 @@ async function commonsInfo(file){
   const artist = strip(md.Artist && md.Artist.value).slice(0, 60), lic = strip(md.LicenseShortName && md.LicenseShortName.value);
   return {src:ii.thumburl || ii.url, page:ii.descriptionurl, credit:[artist, lic].filter(Boolean).join(" · ") || "Wikimedia Commons"};
 }
+/* The city's Wikidata item (from its GeoNames id): its image and its Wikipedia articles (French, then English).
+   Shared by the photo and the description; one lookup per city. */
+const WIKI_ENT = new Map();
+function wikiEntity(i){
+  const id = D.id[i];
+  if (WIKI_ENT.has(id)) return WIKI_ENT.get(id);
+  const pr = (async () => {
+    const WD = "https://www.wikidata.org/w/api.php?format=json&origin=*&";
+    const s = await getJSON(WD + "action=query&list=search&srlimit=1&srsearch=" + encodeURIComponent("haswbstatement:P1566=" + id));
+    const q = s.query && s.query.search && s.query.search[0] && s.query.search[0].title;
+    const titles = []; let p18 = null;
+    if (q){
+      const e = await getJSON(WD + "action=wbgetentities&props=claims|sitelinks&sitefilter=frwiki|enwiki&ids=" + q);
+      const ent = e.entities && e.entities[q];
+      const v = ent && ent.claims && ent.claims.P18 && ent.claims.P18[0] && ent.claims.P18[0].mainsnak && ent.claims.P18[0].mainsnak.datavalue;
+      if (v && v.value) p18 = v.value;
+      for (const w of ["frwiki", "enwiki"]) if (ent && ent.sitelinks && ent.sitelinks[w]) titles.push([w.slice(0, 2), ent.sitelinks[w].title]);
+    }
+    const checkCoords = !titles.length;
+    return {p18, checkCoords, titles: checkCoords ? [["fr", cityName(i)], ["en", D.name[i]]] : titles};
+  })();
+  pr.catch(() => WIKI_ENT.delete(id));
+  WIKI_ENT.set(id, pr);
+  return pr;
+}
 async function findPhoto(i){
-  const id = D.id[i], WD = "https://www.wikidata.org/w/api.php?format=json&origin=*&";
-  const s = await getJSON(WD + "action=query&list=search&srlimit=1&srsearch=" + encodeURIComponent("haswbstatement:P1566=" + id));
-  const q = s.query && s.query.search && s.query.search[0] && s.query.search[0].title;
-  let titles = [];
-  if (q){
-    const e = await getJSON(WD + "action=wbgetentities&props=claims|sitelinks&sitefilter=frwiki|enwiki&ids=" + q);
-    const ent = e.entities && e.entities[q];
-    const v = ent && ent.claims && ent.claims.P18 && ent.claims.P18[0] && ent.claims.P18[0].mainsnak && ent.claims.P18[0].mainsnak.datavalue;
-    if (v && v.value){ const ph = await commonsInfo(v.value).catch(() => null); if (ph) return ph; }
-    for (const w of ["frwiki", "enwiki"]) if (ent && ent.sitelinks && ent.sitelinks[w]) titles.push([w.slice(0, 2), ent.sitelinks[w].title]);
-  }
-  const checkCoords = !titles.length;
-  if (checkCoords) titles = [["fr", cityName(i)], ["en", D.name[i]]];
+  const {p18, checkCoords, titles} = await wikiEntity(i);
+  if (p18){ const ph = await commonsInfo(p18).catch(() => null); if (ph) return ph; }
   for (const [lang, title] of titles){
     const j = await getJSON(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&action=query&redirects=1&prop=pageimages|coordinates&piprop=name|thumbnail&pithumbsize=800&titles=` + encodeURIComponent(title));
     const pg = j.query && j.query.pages && Object.values(j.query.pages)[0];
@@ -2039,6 +2070,87 @@ async function findPhoto(i){
     return ph || {src:pg.thumbnail.source, page:`https://${lang}.wikipedia.org/wiki/` + encodeURIComponent(pg.title || title), credit:"Wikipédia"};
   }
   return null;
+}
+/* Description: the opening of the city's Wikipedia article, plus a line or two from its history and heritage
+   sections (French article, else English). Remembered per city; the generated text is the fallback. */
+const WIKI_TXT = new Map();
+let wikiStore = lsGet("rngworld.wiki", {}) || {};
+function wikiSave(id, v){
+  wikiStore[id] = v || 0;
+  const keys = Object.keys(wikiStore); if (keys.length > 300) for (const k of keys.slice(0, keys.length - 300)) delete wikiStore[k];
+  lsSet("rngworld.wiki", wikiStore);
+}
+const WIKI_SECTIONS = {
+  fr:[["Histoire", /^(histoire|historique)\b/i], ["Patrimoine", /^(lieux et monuments|patrimoine|culture locale et patrimoine|monuments|architecture|sites et monuments|culture)\b/i], ["Origine du nom", /^(toponymie|étymologie)\b/i]],
+  en:[["Histoire", /^history\b/i], ["Patrimoine", /^(landmarks|architecture|cityscape|sights|main sights|culture|heritage)\b/i], ["Origine du nom", /^(etymology|name|toponymy)\b/i]],
+};
+function firstSentences(text, n, max){
+  const t = text.replace(/\[\d+\]|\[note \d+\]|\[réf\.[^\]]*\]/g, "").replace(/\s*\([^()]*(?:prononciation|API|écouter|listen)[^()]*\)/gi, "").replace(/\s+/g, " ").trim();
+  // sentences end with . ! ? before a capital letter, except after abbreviations ("av. J.-C.", "St.", initials)
+  const parts = [];
+  for (const c of t.split(/(?<=[.!?…])\s+(?=[A-ZÀ-ÖØ-Þ«"“(])/)){
+    if (parts.length && /(?:\b(?:av|apr|env|cf|ca|c|St|Ste|Mt|Dr|Mr|Mme|M|no|vol|etc|ap|J\.-C|Jr|Sr|vs)\.|\b[A-Z]\.)$/.test(parts[parts.length - 1])) parts[parts.length - 1] += " " + c;
+    else parts.push(c);
+  }
+  let out = "";
+  for (const p of parts){ if (out && (out + " " + p).length > max) break; out += (out ? " " : "") + p; if (--n <= 0) break; }
+  return out.trim().slice(0, max + 40);
+}
+async function wikiSection(lang, title, idx){
+  const j = await getJSON(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&action=parse&prop=text&disablelimitreport=1&disableeditsection=1&redirects=1&section=${idx}&page=` + encodeURIComponent(title));
+  const html = j.parse && j.parse.text && j.parse.text["*"]; if (!html) return "";
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  for (const x of doc.querySelectorAll("sup, table, figure, style, .reference, .mw-editsection, .thumb, .infobox, .bandeau, .hatnote, .metadata")) x.remove();
+  for (const p of doc.querySelectorAll("p")){ const t = (p.textContent || "").trim(); if (t.length > 90) return t; }
+  return "";
+}
+async function findWikiText(i){
+  const {checkCoords, titles} = await wikiEntity(i);
+  for (const [lang, title] of titles){
+    const j = await getJSON(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&action=query&redirects=1&prop=extracts|coordinates|info&inprop=url&exintro=1&explaintext=1&titles=` + encodeURIComponent(title));
+    const pg = j.query && j.query.pages && Object.values(j.query.pages)[0];
+    if (!pg || pg.missing !== undefined || !pg.extract || pg.extract.length < 60) continue;
+    if (checkCoords){ const c = pg.coordinates && pg.coordinates[0]; if (!c || d3.geoDistance([c.lon, c.lat], [D.lon[i], D.lat[i]])*6371 > 40) continue; }
+    const lead = firstSentences(pg.extract.split("\n").filter(Boolean).join(" "), 3, 420);
+    const facts = [];
+    try {
+      const s = await getJSON(`https://${lang}.wikipedia.org/w/api.php?format=json&origin=*&action=parse&prop=sections&redirects=1&page=` + encodeURIComponent(pg.title));
+      const secs = (s.parse && s.parse.sections) || [];
+      for (const [label, re] of WIKI_SECTIONS[lang]){
+        if (facts.length >= 2) break;
+        const sec = secs.find(x => x.toclevel === 1 && /^\d+$/.test(String(x.index)) && re.test((x.line || "").replace(/<[^>]+>/g, "").trim()));
+        if (!sec) continue;
+        const txt = await wikiSection(lang, pg.title, sec.index).catch(() => "");
+        if (txt) facts.push([label, firstSentences(txt, 2, 300)]);
+      }
+    } catch {}
+    return {lang, lead, facts, url:pg.fullurl || `https://${lang}.wikipedia.org/wiki/` + encodeURIComponent(pg.title)};
+  }
+  return null;
+}
+function wikiText(i){
+  const id = D.id[i];
+  if (WIKI_TXT.has(id)) return WIKI_TXT.get(id);
+  const st = wikiStore[id];
+  if (st !== undefined){ const pr = Promise.resolve(st || null); WIKI_TXT.set(id, pr); return pr; }
+  const pr = findWikiText(i).then(v => { wikiSave(id, v); return v; }, () => { WIKI_TXT.delete(id); return null; });
+  WIKI_TXT.set(id, pr);
+  return pr;
+}
+function fillDesc(i){
+  const box = $("#sh-desc"); if (!box) return;
+  const show = v => {
+    if (!box.isConnected || +box.dataset.idx !== i) return;
+    if (!v){ box.innerHTML = `<p class="desc">${esc(describe(i))}</p>`; return; }
+    box.innerHTML = `<p class="desc wk-lead">${esc(v.lead)}</p>
+      ${v.facts.length ? `<div class="wk-facts">${v.facts.map(([k, t]) => `<div class="wk-fact"><b>${esc(k)}</b><p>${esc(t)}</p></div>`).join("")}</div>` : ""}
+      <a class="wk-src" href="${esc(v.url)}" target="_blank" rel="noopener">Lire la suite sur Wikipédia${v.lang === "en" ? " (en anglais)" : ""} ↗</a>`;
+    box.classList.add("in");
+  };
+  let done = false;
+  wikiText(i).then(v => { done = true; show(v); });
+  // slow network: the generated text first, replaced when the article arrives
+  setTimeout(() => { if (!done && box.isConnected && !box.querySelector(".desc")) box.innerHTML = `<p class="desc">${esc(describe(i))}</p>`; }, 4000);
 }
 function wikiPhoto(i){
   const id = D.id[i];
@@ -2733,7 +2845,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11f";
+const APP_VERSION = "2026-10-11g";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
@@ -2870,11 +2982,11 @@ function openCitySheet(i, opts = {}){
     <div class="cs-more">
       <div class="sheet-photo" data-idx="${i}"><canvas></canvas><span class="ph-tag">Vue carte</span></div>
       ${owner}
+      <div class="wk" id="sh-desc" data-idx="${i}"><div class="wk-skel"><i></i><i></i><i></i></div></div>
       <div class="points">
         <div class="total"><span>Valeur</span><b><span id="cs-total">${fmt(D.pts[i])}</span> pts</b></div>
         <div class="breakdown">${bd}</div>
       </div>
-      <p class="desc">${esc(describe(i))}</p>
       <div class="facts">
         <div class="fact"><div class="k">${esc(regionType(i) || "Région")}</div><div class="v">${esc(reg || "—")}</div></div>
         <div class="fact"><div class="k">Population</div><div class="v mono">${popLabel(i)}</div></div>
@@ -2889,12 +3001,13 @@ function openCitySheet(i, opts = {}){
       <div class="sheet-actions">
         <button class="btn-s" id="sh-map">Voir sur la carte</button>
       </div>
-      <p class="hint">Données : GeoNames, Natural Earth, OpenStreetMap, Wikidata. Photo : Wikimedia Commons (auteur et licence en bas de la photo).</p>
+      <p class="hint">Données : GeoNames, Natural Earth, OpenStreetMap, Wikidata. Texte : Wikipédia (CC BY-SA). Photo : Wikimedia Commons (auteur et licence en bas de la photo).</p>
     </div>
    </div>`, {raw:true, peek:!!opts.peek, cls:"t" + t});
   $("#sheet").dataset.city = i;
   countUp($("#cs-num"), D.pts[i], 1100, 150);
   countUp($("#cs-total"), D.pts[i], 1300, 300);
+  fillDesc(i);
   geoFor(i).then(g => { const el = $("#sh-shape"); if (el && +$("#sheet").dataset.city === i) el.textContent = SHAPE_LABEL[g.kind]; });
   if (rollPending()) $("#sh-map").hidden = true;
   const ow = $("#sheet [data-owner]"); if (ow) ow.onclick = () => { if (ow.dataset.owner === S.uid) { closeSheet(); go("profile"); } else openPlayerSheet(ow.dataset.owner); };
