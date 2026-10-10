@@ -14,7 +14,7 @@ const env = await initializeTestEnvironment({ projectId: "demo-rngworld", firest
 let failed = 0;
 async function check(name, p){
   try { await p; console.log("ok    " + name); }
-  catch (e){ failed++; console.log(`::error::${name} -> ${String(e && e.message || e).split("\n")[0]}`); }
+  catch (e){ failed++; console.log(`::error::${name} -> ${String(e && e.message || e).replace(/\s+/g, " ")}`); }
 }
 const user = (uid, email) => env.authenticatedContext(uid, { email: email || uid + "@test.dev", email_verified: true }).firestore();
 const day = Math.floor(Date.now() / 864e5);
@@ -63,6 +63,20 @@ await check("cities cannot be removed", assertFails(updateDoc(A, { cities: [] })
 await check("claim cannot be stolen", assertFails(keep(bob, "bob", 1001, null, day)));
 await check("claim cannot be updated", assertFails(setDoc(doc(bob, "claims/1001"), { uid: "bob", t: 1 })));
 await check("profile edit after keep", assertSucceeds(setDoc(A, { color: "#654321" }, { merge: true })));
+
+// isolate: empty collection + 1 draw, and a non-empty collection + 3 draws
+await seed("players/eve", profile("eve"));
+const eve = user("eve"), E = doc(eve, "players/eve");
+await check("eve draw", assertSucceeds(updateDoc(E, { draws: { day, n: 1, t1: serverTimestamp() } })));
+d = await draws(eve, "eve");
+await check("eve keep (empty collection, 1 draw)", assertSucceeds(keep(eve, "eve", 4001, d.t1, d.day)));
+await seed("players/fay", { ...profile("fay"), cities: [{ id: 9, t: 1 }] });
+const fay = user("fay"), F = doc(fay, "players/fay");
+await check("fay draw 1", assertSucceeds(updateDoc(F, { draws: { day, n: 1, t1: serverTimestamp() } })));
+await check("fay draw 2", assertSucceeds(updateDoc(F, { "draws.n": 2, "draws.t2": serverTimestamp() })));
+await check("fay draw 3", assertSucceeds(updateDoc(F, { "draws.n": 3, "draws.t3": serverTimestamp() })));
+d = await draws(fay, "fay");
+await check("fay keep (1 city, 3 draws)", assertSucceeds(keep(fay, "fay", 5001, d.t3, d.day)));
 
 // next day
 await seed("players/carol", { ...profile("carol"), cities: [{ id: 5, t: 1 }], keepDay: day - 1, draws: { day: day - 1, n: 3, t1: new Date(), t2: new Date(), t3: new Date() } });
