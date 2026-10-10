@@ -1258,7 +1258,7 @@ function profileOf(i){
 }
 /* Every trait: keyword, icon, multiplier, and a plain definition (never about a specific city). */
 const FDEF = {
-  laval:     {k:"Laval",               ic:"capital",  x:435,  g:"Statut",     d:"C'est Laval."},
+  laval:     {k:"Laval",               ic:"capital",  x:435,  g:"Statut",     d:"C'est Laval.", hidden:true},
   capital:   {k:"Capitale",            ic:"capital",  x:2.5,  g:"Statut",     d:"Capitale d'un pays."},
   regional:  {k:"Capitale régionale",  ic:"chef",     x:1.3,  g:"Statut",     d:"Chef-lieu d'une région, d'un État ou d'une province."},
   first:     {k:"N°1 du pays",         ic:"one",      x:1.2,  g:"Statut",     d:"La ville la plus peuplée de son pays."},
@@ -3045,7 +3045,7 @@ function openRules(){
     <h3>Score</h3>
     <p class="rl-formula"><b>Score</b><i>=</i><span>Score de base</span><i>×</i><span>Critères</span></p>
     <p class="hint">Le score de base dépend surtout de la population. Chaque critère de la ville le multiplie.</p>
-    <button class="btn-s" id="rl-crit">Voir les ${Object.keys(FDEF).length} critères</button>
+    <button class="btn-s" id="rl-crit">Voir les ${Object.keys(FDEF).filter(k => !FDEF[k].hidden).length} critères</button>
     <h3>Rareté</h3>
     <div class="tr-list">${tiers}</div>
     <p class="hint" style="margin-top:18px">Données : GeoNames (CC BY 4.0), Natural Earth, OpenStreetMap, Wikidata, UNESCO, Smithsonian. Photos : Wikimedia Commons, auteur et licence indiqués sur chaque photo.</p>
@@ -3056,7 +3056,7 @@ function openRules(){
 const kM = v => v >= 1e9 ? String(v/1e9).replace(".", ",") + " Md" : v >= 1e6 ? (v/1e6) + " M" : (v/1e3) + " k";
 function openCriteria(){
   const groups = {};
-  for (const id in FDEF) (groups[FDEF[id].g] ||= []).push(FDEF[id]);
+  for (const id in FDEF) if (!FDEF[id].hidden) (groups[FDEF[id].g] ||= []).push(FDEF[id]);
   openSheet(`<div class="rules">
     <button class="btn-s alt" id="cr-back">← Règles</button>
     <h2 style="margin-top:12px">Critères</h2>
