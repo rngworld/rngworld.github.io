@@ -1475,6 +1475,9 @@ const fbConfigured = () => !!(CFG.firebase && CFG.firebase.apiKey && !/REMPLACE/
 let writeQ = Promise.resolve();
 const freshToday = () => ({d:dayKey(), used:0, cur:null, kept:null, seen:[]});
 
+/* Resolved once we know who is playing: a guest, or a signed-in player whose account has loaded.
+   The loading screen stays up until then, so a returning player never sees the guest screen first. */
+let storeReady; const STORE_READY = new Promise(r => storeReady = r);
 async function initStore(){
   S.guest = lsGet("rngworld.guest", null) || {today:freshToday()};
   if (!fbConfigured()){
@@ -1482,7 +1485,7 @@ async function initStore(){
     S.mode = "local"; S.uid = "local"; S.isOwner = true;
     S.me = lsGet("rngworld.local", null);
     if (S.me) S.players.set("local", S.me);
-    rebuildLocks(); S.ready = true; afterData();
+    rebuildLocks(); S.ready = true; afterData(); storeReady();
     return;
   }
   S.fb = firebase.initializeApp(CFG.firebase);
@@ -1503,7 +1506,7 @@ function onUser(user){
   S.user = user; S.players = new Map(); S.requests = new Map(); S.meLoaded = false;
   if (!user){
     S.mode = "guest"; S.uid = null; S.me = null; S.isOwner = false;
-    rebuildLocks(); S.ready = true; afterData(); return;
+    rebuildLocks(); S.ready = true; afterData(); storeReady(); return;
   }
   S.mode = "online"; S.uid = user.uid;
   if (S.guest && S.guest.today && S.guest.today.used){ S.guestHadDraws = true; S.guest = {today:freshToday()}; lsSet("rngworld.guest", S.guest); $("#card-slot").innerHTML = ""; }
@@ -1521,9 +1524,9 @@ function onUser(user){
     if (snap.metadata && snap.metadata.fromCache && !S.meLoaded) return;
     S.raw = new Map(snap.docs.map(d => [d.id, d.data()])); S.meLoaded = true;
     applyPlayers();
-    if (first){ first = false; S.ready = true; adoptGuest(); }
+    if (first){ first = false; S.ready = true; adoptGuest(); storeReady(); }
     afterData();
-  }, e => { console.warn("players", e); toast("Connexion à la partie perdue. Recharge la page."); }));
+  }, e => { console.warn("players", e); storeReady(); toast("Connexion à la partie perdue. Recharge la page."); }));
   const reqs = {from:new Map(), to:new Map()};
   const merge = () => { S.requests = new Map([...reqs.from, ...reqs.to]); scheduleRender(); };
   S.unsub.push(S.db.collection("requests").where("from", "==", S.uid).onSnapshot(s => { reqs.from = new Map(s.docs.map(d => [d.id, d.data()])); merge(); }, e => console.warn("req from", e)));
@@ -2896,7 +2899,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-12a";
+const APP_VERSION = "2026-10-12b";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
@@ -4091,6 +4094,8 @@ setInterval(() => {
     const setNavH = () => { const t = $(".tabs"); document.documentElement.style.setProperty("--navh", (getComputedStyle(t).display === "none" ? 0 : t.offsetHeight) + "px"); };
     setNavH(); addEventListener("resize", setNavH);
     fetch("countries-10m.json").then(r => r.json()).then(w => { G.c10 = topojson.feature(w, w.objects.countries).features; MapView.c10 = null; MapView.draw(); buildDetail(w); }).catch(() => {});
+    // signed-in players: wait for the account (at most 12 s, then the game shows whatever it has)
+    if (!S.ready){ $("#loading-msg").textContent = "Connexion à ton compte…"; await Promise.race([STORE_READY, store.catch(() => {}).then(() => sleep(12000))]); }
     $("#loading").classList.add("out");
     setTimeout(() => $("#loading").hidden = true, 450);
     go("draw");
