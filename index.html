@@ -2363,7 +2363,8 @@ const Stage = {
     return {fx:this.w/2, fy:top + Math.max(60, avail/2) + 10, half:Math.max(70, Math.min(this.w/2 - 16, avail/2 + 30))};
   },
   focusCam(i, g, uz = this.uz){ const L = this.layout(), rad = g ? g.rad : 12/6371; return {lon:D.lon[i], lat:D.lat[i], S:L.half/Math.sin(rad)*uz, tx:L.fx, ty:L.fy}; },
-  focusIdx(){ const t = today(); const id = t.cur != null ? t.cur : t.kept; return id != null && D.byId.has(id) ? D.byId.get(id) : null; },
+  focusIdx(){ if (this.drawing) return this.focusHold;   // the new city is known before its reveal: never show it early
+    const t = today(); const id = t.cur != null ? t.cur : t.kept; return id != null && D.byId.has(id) ? D.byId.get(id) : null; },
 
   start(idx){
     const from = Object.assign({}, this.cam), tier = D.tier[idx];
@@ -2688,10 +2689,10 @@ const Stage = {
     $("#st-pips").innerHTML = Array.from({length:DAILY}, (_, k) => `<i class="${k < left ? "on" : ""}"></i>`).join("");
     const cur = t.cur != null && D.byId.has(t.cur) ? D.byId.get(t.cur) : null;
     const kept = t.kept != null && D.byId.has(t.kept) ? D.byId.get(t.kept) : null;
-    const animating = !!this.anim;
+    const animating = !!this.anim, hold = animating || !!this.drawing;
     const shown = $("#card"), want = cur != null ? cur : kept;
-    if (!animating && want != null && (!shown || +$(".stamp", shown).dataset.idx !== want)) this.showCard(want, false);
-    if (!animating && want == null && shown) $("#card-slot").innerHTML = "";
+    if (!hold && want != null && (!shown || +$(".stamp", shown).dataset.idx !== want)) this.showCard(want, false);
+    if (!hold && want == null && shown) $("#card-slot").innerHTML = "";
     renderHeader();
     if (S.mode === "online" && !S.meLoaded){ foot.innerHTML = `<p class="stage-msg">Connexion à ton compte…</p>`; $("#st-title").textContent = ""; return; }
     if (S.mode === "online" && !S.me){ foot.innerHTML = `<p class="stage-msg">Choisis ton pseudo pour commencer.</p><div class="actions"><button class="btn btn-main" id="b-ob">Choisir mon pseudo</button></div>`; $("#b-ob").onclick = () => maybeOnboard(true); $("#st-title").textContent = "Bienvenue sur RNGWorld"; return; }
@@ -2856,7 +2857,7 @@ async function drawOne(){
   const t = Object.assign({}, today());
   if (t.kept || t.used >= DAILY) return;
   if (S.mode === "online"){
-    Stage.drawing = true; Stage.renderUI();
+    Stage.focusHold = Stage.focusIdx(); Stage.drawing = true; Stage.renderUI();
     let idx = null;
     try { idx = await serverDraw(); }
     catch (e){ console.warn("draw", e); toast(e && e.code === "limit" ? "Plus de tirages aujourd'hui." : "Tirage impossible pour l'instant. Réessaie."); if (e && e.code === "permission-denied") checkVersion(true); }
@@ -2895,7 +2896,7 @@ async function serverDraw(){
   return drawIdx(S.uid, d["t" + d.n]);
 }
 /* A new version of the game is online (rules and code change together): reload so nobody plays with old code. */
-const APP_VERSION = "2026-10-11l";
+const APP_VERSION = "2026-10-12a";
 async function checkVersion(force){
   try {
     const r = await fetch("version.json?" + Date.now(), {cache:"no-store"}), v = (await r.json()).v;
